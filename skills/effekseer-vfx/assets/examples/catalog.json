@@ -1,0 +1,311 @@
+{
+  "note": "Four ranged pairs (a projectile and the impact played where it arrives) and five single effects, one per common category. Scores and verdicts are an independent review (0-3 per rubric criterion) of renders in the skill's default capsule Lab, kept as a reference, not as verification of your build.",
+  "pairs": [
+    {
+      "name": "fire",
+      "projectile": "VFX_Projectile_Fire",
+      "impact": "VFX_Fire_Explosion",
+      "teaches": [
+        "boiling flipbook head with a stretched comet tail",
+        "world-space trails that cool into smoke",
+        "lopsided fireball thrown along the shot",
+        "dark scorch under glowing cracks",
+        "emissive strokes decaying into grey smoke (decay())"
+      ]
+    },
+    {
+      "name": "ice",
+      "projectile": "VFX_Projectile_Ice",
+      "impact": "VFX_Ice_Spikes",
+      "teaches": [
+        "crystal meshes with fresnel edges instead of painted spikes",
+        "navy alpha backing for value contrast on a bright core",
+        "prism fringe as a complementary accent",
+        "overshoot scale curve on eruption, then a timed shatter"
+      ]
+    },
+    {
+      "name": "poison",
+      "projectile": "VFX_Projectile_Poison",
+      "impact": "VFX_Poison_Cloud",
+      "teaches": [
+        "lobbed flight (arc) with a Track thread drawing the path",
+        "deformed procedural mesh as a glossy liquid body",
+        "complementary purple dark core and bruise smoke",
+        "colour ramps that cool acid green to murky grey",
+        "drops that collide with the floor"
+      ]
+    },
+    {
+      "name": "dark",
+      "projectile": "VFX_Projectile_Dark",
+      "impact": "VFX_Dark_Vortex",
+      "teaches": [
+        "an alpha-black body (Blend) that reads against a bright stage instead of another glow",
+        "inward motion: needles, dust and rubble eased into the centre (EaseInCubic travel)",
+        "a tilted accretion disk drawn in two halves so the horizon occludes its far side",
+        "a black impact frame before the white release",
+        "an orange complementary accent at 5-10% of the frame"
+      ]
+    }
+  ],
+  "historical_scores": {
+    "VFX_Projectile_Fire": {
+      "read": 3,
+      "timing": 2,
+      "layering": 3,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 3,
+      "tail": 2,
+      "identity": 3
+    },
+    "VFX_Fire_Explosion": {
+      "read": 2,
+      "timing": 3,
+      "layering": 3,
+      "shape_change": 3,
+      "motion": 3,
+      "placement": 3,
+      "tail": 3,
+      "identity": 3
+    },
+    "VFX_Projectile_Ice": {
+      "read": 2,
+      "timing": 2,
+      "layering": 1,
+      "shape_change": 1,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Ice_Spikes": {
+      "read": 2,
+      "timing": 3,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 3,
+      "tail": 2,
+      "identity": 3
+    },
+    "VFX_Projectile_Poison": {
+      "read": 2,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Poison_Cloud": {
+      "read": 3,
+      "timing": 3,
+      "layering": 3,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Projectile_Dark": {
+      "read": 2,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 1,
+      "identity": 2
+    },
+    "VFX_Dark_Vortex": {
+      "read": 2,
+      "timing": 3,
+      "layering": 3,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 3
+    },
+    "VFX_Hit_Heavy": {
+      "read": 3,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 3,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Slash_Fire": {
+      "read": 2,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Magic_Charge": {
+      "read": 2,
+      "timing": 3,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 3,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Shield_Dome": {
+      "read": 2,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 3,
+      "identity": 3
+    },
+    "VFX_Heal": {
+      "read": 2,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 3,
+      "tail": 2,
+      "identity": 2
+    }
+  },
+  "singles": [
+    {
+      "name": "hit",
+      "effect": "VFX_Hit_Heavy",
+      "teaches": [
+        "two-frame anticipation before a 5-frame white contact",
+        "jagged burst dissolving through a noise mask (DISSOLVE)",
+        "three spark tiers (spark_burst) that burst fast, then hang and droop",
+        "refraction wave and air bubble instead of a flat shock ring"
+      ]
+    },
+    {
+      "name": "slash",
+      "effect": "VFX_Slash_Fire",
+      "teaches": [
+        "slash_set: one blade read at three widths (afterimage, body, hot edge) plus a cel crescent",
+        "swing(): the arc lies in a yawed 3D swing plane, not painted on the screen",
+        "flame tongues peeling off the arc, hidden behind the body by depth test",
+        "embers and thin cut smoke as the exit"
+      ]
+    },
+    {
+      "name": "charge",
+      "effect": "VFX_Magic_Charge",
+      "teaches": [
+        "a long inward build (about one second) before exactly one release",
+        "orbit_band gyroscope rings on two tilted planes that tighten",
+        "imploding shells: the gather reads as a collapsing volume",
+        "release flash, bloom and sparks only at the end"
+      ]
+    },
+    {
+      "name": "shield",
+      "effect": "VFX_Shield_Dome",
+      "teaches": [
+        "fresnel shell and rim (falloff pow < 1 for a thin rim)",
+        "overshoot pop, a hold with scan bands, then a timed break",
+        "shell_fragments: real spherical sheets that separate when cutoff alone opens no visible holes",
+        "every fragment cleared before the duration ends"
+      ]
+    },
+    {
+      "name": "heal",
+      "effect": "VFX_Heal",
+      "teaches": [
+        "no impact frame: slow fade-in instead of a white contact",
+        "floor seal decal as the identity",
+        "rings, plus signs and motes that all travel upward and ease out",
+        "a gentle body bloom instead of a burst"
+      ]
+    }
+  ],
+  "historical_review": {
+    "date": "2026-10-10",
+    "stage": "the skill's default Lab (capsule stand-ins, standard view, default profile)",
+    "reviewers": "two independent subagents that saw only the strips, key-frame sheets, manifest entries and flags",
+    "verdicts": {
+      "VFX_Projectile_Fire": "ship",
+      "VFX_Fire_Explosion": "ship",
+      "VFX_Projectile_Ice": "iterate",
+      "VFX_Ice_Spikes": "ship",
+      "VFX_Projectile_Poison": "ship",
+      "VFX_Poison_Cloud": "ship",
+      "VFX_Projectile_Dark": "iterate",
+      "VFX_Dark_Vortex": "ship",
+      "VFX_Hit_Heavy": "ship",
+      "VFX_Slash_Fire": "ship",
+      "VFX_Magic_Charge": "ship",
+      "VFX_Shield_Dome": "ship",
+      "VFX_Heal": "ship"
+    },
+    "worst": {
+      "VFX_Projectile_Fire": {
+        "criterion": "motion",
+        "fix": "The trail smoke advects along the shot with the fireball (f27 near caster -> f42/f47 piled on the target) instead of lingering on the path; spawn the smoke layer in world space with no inherited projectile velocity and a slow eased upward drift so f42-f54 show a graded smoke line along the path that rises and thins."
+      },
+      "VFX_Fire_Explosion": {
+        "criterion": "read",
+        "fix": "The inward gather at f1-f4 is only a faint orange glow on the target and does not read; make the pre-detonation layer at f1-f7 a visible bright ember core with streaks converging on the target so the first lit tile already says fire."
+      },
+      "VFX_Projectile_Ice": {
+        "criterion": "layering",
+        "fix": "The lance (f1-f21) renders as one flat saturated blue wedge with only point sparkles on it; replace its texture/colour curve with a white-hot spine down the centre, a cyan-blue body and a navy rim (and add a thin additive white ribbon core inside the wedge) so the peak tiles f4-f13 show three brightness bands instead of a flat plastic colour."
+      },
+      "VFX_Ice_Spikes": {
+        "criterion": "shape_change",
+        "fix": "The crystal cluster fades/sinks away between f30 and f48 and only small chips appear at f53; instead, at the glint f48 swap the main crystals for 5-8 large shard pieces of the same crystals that split off and fall over f50-f66, so the cluster visibly cracks apart rather than dissolving."
+      },
+      "VFX_Projectile_Poison": {
+        "criterion": "layering",
+        "fix": "The glob body f3-f42 is mostly a flat olive fill with a lime rim and one white dot; darken the centre of the glob layer toward a visible purple core (radial colour gradient or a second smaller dark alpha-blend sprite inside) and widen the white wet highlight into a short crescent so the strongest tiles read as highlight / acid body / dark core."
+      },
+      "VFX_Poison_Cloud": {
+        "criterion": "shape_change",
+        "fix": "After the splash, the fume body f30-f68 is a thin translucent haze that only fades uniformly; make the fume layer denser and drive an alpha-threshold dissolve (noise erosion) from f40 to f80 so it breaks into separate low clumps that pile downwind rather than just lowering opacity."
+      },
+      "VFX_Projectile_Dark": {
+        "criterion": "tail",
+        "fix": "Nothing is left on the path behind the orb (f16-f36 path is empty; f45 only faint wisps on the target, f54-f60 empty); emit the broken wisp strokes and grey smoke wake in world space along the path from f6 to f30 with a 25-35 frame life that cools magenta to grey, plus a few hanging glints, so f40-f54 show a deliberate fading streak along the line of flight."
+      },
+      "VFX_Dark_Vortex": {
+        "criterion": "shape_change",
+        "fix": "The black-horizon sphere f6-f56 is a clean round disc that only scales up and then shrinks; apply UV distortion/noise erosion to its rim and a tilted, torn accretion-disk ring that rotates with it from f6 to f56 so the outline wobbles and tears before the collapse at f60-f61."
+      },
+      "VFX_Hit_Heavy": {
+        "criterion": "timing",
+        "fix": "The two-frame anticipation is effectively invisible: f1-f2 show only a faint glint on the target's chest. Make the pre-flash layer at f1-f2 a readable inward pinch (small bright core plus 4-6 short streaks converging on the contact point) so the white flash at f3-f5 lands after a visible wind-up."
+      },
+      "VFX_Slash_Fire": {
+        "criterion": "layering",
+        "fix": "The blade arc at f3-f8 is a flat pale cream; tint the arc body to saturated orange-red with a dark red trailing rim, keeping white only along the leading edge and the contact flash at f4-f5, so the slash itself reads as fire before the flame puffs appear at f11."
+      },
+      "VFX_Magic_Charge": {
+        "criterion": "layering",
+        "fix": "At the release f65-f68 and the tightened core f56-f63 everything is white plus pale blue; add a deep violet/navy rim layer behind the core and on the outer edge of the release shell (f68-f76) so there is a dark outer band under the white core and blue body."
+      },
+      "VFX_Shield_Dome": {
+        "criterion": "shape_change",
+        "fix": "During the hold f18-f80 the dome is a static flat blue sphere with only a faint scan band; drive a scrolling hex/noise UV distortion or a brighter scan band that clearly sweeps bottom-to-top every ~20 frames so the shell surface visibly moves between f18, f32, f70 and f80."
+      },
+      "VFX_Heal": {
+        "criterion": "layering",
+        "fix": "At the plateau f31-f40 the column is one flat mint green; add a white-hot inner core streak rising through the caster's body and a deeper teal/darker green outer fringe on the column edges so the peak tile shows core, body and rim."
+      }
+    },
+    "note": "VFX_Projectile_Ice and VFX_Projectile_Dark were judged iterate: they are complete, buildable examples with a known weakest point, not finished baselines."
+  }
+}

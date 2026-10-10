@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Projectile_Ice",
+  "role": "single ranged projectile",
+  "style": "stylized anime combat",
+  "dominant_shape": "narrow faceted lance, then grounded unequal crystalline spikes",
+  "palette": {
+    "core": [
+      240,
+      252,
+      255
+    ],
+    "body": [
+      90,
+      180,
+      255
+    ],
+    "dark": [
+      20,
+      40,
+      110
+    ],
+    "matter": [
+      150,
+      185,
+      215
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "launch",
+      "expect": "Blue faceted solid with thin hot tip"
+    },
+    {
+      "frame": 11,
+      "name": "midflight",
+      "expect": "Fast narrow head with separated chips"
+    },
+    {
+      "frame": 21,
+      "name": "arrival",
+      "expect": "Head reaches target"
+    },
+    {
+      "frame": 30,
+      "name": "tail",
+      "expect": "Falling shards and sinking mist"
+    },
+    {
+      "frame": 42,
+      "name": "clear",
+      "expect": "Path clears"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Frost mist",
+      "role": "sinking world residue",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f40"
+    },
+    {
+      "name": "1:Muzzle rings",
+      "role": "broken supporting shape: Muzzle rings",
+      "primitive": "Ring ",
+      "exit": "authored movement and fade; gone by absolute f16"
+    },
+    {
+      "name": "2:Lance trail",
+      "role": "thin direction carrier",
+      "primitive": "Track T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f33"
+    },
+    {
+      "name": "3:Prism warm",
+      "role": "broken supporting shape: Prism warm",
+      "primitive": "Track T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f33"
+    },
+    {
+      "name": "4:Prism gold",
+      "role": "broken supporting shape: Prism gold",
+      "primitive": "Track T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f33"
+    },
+    {
+      "name": "5:Frost rings",
+      "role": "ground footprint",
+      "primitive": "Ring ",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f31"
+    },
+    {
+      "name": "6:Shed shards",
+      "role": "falling solid chips",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "release at arrival, then fragment separation and RGB fade; gone by absolute f41"
+    },
+    {
+      "name": "7:Ice chips",
+      "role": "fine falling chips",
+      "primitive": "Sprite T_IceShard01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f39"
+    },
+    {
+      "name": "8:Navy chips",
+      "role": "dark falling chips",
+      "primitive": "Sprite T_Shard01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f40"
+    },
+    {
+      "name": "9:Twinkles",
+      "role": "broken supporting shape: Twinkles",
+      "primitive": "Sprite T_Star01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f33"
+    },
+    {
+      "name": "10:Cold bloom",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f27"
+    },
+    {
+      "name": "11:Navy back",
+      "role": "head contrast",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f25"
+    },
+    {
+      "name": "12:Lance",
+      "role": "faceted head silhouette",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f25"
+    },
+    {
+      "name": "13:Tip star",
+      "role": "small head accent",
+      "primitive": "Sprite T_Star01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f25"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

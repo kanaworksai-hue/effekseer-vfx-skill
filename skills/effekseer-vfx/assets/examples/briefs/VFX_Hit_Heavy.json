@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Hit_Heavy",
+  "role": "heavy melee hit",
+  "style": "stylized anime combat",
+  "dominant_shape": "Two-frame anticipation, white flash, dissolving jagged burst, eased sparks that hang and droop, dust.",
+  "palette": {
+    "core": [
+      255,
+      245,
+      220
+    ],
+    "body": [
+      255,
+      140,
+      40
+    ],
+    "dark": [
+      30,
+      14,
+      8
+    ],
+    "matter": [
+      185,
+      160,
+      135
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "beats": [
+    {
+      "frame": 1,
+      "name": "anticipation",
+      "expect": "A small warm glow gathers at the contact point"
+    },
+    {
+      "frame": 3,
+      "name": "contact",
+      "expect": "White flash and speed lines; the brightest frame of the effect"
+    },
+    {
+      "frame": 6,
+      "name": "burst",
+      "expect": "Jagged orange burst already larger than the flash and starting to dissolve"
+    },
+    {
+      "frame": 12,
+      "name": "air wave",
+      "expect": "Air bubble and tilted wave expand while sparks fly out fast"
+    },
+    {
+      "frame": 20,
+      "name": "hang",
+      "expect": "Heavy sparks slow down and droop; dust spreads low"
+    },
+    {
+      "frame": 30,
+      "name": "exit",
+      "expect": "Only thin dust and a few embers remain, then nothing"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Dark backing",
+      "role": "contrast",
+      "primitive": "Sprite T_SoftCircle (Blend)",
+      "exit": "fades out by absolute frame 17"
+    },
+    {
+      "name": "1:Anticipation",
+      "role": "anticipation",
+      "primitive": "Sprite T_Glow01",
+      "exit": "gone by absolute frame 3"
+    },
+    {
+      "name": "2:Contact flash",
+      "role": "contact",
+      "primitive": "Sprite T_Flare01",
+      "exit": "fades out by absolute frame 7"
+    },
+    {
+      "name": "3:Impact burst",
+      "role": "body",
+      "primitive": "Sprite T_Impact01 with dissolve cutoff",
+      "exit": "erodes through T_NoiseTile01 by absolute frame 12"
+    },
+    {
+      "name": "4:Speed lines",
+      "role": "contact",
+      "primitive": "Sprite T_SpeedLines01",
+      "exit": "fades out by absolute frame 9"
+    },
+    {
+      "name": "5:Heat bloom",
+      "role": "light",
+      "primitive": "Sprite T_Glow01",
+      "exit": "fades out by absolute frame 16"
+    },
+    {
+      "name": "6:Air bubble",
+      "role": "body",
+      "primitive": "Model shell",
+      "exit": "fades out by absolute frame 14"
+    },
+    {
+      "name": "7:Air wave",
+      "role": "body",
+      "primitive": "Ring tilted_ring",
+      "exit": "fades out by absolute frame 14"
+    },
+    {
+      "name": "8:Refraction wave",
+      "role": "body",
+      "primitive": "Sprite distortion ring",
+      "exit": "fades out by absolute frame 14"
+    },
+    {
+      "name": "9:Sparks streaks",
+      "role": "secondary",
+      "primitive": "Sprite T_Spark01 (spark_burst fast tier)",
+      "exit": "gone by absolute frame 12"
+    },
+    {
+      "name": "10:Sparks",
+      "role": "secondary",
+      "primitive": "Sprite T_Spark01 (spark_burst main tier)",
+      "exit": "gone by absolute frame 20"
+    },
+    {
+      "name": "11:Sparks heavy",
+      "role": "secondary",
+      "primitive": "Sprite T_Spark01 (spark_burst heavy tier, gravity)",
+      "exit": "gone by absolute frame 28"
+    },
+    {
+      "name": "12:Embers",
+      "role": "residue",
+      "primitive": "Sprite T_Glow01 motes",
+      "exit": "cool to red and fade by absolute frame 30"
+    },
+    {
+      "name": "13:Dust",
+      "role": "residue",
+      "primitive": "Sprite T_SmokeSheet01 smoke",
+      "exit": "thins out by absolute frame 30"
+    }
+  ],
+  "acceptance": [
+    "The contact is the brightest moment and lasts at most 5 frames",
+    "The burst changes shape (dissolves) instead of only scaling",
+    "Sparks burst fast, then hang and droop"
+  ],
+  "avoid": [
+    "A white blob that stays white after the contact",
+    "Uniform-speed sparks",
+    "An empty tail before frame 20"
+  ]
+}

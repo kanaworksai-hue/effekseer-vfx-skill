@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Magic_Charge",
+  "role": "self charge",
+  "style": "stylized anime combat",
+  "dominant_shape": "Motes and streaks accelerate inward while two tilted rune bands orbit the core like a gyroscope and tighten onto it, then a single flash confirms the charge.",
+  "palette": {
+    "core": [
+      235,
+      250,
+      255
+    ],
+    "body": [
+      120,
+      220,
+      255
+    ],
+    "dark": [
+      20,
+      40,
+      110
+    ],
+    "matter": [
+      60,
+      120,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster",
+  "beats": [
+    {
+      "frame": 4,
+      "name": "gather",
+      "expect": "Motes and streaks appear far out and start moving inward"
+    },
+    {
+      "frame": 24,
+      "name": "build",
+      "expect": "Two tilted bands orbit; shells implode onto a growing core"
+    },
+    {
+      "frame": 56,
+      "name": "tighten",
+      "expect": "Bands and shells have shrunk close to a bright core"
+    },
+    {
+      "frame": 65,
+      "name": "release",
+      "expect": "One white flash with a bloom and an outward shell: the only flash of the effect"
+    },
+    {
+      "frame": 78,
+      "name": "sparks",
+      "expect": "Release sparks slow down and cool to blue"
+    },
+    {
+      "frame": 88,
+      "name": "exit",
+      "expect": "Only a faint glow, then nothing"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Gathering motes",
+      "role": "inward motion",
+      "primitive": "Sprite T_Glow01 motes, eased travel inward",
+      "exit": "last instances end by absolute frame 80"
+    },
+    {
+      "name": "1:Gathering streaks",
+      "role": "inward motion",
+      "primitive": "Sprite T_Spark01 radial_sparks, EaseInCubic travel",
+      "exit": "last instances end by absolute frame 70"
+    },
+    {
+      "name": "2:Orbit ring A",
+      "role": "volume",
+      "primitive": "Ring orbit_band",
+      "exit": "shrinks and fades by absolute frame 64"
+    },
+    {
+      "name": "3:Orbit ring B",
+      "role": "volume",
+      "primitive": "Ring orbit_band",
+      "exit": "shrinks and fades by absolute frame 64"
+    },
+    {
+      "name": "4:Converging shell",
+      "role": "inward volume",
+      "primitive": "Model shell, scale 1 to 0.1",
+      "exit": "last shell ends by absolute frame 62"
+    },
+    {
+      "name": "5:Core",
+      "role": "body",
+      "primitive": "Sprite T_Glow01",
+      "exit": "grows until the release, gone by absolute frame 64"
+    },
+    {
+      "name": "6:Aura",
+      "role": "light",
+      "primitive": "Sprite T_Glow01",
+      "exit": "gone by absolute frame 64"
+    },
+    {
+      "name": "7:Charged flash",
+      "role": "release",
+      "primitive": "Sprite T_Flare01",
+      "exit": "fades out by absolute frame 70"
+    },
+    {
+      "name": "8:Charged bloom",
+      "role": "release",
+      "primitive": "Sprite T_Glow01",
+      "exit": "fades out by absolute frame 82"
+    },
+    {
+      "name": "9:Charged shell",
+      "role": "release",
+      "primitive": "Model shell",
+      "exit": "fades out by absolute frame 77"
+    },
+    {
+      "name": "10:Charged sparks",
+      "role": "secondary",
+      "primitive": "Sprite T_Spark01 radial_sparks",
+      "exit": "cool and fade by absolute frame 86"
+    }
+  ],
+  "acceptance": [
+    "The build moves inward for about a second before anything flashes",
+    "Exactly one release flash, after the build",
+    "Bands read as tilted 3D rings, not flat screen hoops"
+  ],
+  "avoid": [
+    "A flash at the start of the charge",
+    "Particles drifting outward during the build",
+    "A static glowing ball"
+  ]
+}

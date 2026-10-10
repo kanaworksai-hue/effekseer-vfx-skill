@@ -1,0 +1,13 @@
+# Python packages of the effekseer-vfx toolchain (installed by setup.sh into EFFEKSEER_VFX_HOME/venv).
+attrs==26.1.0
+cffi==2.1.1
+clr-loader==0.3.1
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+numpy==2.5.3
+pillow==12.3.0
+pycparser==3.0
+pythonnet==3.2.0
+referencing==0.37.0
+rpds-py==2026.6.3
+typing-extensions==4.16.0

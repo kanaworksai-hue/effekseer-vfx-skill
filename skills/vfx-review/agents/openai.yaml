@@ -1,0 +1,6 @@
+# Codex skill metadata (optional; other agents ignore this file).
+interface:
+  display_name: "VFX Review"
+  short_description: "Score a rendered VFX filmstrip against a fixed rubric"
+policy:
+  allow_implicit_invocation: true

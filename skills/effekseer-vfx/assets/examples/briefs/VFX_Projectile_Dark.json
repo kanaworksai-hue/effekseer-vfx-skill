@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Projectile_Dark",
+  "role": "single ranged projectile",
+  "style": "stylized anime combat",
+  "dominant_shape": "dense torn dark head; inward accretion, a delayed collapse",
+  "palette": {
+    "core": [
+      245,
+      225,
+      255
+    ],
+    "body": [
+      190,
+      95,
+      245
+    ],
+    "dark": [
+      12,
+      4,
+      25
+    ],
+    "matter": [
+      125,
+      110,
+      140
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "launch",
+      "expect": "Readable dark head within a broken violet rim"
+    },
+    {
+      "frame": 18,
+      "name": "midflight",
+      "expect": "Dust and needles converge on the moving head"
+    },
+    {
+      "frame": 36,
+      "name": "arrival",
+      "expect": "Head reaches target; broken wake remains"
+    },
+    {
+      "frame": 45,
+      "name": "tail",
+      "expect": "Grey-violet wake contracts and erodes"
+    },
+    {
+      "frame": 54,
+      "name": "clear",
+      "expect": "Wake clears"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Shadow wake",
+      "role": "contracting world residue",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f54"
+    },
+    {
+      "name": "1:Wake arcs",
+      "role": "broken world trail",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f54"
+    },
+    {
+      "name": "2:Violet halo",
+      "role": "subordinate head halo",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f45"
+    },
+    {
+      "name": "3:Wisp arcs",
+      "role": "turning head rim",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f46"
+    },
+    {
+      "name": "4:Inward needles",
+      "role": "inward speed carrier",
+      "primitive": "Sprite T_Spark01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f50"
+    },
+    {
+      "name": "5:Lens",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_DistortRing01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f42"
+    },
+    {
+      "name": "6:Seed core",
+      "role": "broken supporting shape: Seed core",
+      "primitive": "Sprite T_Smoke02",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f43"
+    },
+    {
+      "name": "7:Churn core",
+      "role": "torn absorptive head",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f45"
+    },
+    {
+      "name": "8:Drawn dust",
+      "role": "inward matter",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f52"
+    },
+    {
+      "name": "9:Hot center",
+      "role": "small core accent",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f41"
+    },
+    {
+      "name": "10:Hot wisps",
+      "role": "broken hot edge",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f44"
+    },
+    {
+      "name": "11:Ember underside",
+      "role": "local second-color accent",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f44"
+    },
+    {
+      "name": "12:Path glints",
+      "role": "world residue",
+      "primitive": "Sprite T_Star01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f54"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

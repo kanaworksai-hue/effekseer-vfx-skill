@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Dark_Vortex",
+  "role": "paired ranged impact",
+  "style": "stylized anime combat",
+  "dominant_shape": "dense torn dark head; inward accretion, a delayed collapse",
+  "palette": {
+    "core": [
+      245,
+      225,
+      255
+    ],
+    "body": [
+      190,
+      95,
+      245
+    ],
+    "dark": [
+      12,
+      4,
+      25
+    ],
+    "matter": [
+      125,
+      110,
+      140
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Projectile_Dark"
+  },
+  "anchor": "body",
+  "beats": [
+    {
+      "frame": 6,
+      "name": "open",
+      "expect": "Dark horizon within tilted torn accretion disk"
+    },
+    {
+      "frame": 30,
+      "name": "feeding",
+      "expect": "Matter spirals in rather than radiating out"
+    },
+    {
+      "frame": 60,
+      "name": "tightening",
+      "expect": "Mass contracts before release"
+    },
+    {
+      "frame": 63,
+      "name": "collapse",
+      "expect": "Brief white release over dark frame"
+    },
+    {
+      "frame": 72,
+      "name": "body exit",
+      "expect": "Broken disk-plane arcs cool"
+    },
+    {
+      "frame": 87,
+      "name": "tail",
+      "expect": "Thin contracting residue"
+    },
+    {
+      "frame": 99,
+      "name": "clear",
+      "expect": "All residue clears"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Back glow",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f62"
+    },
+    {
+      "name": "1:Inflow dust",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f80"
+    },
+    {
+      "name": "2:Disk far 0",
+      "role": "distant accretion plane",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f74"
+    },
+    {
+      "name": "3:Disk far 1",
+      "role": "distant accretion plane",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f76"
+    },
+    {
+      "name": "4:Swirl back",
+      "role": "broken supporting shape: Swirl back",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f67"
+    },
+    {
+      "name": "5:Event horizon",
+      "role": "absorptive central silhouette",
+      "primitive": "Sprite T_Dot01",
+      "exit": "authored movement and fade; gone by absolute f62"
+    },
+    {
+      "name": "6:Hot singularity",
+      "role": "broken supporting shape: Hot singularity",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f60"
+    },
+    {
+      "name": "7:Photon wisps",
+      "role": "broken supporting shape: Photon wisps",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f66"
+    },
+    {
+      "name": "8:Disk near 0",
+      "role": "foreground accretion plane",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f74"
+    },
+    {
+      "name": "9:Disk near 1",
+      "role": "foreground accretion plane",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f76"
+    },
+    {
+      "name": "10:Swirl front",
+      "role": "broken supporting shape: Swirl front",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f71"
+    },
+    {
+      "name": "11:Gravitational lensing",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_DistortRing01",
+      "exit": "authored movement and fade; gone by absolute f62"
+    },
+    {
+      "name": "12:Rubble infall",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Shard01",
+      "exit": "authored movement and fade; gone by absolute f74"
+    },
+    {
+      "name": "13:Infall pivot",
+      "role": "rotating inward coordinate system",
+      "primitive": "None ",
+      "exit": "authored movement and fade; gone by absolute f62"
+    },
+    {
+      "name": "13:Infall pivot/0:Disk matter",
+      "role": "broken supporting shape: Disk matter",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f76"
+    },
+    {
+      "name": "13:Infall pivot/1:Disk streaks",
+      "role": "broken supporting shape: Disk streaks",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f61"
+    },
+    {
+      "name": "14:Impact frame",
+      "role": "broken supporting shape: Impact frame",
+      "primitive": "Sprite T_SoftCircle",
+      "exit": "authored movement and fade; gone by absolute f64"
+    },
+    {
+      "name": "15:Collapse rim",
+      "role": "broken supporting shape: Collapse rim",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f67"
+    },
+    {
+      "name": "16:Collapse core",
+      "role": "broken supporting shape: Collapse core",
+      "primitive": "Sprite T_Smoke02",
+      "exit": "flow/erosion and color fade; gone by absolute f69"
+    },
+    {
+      "name": "17:Release bloom",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f80"
+    },
+    {
+      "name": "18:Slice line",
+      "role": "broken supporting shape: Slice line",
+      "primitive": "Sprite T_Streak01",
+      "exit": "authored movement and fade; gone by absolute f76"
+    },
+    {
+      "name": "19:Cross line",
+      "role": "broken supporting shape: Cross line",
+      "primitive": "Sprite T_Streak01",
+      "exit": "authored movement and fade; gone by absolute f74"
+    },
+    {
+      "name": "20:Release arc A",
+      "role": "broken supporting shape: Release arc A",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f80"
+    },
+    {
+      "name": "21:Release arc B",
+      "role": "broken supporting shape: Release arc B",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f79"
+    },
+    {
+      "name": "22:Release arc A smoke",
+      "role": "broken supporting shape: Release arc A smoke",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f98"
+    },
+    {
+      "name": "23:Release arc B smoke",
+      "role": "broken supporting shape: Release arc B smoke",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f95"
+    },
+    {
+      "name": "24:Ground spiral",
+      "role": "ground footprint",
+      "primitive": "Sprite T_Vortex01",
+      "exit": "flow/erosion and color fade; gone by absolute f88"
+    },
+    {
+      "name": "25:Spiral brand",
+      "role": "ground footprint",
+      "primitive": "Sprite T_Vortex01",
+      "exit": "flow/erosion and color fade; gone by absolute f98"
+    },
+    {
+      "name": "26:Ember rim",
+      "role": "broken supporting shape: Ember rim",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f78"
+    },
+    {
+      "name": "27:Release refraction",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_DistortRing01",
+      "exit": "authored movement and fade; gone by absolute f76"
+    },
+    {
+      "name": "28:Release needles",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f90"
+    },
+    {
+      "name": "29:Ground pivot",
+      "role": "floor-space coordinate system",
+      "primitive": "None ",
+      "exit": "authored movement and fade; gone by absolute f99"
+    },
+    {
+      "name": "29:Ground pivot/0:Residue",
+      "role": "post-collapse floor matter",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f96"
+    },
+    {
+      "name": "30:Afterglints",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Star01",
+      "exit": "authored movement and fade; gone by absolute f98"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

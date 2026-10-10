@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Ice_Spikes",
+  "role": "paired ranged impact",
+  "style": "stylized anime combat",
+  "dominant_shape": "narrow faceted lance, then grounded unequal crystalline spikes",
+  "palette": {
+    "core": [
+      240,
+      252,
+      255
+    ],
+    "body": [
+      90,
+      180,
+      255
+    ],
+    "dark": [
+      20,
+      40,
+      110
+    ],
+    "matter": [
+      150,
+      185,
+      215
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Projectile_Ice"
+  },
+  "anchor": "ground",
+  "beats": [
+    {
+      "frame": 4,
+      "name": "ground cue",
+      "expect": "Torn frost outlines eruption"
+    },
+    {
+      "frame": 12,
+      "name": "contact",
+      "expect": "Short glint and unequal crystal silhouette"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "Facets remain blue while halo climbs"
+    },
+    {
+      "frame": 48,
+      "name": "fracture cue",
+      "expect": "Brief glint announces break"
+    },
+    {
+      "frame": 54,
+      "name": "break",
+      "expect": "Solid cluster yields to separated chips"
+    },
+    {
+      "frame": 66,
+      "name": "tail",
+      "expect": "Only falling pieces and low mist"
+    },
+    {
+      "frame": 81,
+      "name": "clear",
+      "expect": "Ground and shards clear"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Frost creep",
+      "role": "ground footprint",
+      "primitive": "Sprite T_Smoke02",
+      "exit": "flow/erosion and color fade; gone by absolute f60"
+    },
+    {
+      "name": "1:Frost cracks",
+      "role": "ground footprint",
+      "primitive": "Sprite T_Crack01",
+      "exit": "authored movement and fade; gone by absolute f61"
+    },
+    {
+      "name": "2:Frost glow",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f57"
+    },
+    {
+      "name": "3:Core crystals",
+      "role": "dominant ground silhouette",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "flow/erosion and color fade; gone by absolute f47"
+    },
+    {
+      "name": "4:Outer crystals",
+      "role": "asymmetric crystal mass",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "flow/erosion and color fade; gone by absolute f50"
+    },
+    {
+      "name": "5:Outer shards",
+      "role": "small peripheral silhouette",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "fragment separation and RGB fade; gone by absolute f53"
+    },
+    {
+      "name": "6:Ripple crystals",
+      "role": "shot-direction eruption",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "flow/erosion and color fade; gone by absolute f55"
+    },
+    {
+      "name": "7:Crystal glow",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f46"
+    },
+    {
+      "name": "8:Eruption glint",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Star01",
+      "exit": "authored movement and fade; gone by absolute f13"
+    },
+    {
+      "name": "9:Cold wave R",
+      "role": "broken supporting shape: Cold wave R",
+      "primitive": "Ring T_Trail02",
+      "exit": "flow/erosion and color fade; gone by absolute f22"
+    },
+    {
+      "name": "10:Cold wave G",
+      "role": "broken supporting shape: Cold wave G",
+      "primitive": "Ring T_Trail02",
+      "exit": "flow/erosion and color fade; gone by absolute f22"
+    },
+    {
+      "name": "11:Cold wave B",
+      "role": "broken supporting shape: Cold wave B",
+      "primitive": "Ring T_Trail02",
+      "exit": "flow/erosion and color fade; gone by absolute f23"
+    },
+    {
+      "name": "12:Cold refraction",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_DistortRing01",
+      "exit": "authored movement and fade; gone by absolute f22"
+    },
+    {
+      "name": "13:Halo 0",
+      "role": "broken supporting shape: Halo 0",
+      "primitive": "Ring ",
+      "exit": "authored movement and fade; gone by absolute f34"
+    },
+    {
+      "name": "14:Halo 1",
+      "role": "broken supporting shape: Halo 1",
+      "primitive": "Ring ",
+      "exit": "authored movement and fade; gone by absolute f45"
+    },
+    {
+      "name": "15:Facet glints",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Star01",
+      "exit": "authored movement and fade; gone by absolute f59"
+    },
+    {
+      "name": "16:Frost mist",
+      "role": "sinking world residue",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f78"
+    },
+    {
+      "name": "17:Kicked dust",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f44"
+    },
+    {
+      "name": "18:Frozen rubble",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Shard01",
+      "exit": "authored movement and fade; gone by absolute f48"
+    },
+    {
+      "name": "19:Ice dust",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f58"
+    },
+    {
+      "name": "20:Crack glint",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Flare01",
+      "exit": "authored movement and fade; gone by absolute f50"
+    },
+    {
+      "name": "21:Shatter shards",
+      "role": "separated breaking solids",
+      "primitive": "Model T_NoiseTile02",
+      "exit": "fragment separation and RGB fade; gone by absolute f78"
+    },
+    {
+      "name": "22:Shard chips",
+      "role": "fine shatter residue",
+      "primitive": "Sprite T_IceShard01",
+      "exit": "fragment separation and RGB fade; gone by absolute f74"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame",
+    "At f54-66 the large cluster gives way to independently moving fragments"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

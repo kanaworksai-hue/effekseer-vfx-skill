@@ -1,0 +1,18 @@
+{
+  "name": "effekseer-vfx",
+  "version": "0.1.0",
+  "description": "Author real-time game VFX as code for Effekseer and verify them in real Godot renders: briefs, textures, recipes, EffekseerCore build, filmstrip review and independent scoring.",
+  "author": {
+    "name": "KanaWorks_AI",
+    "url": "https://x.com/KanaWorks_AI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "vfx",
+    "effekseer",
+    "godot",
+    "gamedev",
+    "particles",
+    "game-effects"
+  ]
+}

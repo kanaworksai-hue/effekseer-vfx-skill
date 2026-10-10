@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VFX design brief",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "effect_id", "role", "style", "dominant_shape", "palette", "delivery", "anchor", "beats", "layer_plan", "acceptance", "avoid"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "effect_id": {"type": "string", "pattern": "^VFX_[A-Za-z0-9_]+$"},
+    "role": {"type": "string", "minLength": 1},
+    "style": {"type": "string", "minLength": 1},
+    "dominant_shape": {"type": "string", "minLength": 1},
+    "palette": {
+      "type": "object", "required": ["core", "body", "dark", "matter"],
+      "additionalProperties": {"type": "array", "minItems": 3, "maxItems": 4, "items": {"type": "integer", "minimum": 0, "maximum": 255}}
+    },
+    "delivery": {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["self", "melee", "projectile", "targeted", "area"]}, "projectile": {"type": "string"}}, "additionalProperties": false},
+    "anchor": {"type": "string"},
+    "reference": {"type": ["object", "null"], "properties": {"id": {"type": "string"}}, "required": ["id"]},
+    "beats": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["frame", "name", "expect"], "additionalProperties": false, "properties": {"frame": {"type": "integer", "minimum": 0}, "name": {"type": "string", "minLength": 1}, "expect": {"type": "string", "minLength": 1}}}},
+    "layer_plan": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "role", "primitive", "exit"], "additionalProperties": false, "properties": {"name": {"type": "string", "minLength": 1}, "role": {"type": "string", "minLength": 1}, "primitive": {"type": "string", "minLength": 1}, "exit": {"type": "string", "minLength": 1}}}},
+    "acceptance": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "avoid": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  }
+}

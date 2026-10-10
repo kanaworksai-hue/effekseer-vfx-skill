@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Slash_Fire",
+  "role": "basic melee",
+  "style": "stylized anime combat",
+  "dominant_shape": "Red-orange-white swept blade, then distorted flame tongues peel upward off the arc with embers and thin smoke.",
+  "palette": {
+    "core": [
+      255,
+      245,
+      225
+    ],
+    "body": [
+      255,
+      110,
+      30
+    ],
+    "dark": [
+      70,
+      35,
+      25
+    ],
+    "matter": [
+      125,
+      110,
+      100
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "beats": [
+    {
+      "frame": 1,
+      "name": "sweep",
+      "expect": "Inclined blade begins cutting"
+    },
+    {
+      "frame": 5,
+      "name": "contact",
+      "expect": "Short hot blade edge"
+    },
+    {
+      "frame": 18,
+      "name": "body",
+      "expect": "Flame peels away from the blade"
+    },
+    {
+      "frame": 32,
+      "name": "exit",
+      "expect": "Smoke and embers fade upward"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Swing plane",
+      "role": "main shape or supporting structure",
+      "primitive": "None ",
+      "exit": "authored erosion/fade; gone by absolute frame 22"
+    },
+    {
+      "name": "0:Swing plane/0:Afterimage",
+      "role": "main shape or supporting structure",
+      "primitive": "Ring T_Trail01",
+      "exit": "authored erosion/fade; gone by absolute frame 22"
+    },
+    {
+      "name": "0:Swing plane/1:Blade body",
+      "role": "main shape or supporting structure",
+      "primitive": "Ring T_Trail01",
+      "exit": "authored erosion/fade; gone by absolute frame 17"
+    },
+    {
+      "name": "0:Swing plane/2:Hot edge",
+      "role": "contact or hot accent",
+      "primitive": "Ring T_Trail02",
+      "exit": "authored erosion/fade; gone by absolute frame 13"
+    },
+    {
+      "name": "0:Swing plane/3:Refraction arc",
+      "role": "subordinate light or refraction",
+      "primitive": "Ring T_DistortHaze01",
+      "exit": "authored erosion/fade; gone by absolute frame 17"
+    },
+    {
+      "name": "0:Swing plane/4:Cel crescent",
+      "role": "contact or hot accent",
+      "primitive": "Sprite T_Slash02",
+      "exit": "authored erosion/fade; gone by absolute frame 10"
+    },
+    {
+      "name": "1:Heat bloom",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored erosion/fade; gone by absolute frame 18"
+    },
+    {
+      "name": "2:Flame tongues",
+      "role": "main shape or supporting structure",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "authored erosion/fade; gone by absolute frame 35"
+    },
+    {
+      "name": "3:Heat haze",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "authored erosion/fade; gone by absolute frame 34"
+    },
+    {
+      "name": "4:Sparks",
+      "role": "secondary or residue",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored erosion/fade; gone by absolute frame 29"
+    },
+    {
+      "name": "5:Cut smoke",
+      "role": "secondary or residue",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "authored erosion/fade; gone by absolute frame 34"
+    },
+    {
+      "name": "6:Rising embers",
+      "role": "secondary or residue",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored erosion/fade; gone by absolute frame 34"
+    },
+    {
+      "name": "7:Heat haze",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "authored erosion/fade; gone by absolute frame 30"
+    }
+  ],
+  "acceptance": [
+    "Blade crosses the target in an inclined plane",
+    "Flame becomes the exit after the blade fades"
+  ],
+  "avoid": [
+    "A stationary crescent sticker",
+    "A white blob hiding the blade"
+  ]
+}

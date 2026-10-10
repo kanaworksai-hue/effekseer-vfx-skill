@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Fire_Explosion",
+  "role": "paired ranged impact",
+  "style": "stylized anime combat",
+  "dominant_shape": "turbulent comet and ascending cooling smoke",
+  "palette": {
+    "core": [
+      255,
+      250,
+      220
+    ],
+    "body": [
+      255,
+      120,
+      30
+    ],
+    "dark": [
+      60,
+      30,
+      20
+    ],
+    "matter": [
+      125,
+      110,
+      100
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Projectile_Fire"
+  },
+  "anchor": "body",
+  "beats": [
+    {
+      "frame": 4,
+      "name": "gather",
+      "expect": "Inward gathering at target"
+    },
+    {
+      "frame": 10,
+      "name": "contact",
+      "expect": "White-hot detonation lasts only a few frames"
+    },
+    {
+      "frame": 18,
+      "name": "body",
+      "expect": "Orange fire survives white flash"
+    },
+    {
+      "frame": 30,
+      "name": "rise",
+      "expect": "Asymmetric rolling fire rises"
+    },
+    {
+      "frame": 54,
+      "name": "tail",
+      "expect": "Grey smoke thins while ascending"
+    },
+    {
+      "frame": 78,
+      "name": "clear",
+      "expect": "All fire and smoke clear"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Scorch",
+      "role": "ground footprint",
+      "primitive": "Sprite T_Crack01",
+      "exit": "authored movement and fade; gone by absolute f55"
+    },
+    {
+      "name": "1:Glowing cracks",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Crack01",
+      "exit": "authored movement and fade; gone by absolute f41"
+    },
+    {
+      "name": "2:Dark backing",
+      "role": "broken supporting shape: Dark backing",
+      "primitive": "Sprite T_SoftCircle",
+      "exit": "authored movement and fade; gone by absolute f29"
+    },
+    {
+      "name": "3:Gather",
+      "role": "anticipation",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f6"
+    },
+    {
+      "name": "4:Inward fuse",
+      "role": "anticipation",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f7"
+    },
+    {
+      "name": "5:Detonation flash",
+      "role": "broken supporting shape: Detonation flash",
+      "primitive": "Sprite T_Flare01",
+      "exit": "authored movement and fade; gone by absolute f12"
+    },
+    {
+      "name": "6:Fire core",
+      "role": "broken supporting shape: Fire core",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f14"
+    },
+    {
+      "name": "7:Smoke billow",
+      "role": "ascending cooling mass",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f76"
+    },
+    {
+      "name": "8:Fireball",
+      "role": "rolling fire body",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f40"
+    },
+    {
+      "name": "9:Mushroom",
+      "role": "ascending lobe",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f51"
+    },
+    {
+      "name": "10:Ground lick A",
+      "role": "ground footprint",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f21"
+    },
+    {
+      "name": "11:Ground lick B",
+      "role": "ground footprint",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f27"
+    },
+    {
+      "name": "12:Ground lick A smoke",
+      "role": "ground footprint",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f40"
+    },
+    {
+      "name": "13:Ground lick B smoke",
+      "role": "ground footprint",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f50"
+    },
+    {
+      "name": "14:Refraction wave",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_DistortRing01",
+      "exit": "authored movement and fade; gone by absolute f22"
+    },
+    {
+      "name": "15:Heat haze",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_DistortHaze01",
+      "exit": "flow/erosion and color fade; gone by absolute f58"
+    },
+    {
+      "name": "16:Ground licks",
+      "role": "ground footprint",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f50"
+    },
+    {
+      "name": "17:Shrapnel sparks streaks",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f16"
+    },
+    {
+      "name": "18:Shrapnel sparks",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f42"
+    },
+    {
+      "name": "19:Shrapnel sparks heavy",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f50"
+    },
+    {
+      "name": "20:Blow-through streaks",
+      "role": "broken supporting shape: Blow-through streaks",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f22"
+    },
+    {
+      "name": "21:Char debris",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Shard01",
+      "exit": "authored movement and fade; gone by absolute f52"
+    },
+    {
+      "name": "22:Ground dust",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f36"
+    },
+    {
+      "name": "23:Rising embers",
+      "role": "broken supporting shape: Rising embers",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f57"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

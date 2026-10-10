@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Projectile_Poison",
+  "role": "single ranged projectile",
+  "style": "stylized anime combat",
+  "dominant_shape": "heavy glossy lob; directional splatter, wet pool and low fumes",
+  "palette": {
+    "core": [
+      235,
+      255,
+      200
+    ],
+    "body": [
+      140,
+      215,
+      60
+    ],
+    "dark": [
+      70,
+      30,
+      85
+    ],
+    "matter": [
+      115,
+      105,
+      125
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "launch",
+      "expect": "Glossy green liquid lobe with bruised shadow"
+    },
+    {
+      "frame": 21,
+      "name": "apex",
+      "expect": "Heavy droplets fall below the lob"
+    },
+    {
+      "frame": 42,
+      "name": "arrival",
+      "expect": "Head reaches target along an arc"
+    },
+    {
+      "frame": 54,
+      "name": "tail",
+      "expect": "Detached drops fall; fume loses saturation"
+    },
+    {
+      "frame": 66,
+      "name": "late tail",
+      "expect": "Thin low murky residue"
+    },
+    {
+      "frame": 72,
+      "name": "clear",
+      "expect": "No hanging liquid head"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Fume trail",
+      "role": "cooling world residue",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f72"
+    },
+    {
+      "name": "1:Acid thread",
+      "role": "thin arc direction carrier",
+      "primitive": "Track T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f52"
+    },
+    {
+      "name": "2:Drips",
+      "role": "falling liquid strands",
+      "primitive": "Sprite T_Spark01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f68"
+    },
+    {
+      "name": "3:Heavy drops",
+      "role": "falling liquid weight",
+      "primitive": "Sprite T_Dot01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f72"
+    },
+    {
+      "name": "4:Bubbles",
+      "role": "wet particle identity",
+      "primitive": "Sprite T_Bubble01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f62"
+    },
+    {
+      "name": "5:Spores",
+      "role": "slow drifting residue",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f70"
+    },
+    {
+      "name": "6:Acid glow",
+      "role": "subordinate head halo",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f50"
+    },
+    {
+      "name": "7:Dark core",
+      "role": "bruised head contrast",
+      "primitive": "Sprite T_SoftCircle",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f47"
+    },
+    {
+      "name": "8:Glob",
+      "role": "heavy liquid head",
+      "primitive": "Model ",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f47"
+    },
+    {
+      "name": "9:Goo strands",
+      "role": "head deformation",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f50"
+    },
+    {
+      "name": "10:Hot center",
+      "role": "small core accent",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f47"
+    },
+    {
+      "name": "11:Highlight",
+      "role": "wet surface accent",
+      "primitive": "Sprite T_Dot01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f46"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

@@ -1,0 +1,6 @@
+# Codex skill metadata (optional; other agents ignore this file).
+interface:
+  display_name: "Effekseer VFX"
+  short_description: "Game VFX as code with Effekseer, checked in real Godot renders"
+policy:
+  allow_implicit_invocation: true

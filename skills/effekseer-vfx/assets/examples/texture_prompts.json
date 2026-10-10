@@ -1,0 +1,139 @@
+{
+  "background": "black; white/grayscale effect mask",
+  "note": "Prompts for the painted example textures, plus templates for common painted shapes that are not shipped (source says which). Regenerate them with any image generation model and process them with `vfx process-texture`; outputs differ between models.",
+  "prompts": [
+    {
+      "id": "T_IceShard01",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX ice fragment particle texture. ONE isolated long pointed ICE CRYSTAL SHARD, centered on pure BLACK square background with 20% empty margin. Monochrome white and pale gray only; narrow asymmetric triangular crystal with 3 crisp faceted planes, sharp jagged break at base and a razor point at top. Flat hand-painted stylized sprite with clear high-contrast silhouette at 256 pixels, clean broad plane highlights without realistic background reflection. No group of crystals, no scene, no floor, no shadow, no character, no text, no logo, no UI, no frost cloud, no ambient glow. Suitable for tumbling particle fragments.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_Crack01",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: game VFX ground crack particle MASK. ONE isolated radial branching fracture pattern WHITE on pure BLACK square background, viewed exactly from above. 7 irregular main cracks branching outward from an empty dark center, narrow sharp lightning-like fractured stone fissures with few angular fragments and discontinuous edges, sparse striking silhouette; grayscale only. Centered with 15% empty margin. No stone surface fill, no surrounding ground, no scene, no perspective, no shadows, no text, no logo, no UI, no outer frame. Suitable for additive or dark tinted alpha-blended ground-plane sprite at 512px.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_Explosion01",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX sprite MASK. One isolated stylized anime EXPLOSION CLOUD puff, monochrome WHITE to gray on pure BLACK square background, centered with 15% empty black margin. Roughly round compact fireball made of 7-9 overlapping rounded bulbous lobes of different sizes, cel-shaded with hard-edged shading: bright white lit tops, mid gray undersides, and several dark crescent creases between lobes. Chunky readable silhouette with a few small detached round puffs near the edge. Hand-painted fantasy action RPG style. No color, no soft blurry glow, no rays, no text, no frame, no ground, no characters.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_Smoke02",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX particle sprite MASK. One isolated hand-painted stylized SMOKE WISP, monochrome WHITE to dark gray on pure BLACK square background, centered with 15% empty black margin. Soft elongated curling plume that swirls in an S-shape with one curled hook at the top, thick rounded body, feathered semi-transparent edges, gentle internal swirl strokes, darker gray at the tail. Painterly fantasy game style, soft but with a clearly readable silhouette. No color, no flame, no hard outline, no text, no frame, no ground, no characters.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_ExplosionSheet01",
+      "size": 1024,
+      "grid": [
+        4,
+        4
+      ],
+      "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one animation frame of the SAME fiery EXPLOSION billow, monochrome WHITE/gray on pure BLACK. Frame 1: small hot compact burst. Frames 2-6: rapidly expanding rolling billowy fireball with cauliflower lobes, bright white dense core with gray self-shadowed folds. Frames 7-12: the cloud keeps growing slowly, becomes thinner and darker gray, holes open inside it. Frames 13-16: wispy breaking-up tatters dissipating to almost nothing. Every frame is centered in its own cell with black margin so nothing touches cell borders; scale grows smoothly frame to frame; consistent lighting from top. Grayscale only, hand-painted stylized AAA fantasy action game VFX style, soft but readable shapes. No grid lines, no numbers, no text, no frame borders, no scene, no ground, no character, no color.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_SmokeSheet01",
+      "size": 1024,
+      "grid": [
+        4,
+        4
+      ],
+      "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one animation frame of the SAME SMOKE PUFF, monochrome WHITE/gray on pure BLACK. Frame 1: small dense round puff. Frames 2-8: the puff billows outward and curls, soft rounded lobes with gentle internal shading and wispy edges. Frames 9-16: it grows slowly, thins, edges break up into curling wisps and holes until only faint tatters remain. Every frame is centered in its own cell with black margin so nothing touches cell borders; size grows smoothly frame to frame; consistent soft lighting from top. Grayscale only, stylized hand-painted AAA action game VFX smoke, soft and volumetric. No grid lines, no numbers, no text, no borders, no scene, no ground, no character, no color.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_WispTrail01",
+      "size": "512x256",
+      "post": "rows 355-905 of the 1254px original cropped at full width (keeps horizontal tiling), resized to 512x256, alpha = luminance, RGB white; not the default centred processing",
+      "prompt": "Use case: stylized-concept. Asset type: reusable real-time game VFX texture mask, square 1024x1024, to be wrapped around a ring/arc mesh (U = along the arc, horizontal; V = across the band, vertical). Draw a HORIZONTAL band of 6 to 8 thin energy wisp strands flowing left to right across the full width, pure WHITE to light gray on pure BLACK. Strands have varying thickness (one bright thick strand near the upper third, several hairline strands), they taper, split, overlap and drift slightly up and down, with several broken gaps and feathered ends, like anime energy swirl brush strokes / wind streaks. The band occupies the middle 60% of the height; top and bottom 20% stay pure black. Seamless and tileable horizontally: strands must continue across the left and right edges at the same heights. Grayscale only, crisp hand-painted anime VFX style, high contrast, no blur glow outside the strokes. No text, no frame, no scene, no character, no sparkles, no circles.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_Slash01",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX particle texture mask, square single sprite. Create one WHITE sword-energy slash arc on a pure BLACK background. Isolated crescent sweeping from lower-left toward upper-right, razor sharp tapered tips, bright solid core, sparse fine streaks within the crescent, high silhouette clarity, energetic hand-painted fantasy combat style. Occupy 75% of canvas, centered with empty black padding on all sides. Grayscale only, clean thin shape, suitable for additive blending at 512x512. No character, no weapon, no scene, no floor, no shadows, no text, no logo, no frame, no UI, no surrounding sparks, no bloom outside silhouette. This is a reusable VFX texture, not an illustration.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Flame01",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: reusable real-time game VFX sprite mask. One isolated stylized FLAME tongue, monochrome WHITE to gray on pure BLACK, centered square canvas, 15% empty margin. Sharp curling upward flame prongs, asymmetric flowing wisps, hot white broad core with a few dark cutouts, tapering elegant sharp tips. Hand-painted fantasy action game VFX particle, readable at 256 pixels. Flat sprite with no 3D shading, no scene, no floor, no smoke cloud, no surrounding embers, no character, no text, no logo, no UI, no illustration background. Suitable for additive blending and particle rotation.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Lightning01",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: real-time fantasy game VFX particle mask. One isolated sharply angular branching LIGHTNING BOLT, WHITE on pure BLACK, grayscale only. Bolt runs diagonally from upper-left to lower-right, 3 fine secondary branches, irregular aggressive zigzags, intensely white slim core, no fuzzy large glow. Centered composition with 12% black padding. Clean readable silhouette suitable at 256x256, suitable additive particle sprite. No scene, no ground, no clouds, no character, no text, no logo, no frame, no UI, no illustration background.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Rune01",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: game VFX magical glyph sprite mask. Create one isolated top-down fantasy MAGIC CIRCLE in WHITE thin light strokes on a pure BLACK square canvas. Two concentric broken circles, six long radial triangular geometric sigils with abstract angular nonlinguistic rune strokes, inner six-point geometry and empty center. Energetic irregular light-line gaps, slight varying line weight; mystical summoning glyph used as a rotating world-space particle, NOT a UI icon, NOT text. High-contrast grayscale, centered with 12% black padding, clear silhouette at 512px. No scene, no floor, no shadows, no character, no readable alphabet, no words, no logo, no frame, no UI. Do not add a filled background or broad bloom.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Smoke01",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: game VFX particle sprite mask. One isolated hand-painted SMOKE PUFF, monochrome WHITE to gray on pure BLACK background. Centered square canvas with 15% empty black margin. Asymmetric billowing organic puff with 4 overlapping broad soft lobes, transparent-looking wispy fringes and several dark interior voids, no outline. Flat grayscale opacity texture with no directional lighting or realistic 3D shadows, no scene, no ground, no fire, no character, no text, no logo, no border, no UI. Readable broad structure when reduced to 256px. Suitable alpha-blended dust, poison cloud or mist particle sprite.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Impact01",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: real-time action RPG VFX impact sprite MASK. One isolated sharp stylized impact burst, monochrome WHITE on pure BLACK square background, centered with 15% margin. Strong asymmetrical six pointed starburst, razor tapered diagonal spikes, bright compact jagged central energy silhouette, three broken crescent cuts within the shape, very sparse narrow secondary strokes. Hand-painted anime combat impact, readable at 256px, solid energetic graphic shape rather than blurry light. No circular outline, no clouds, no scene, no floor, no character, no text, no logo, no UI, no illustration. Suitable for additive particle blending.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_Flame02",
+      "size": 256,
+      "prompt": "Use case: stylized-concept. Asset type: reusable real-time game VFX sprite MASK. One isolated stylized anime FLAME, monochrome WHITE to gray on pure BLACK square background, centered with 15% empty black margin on every side. Tall teardrop fire body leaning slightly right, with three separated curling licks at the top, two small detached ember flecks above, a rounded bright solid base, and a few dark teardrop cutouts inside. Hand-painted cel-shaded fantasy action RPG style with crisp hard edges and only two or three gray tones. No color, no glow halo, no smoke, no text, no frame, no ground, no characters.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Lightning02",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: real-time fantasy game VFX sprite MASK. One isolated LIGHTNING STRIKE bolt running straight VERTICALLY from the top center to the bottom center of the square canvas, WHITE on pure BLACK, grayscale only. Thick intensely white jagged main trunk with sharp angular zigzags, tapering slightly toward the bottom, with 4-5 thin forked side branches that split off downward at acute angles and end in fine points. Crisp hard edges, stylized anime action look, only a very thin faint gray glow hugging the trunk. 8% empty black margin at left and right; the bolt touches near the top and bottom. No color, no clouds, no ground, no text, no frame.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Rune02",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: game VFX magical glyph sprite MASK. One isolated top-down fantasy HOLY MAGIC CIRCLE drawn in WHITE light strokes on a pure BLACK square canvas, perfectly centered and perfectly circular, with 6% empty black margin. Design: a bold thick outer ring, a thin second ring just inside it, a band of small evenly spaced abstract angular nonlinguistic glyph marks between two rings, an eight-pointed star built from two overlapping squares, a small inner circle with a four-petal flower motif, and an empty dark center. Clean crisp vector-like lines of two different weights, elegant and symmetric. No color, no glow blur, no real letters or text, no frame, no perspective tilt.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_IceSpikes01",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX sprite MASK. One isolated cluster of stylized ICE CRYSTAL SPIKES erupting upward, monochrome WHITE and pale gray on pure BLACK square background, centered with 10% empty black margin. Five sharp faceted prismatic spikes of different heights fanning out from a shared narrow base at the bottom center: one tall central spike, two medium spikes leaning left and right, two short outer spikes. Each spike has 2-3 flat cel-shaded facet planes in distinct gray values with thin bright white edge highlights and razor points. Hand-painted fantasy action RPG style, crisp hard edges. No color, no glow blur, no snow, no ground, no text, no frame.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_Vortex01",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX sprite MASK. One isolated top-down SWIRLING VORTEX / spiral energy whirlpool, monochrome WHITE to gray on pure BLACK square background, perfectly centered and circular with 8% empty black margin. Five tapered curved brush-stroke arms spiraling clockwise into the center like a galaxy or hurricane, each arm thick near the middle radius and thinning to a sharp wispy tail at the outside, with fine streak lines following the rotation, and a small empty dark hole in the exact center. Hand-painted anime action style with crisp edges and a few detached streak fragments between arms. No color, no blur glow, no text, no frame.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_Slash02",
+      "size": 512,
+      "prompt": "Use case: stylized-concept. Asset type: real-time game VFX sprite MASK. One isolated wide sword SLASH crescent, WHITE on pure BLACK square background, grayscale only, centered with 8% empty black margin. A broad bold crescent moon arc opening downward-left, sweeping from the lower-left tip over the top to the right tip: razor-sharp solid white leading outer edge, the inner side breaking up into long ragged brush-stroke streaks and torn speed lines that fade to gray, both tips tapering to needle points, and a few thin detached streak slivers trailing inside the curve. Hand-painted anime action game style, high contrast, very crisp. No color, no blur glow, no sword, no character, no text, no frame.",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_FlameSheet01",
+      "size": 1024,
+      "grid": [
+        4,
+        4
+      ],
+      "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one frame of the SAME seamlessly LOOPING FLAME tongue, monochrome WHITE/gray on pure BLACK. A single stylized fire flame rising from a rounded base at the bottom-center of each cell, licking upward with 2-3 sharp curling prongs; across the 16 frames the prongs flicker, sway left and right, split off a small detached wisp that rises and vanishes, and the cycle returns to frame 1 shape so it loops. Bright white hot core near the base, grayer thinner tips. Same size and same base position in every cell, with black margin so nothing touches cell borders. Grayscale only, hand-painted stylized AAA fantasy game VFX. No grid lines, no numbers, no text, no borders, no scene, no logs, no ground, no character, no color.",
+      "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    }
+  ]
+}

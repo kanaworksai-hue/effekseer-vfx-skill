@@ -1,0 +1,121 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-10",
+ "method": "Reconstructed one-class A/B: the shipped example with one class of problem reintroduced (BEFORE) and the shipped example (AFTER), each built and captured by `vfx review` in the default capsule Lab (standard view, default profile, seed 1729). Frames are cropped, scaled and laid out only.",
+ "cases": [
+  {
+   "id": "fire_contact_residue",
+   "image": "case_images/fire_contact_residue.png",
+   "effect_id": "VFX_Fire_Explosion",
+   "moments": [
+    1,
+    9,
+    18,
+    42,
+    60,
+    78
+   ],
+   "before": {
+    "evidence_id": "176cb0f3652941b4bb4cd2d9217fdcba",
+    "change": "contact held 14+ frames, fireball white-hot to 55%",
+    "frame_sha256": [
+     "cd3fe8459a3d4e0d109ff51cb3df808db0c59427d30cc4122542084176f13350",
+     "ca2b380c2fe36cbe24eb8fb2b20656f5d35b1d2a4a1447ce3bbc344e913974c9",
+     "9cba5bbab0e30def9b5b7f6a6a0e6c46206bfa4073ed1694a75eecb3742490ab",
+     "d7b58c40a2d6d23568ff601824fa958e1eb47b3b8ff85a1db64966dfaf0d4ca0",
+     "03f0114390ef629b25ae4da7d11dbbfaa940ff6d391066f42f9e02f50f807868",
+     "5787277c2a6fe3ac87215dd6bbd1e0925bdf43b0b601fbfc8f3830029ba6064f"
+    ]
+   },
+   "after": {
+    "evidence_id": "dc3c6304a673457d9e53717f73f39a9a",
+    "change": "shipped example: 3-frame flash, fireball cools from frame 12",
+    "frame_sha256": [
+     "cd3fe8459a3d4e0d109ff51cb3df808db0c59427d30cc4122542084176f13350",
+     "8d028957e774cd2aaa8f8215e4fc75e394241ebd46f3d3a4f65009ff976116b7",
+     "f8f3848f8ad622c9ed861a4b03cc1b41ed3df9a7098e263e9d3e5778c14ee8a9",
+     "d7b58c40a2d6d23568ff601824fa958e1eb47b3b8ff85a1db64966dfaf0d4ca0",
+     "03f0114390ef629b25ae4da7d11dbbfaa940ff6d391066f42f9e02f50f807868",
+     "5787277c2a6fe3ac87215dd6bbd1e0925bdf43b0b601fbfc8f3830029ba6064f"
+    ]
+   },
+   "image_sha256": "08e00a9d6b6dd436a5201a02222cb8f2c5d38f455b1acbfa5c1fc1c5af0b56e3"
+  },
+  {
+   "id": "projectile_tail",
+   "image": "case_images/projectile_tail.png",
+   "effect_id": "VFX_Projectile_Fire",
+   "moments": [
+    6,
+    15,
+    27,
+    39,
+    54,
+    60
+   ],
+   "before": {
+    "evidence_id": "39b78f690efb4093af054a7a3c9229e8",
+    "change": "trail smoke life 14-18, sheet played at 2 frames/cell, 1.0 s",
+    "frame_sha256": [
+     "57a32b28d586fa3958ffd6442d314fe751d519f3faa1696b1348ffe3c72ecd0b",
+     "3791b7e8af25b7ac37f2a15457ace1e0037eb1ef642076827631a72596805db4",
+     "ec22b9bdf64407ca9be432cc1274f113bfb4c961c2d763c34610ddb4dadcea42",
+     "50851982dbdbbeb6de6308c28ba8e1682ec5bd7ab1603d8b50fa8f1f386b4921",
+     "5787277c2a6fe3ac87215dd6bbd1e0925bdf43b0b601fbfc8f3830029ba6064f",
+     "5787277c2a6fe3ac87215dd6bbd1e0925bdf43b0b601fbfc8f3830029ba6064f"
+    ]
+   },
+   "after": {
+    "evidence_id": "a097de6ccb1d4ec98a0a309764c14280",
+    "change": "shipped example: trail smoke life 38-42, 4 frames/cell, 1.2 s",
+    "frame_sha256": [
+     "637a689b761b3e52061ab64180adf640a6f48ad17847b0e156da79b7fe4a4d65",
+     "438ac530fed287bac4cb64f0108c1a99b3f70be4df14a80b0620d1e3283b7187",
+     "a94ec4e6355a4893f1120be7fea366b04fcae7eac09783282fc1d2afcf6a5b10",
+     "bf316546ba19bc2bef3a086258ec8fc4d333d9658fde2ef138134d27b4e1f928",
+     "a94c56752d67ece4dde0fabf1bfd8bec0e5a997940f7642ccfb55629e62f4187",
+     "7b7ad71bdeb21885a36cea1ec41c2381d38de45e449a002aeaae6a0bbb78c025"
+    ]
+   },
+   "image_sha256": "f6e83a17f9806c0231ed3547d954407d2311c05ade56fecee5ac280936498d22"
+  },
+  {
+   "id": "shield_breakup",
+   "image": "case_images/shield_breakup.png",
+   "effect_id": "VFX_Shield_Dome",
+   "moments": [
+    18,
+    81,
+    90,
+    96,
+    99,
+    108
+   ],
+   "before": {
+    "evidence_id": "6fb210d99f9b4367a6e695454583866c",
+    "change": "break by the shell cutoff curve alone",
+    "frame_sha256": [
+     "80c0b840c75cdaeff35e90ec6ee113016858adcf90606b1394c40ec6789a3aba",
+     "705a810976d233112cb8886fe8ea9c1fc34b6624f00700700191aed5ea2bd24f",
+     "69283083fc8d2677e7814278b9fd1b3347a85bc8857e3dbf430dd12fed015b03",
+     "42dcca7274291319f0732f5d4b5ca7d2daab4d6f06d5bd2deef6dbaf6bd93e6a",
+     "49270d2f2fa3581fe9c85619a6f560c7c21bba1c2c169633e4289bb33c13b50a",
+     "5787277c2a6fe3ac87215dd6bbd1e0925bdf43b0b601fbfc8f3830029ba6064f"
+    ]
+   },
+   "after": {
+    "evidence_id": "7e68edeabf7342edb3c1a6ceb032d9d8",
+    "change": "shipped example: cutoff plus six separating spherical sheets",
+    "frame_sha256": [
+     "80c0b840c75cdaeff35e90ec6ee113016858adcf90606b1394c40ec6789a3aba",
+     "705a810976d233112cb8886fe8ea9c1fc34b6624f00700700191aed5ea2bd24f",
+     "1f99a5d140c651ec9b35be7c3aa72764e540a7752ba1559bf29a2cd06e0f9e59",
+     "09f12785af3bb763b1dadc93d9b7f7d46471093003fab3d06cad3f622ce8f090",
+     "a8fa6089dc3ea1ca1345db573e7d2794bcaf19c10c14e9213d66583bd05d77f0",
+     "5787277c2a6fe3ac87215dd6bbd1e0925bdf43b0b601fbfc8f3830029ba6064f"
+    ]
+   },
+   "image_sha256": "43a0a56060ae8991bb4b64d888e1435ac1fc0704ffcb078145171ec710af8c1a"
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+{
+  "purpose": "Independent review of one effect's filmstrip. The reviewer is not the author: it gets the strip image(s), the manifest entry (id, category, element, duration, peak, impact, design) and this rubric, but not the recipe code, so it judges what is on screen rather than what was intended.",
+  "inputs": ["vfx/previews/strips/<ID>.png", "optional vfx/previews/strips/<ID>_bright.png", "optional vfx/previews/strips/<ID>_compare.png", "the effect's manifest entry", "the effect's flags from metrics.json"],
+  "scale": {"0": "missing or wrong", "1": "present but weak; a player would not notice it", "2": "clearly works", "3": "reads instantly and has a distinct identity"},
+  "criteria": [
+    {"id": "read", "question": "From the first lit tile alone, can you tell what the effect is (hit, slash, element, buff...)?", "look_at": "first 2-3 lit tiles"},
+    {"id": "timing", "question": "Is there anticipation -> contact -> body -> secondary -> dissipation (or the slow fade-in / inward build for heals, buffs and charges)? Is the contact the brightest moment and only 2-5 frames long?", "look_at": "tile frame labels against manifest peak"},
+    {"id": "layering", "question": "At the strongest tile, is there a white-hot core, a saturated body and a darker rim or residue, rather than one flat colour?", "look_at": "peak tile; bright-background strip if provided"},
+    {"id": "shape_change", "question": "Does the main shape erode, sweep, or distort over time, or does it only scale and fade like a sticker?", "look_at": "the main shape across consecutive tiles"},
+    {"id": "motion", "question": "Do secondary particles burst fast and then slow down, and move the way the element should (fire up, ice falls, dark draws in, holy descends or rises)?", "look_at": "secondary particles across tiles"},
+    {"id": "placement", "question": "Do arcs, columns and ground decals sit on or under the dummy rather than beside it or floating?", "look_at": "all tiles"},
+    {"id": "tail", "question": "Does the last third still show deliberate dissipation, or is it empty or cut off?", "look_at": "last third of the strip"},
+    {"id": "identity", "question": "Would this be distinguishable from other effects of the same category if it were recoloured grey?", "look_at": "whole strip; overview pages for siblings"}
+  ],
+  "output": {
+    "format": "JSON",
+    "schema": {"id": "effect id", "scores": {"<criterion id>": "0-3"}, "worst": "criterion id with the lowest score", "fix": "one concrete change for the worst criterion, in recipe terms (layer, timing, texture, motion)", "verdict": "ship | iterate"},
+    "rules": ["Score only what is visible; do not trust the design note.", "verdict is iterate when any score is below 2.", "Name one fix only: each iteration round changes one class of problem."]
+  }
+}

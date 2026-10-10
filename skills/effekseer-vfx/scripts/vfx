@@ -1,0 +1,22 @@
+#!/bin/sh
+# effekseer-vfx command line. Run as `sh <skill>/scripts/vfx <command>`; `vfx --help` lists the commands.
+# Uses the toolchain installed by setup.sh in EFFEKSEER_VFX_HOME (default ~/.cache/effekseer-vfx).
+set -eu
+SCRIPTS=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+TOOLCHAIN=${EFFEKSEER_VFX_HOME:-$HOME/.cache/effekseer-vfx}
+PYTHON="$TOOLCHAIN/venv/bin/python"
+if [ ! -x "$PYTHON" ]; then
+  # doctor and --help run on the system Python so an agent can find out what to install.
+  PYTHON=$(command -v python3 || true)
+  if [ -z "$PYTHON" ]; then
+    echo '{"ok": false, "error": {"type": "SetupRequired", "message": "python3 is not installed"}}'
+    exit 2
+  fi
+fi
+export DOTNET_ROOT="$TOOLCHAIN/dotnet"
+export EFFEKSEER_AI_BIN_DIR="$TOOLCHAIN/effekseer/Effekseer1.80.7Win/Tool/bin"
+export PYTHONPATH="$SCRIPTS${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONDONTWRITEBYTECODE=1
+# Keep the current directory (the game project) off sys.path: a project file named like a module must not shadow it.
+export PYTHONSAFEPATH=1
+exec "$PYTHON" -m vfxkit "$@"

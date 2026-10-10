@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Projectile_Fire",
+  "role": "single ranged projectile",
+  "style": "stylized anime combat",
+  "dominant_shape": "turbulent comet and ascending cooling smoke",
+  "palette": {
+    "core": [
+      255,
+      250,
+      220
+    ],
+    "body": [
+      255,
+      120,
+      30
+    ],
+    "dark": [
+      60,
+      30,
+      20
+    ],
+    "matter": [
+      125,
+      110,
+      100
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "launch",
+      "expect": "Small white core inside orange head"
+    },
+    {
+      "frame": 15,
+      "name": "midflight",
+      "expect": "Broken comet tongue and upward peeling fire"
+    },
+    {
+      "frame": 27,
+      "name": "arrival",
+      "expect": "Head reaches target; trail stays in world"
+    },
+    {
+      "frame": 42,
+      "name": "cooling",
+      "expect": "Smoke moves up while hot material thins"
+    },
+    {
+      "frame": 54,
+      "name": "tail",
+      "expect": "Thin grey smoke still changing"
+    },
+    {
+      "frame": 72,
+      "name": "clear",
+      "expect": "No persistent head or path"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Smoke trail",
+      "role": "world-space cooling smoke",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f69"
+    },
+    {
+      "name": "1:Flame trail",
+      "role": "ascending shed fire",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f53"
+    },
+    {
+      "name": "2:Flame wisps",
+      "role": "head churn",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f35"
+    },
+    {
+      "name": "3:Embers",
+      "role": "ascending residue",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f55"
+    },
+    {
+      "name": "4:Flung sparks",
+      "role": "backward speed carrier",
+      "primitive": "Sprite T_Spark01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f37"
+    },
+    {
+      "name": "5:Heat bloom",
+      "role": "subordinate head halo",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f35"
+    },
+    {
+      "name": "6:Heat wake",
+      "role": "subordinate refraction",
+      "primitive": "Sprite T_DistortHaze01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f45"
+    },
+    {
+      "name": "7:Comet tail",
+      "role": "backward head silhouette",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f33"
+    },
+    {
+      "name": "8:Fireball",
+      "role": "rolling fire body",
+      "primitive": "Sprite T_ExplosionSheet01",
+      "exit": "release at arrival, then flow/erosion and color fade; gone by absolute f34"
+    },
+    {
+      "name": "9:Hot core",
+      "role": "narrow thermal core",
+      "primitive": "Sprite T_Glow01",
+      "exit": "release at arrival, then authored movement and fade; gone by absolute f33"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

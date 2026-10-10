@@ -1,0 +1,23 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  authoring:
+    # Pure-Python checks: no EffekseerCore or Godot on CI runners, so build/render tests skip.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the authoring toolchain
+        env:
+          EFFEKSEER_VFX_HOME: ${{ runner.temp }}/effekseer-vfx
+        run: |
+          sh skills/effekseer-vfx/scripts/setup.sh --authoring-only
+          "$EFFEKSEER_VFX_HOME/venv/bin/python" -m pip install pytest==9.1.1
+      - name: Tests
+        env:
+          EFFEKSEER_VFX_HOME: ${{ runner.temp }}/effekseer-vfx
+        run: '"$EFFEKSEER_VFX_HOME/venv/bin/python" -m pytest -q tests'

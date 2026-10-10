@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Poison_Cloud",
+  "role": "paired ranged impact",
+  "style": "stylized anime combat",
+  "dominant_shape": "heavy glossy lob; directional splatter, wet pool and low fumes",
+  "palette": {
+    "core": [
+      235,
+      255,
+      200
+    ],
+    "body": [
+      140,
+      215,
+      60
+    ],
+    "dark": [
+      70,
+      30,
+      85
+    ],
+    "matter": [
+      115,
+      105,
+      125
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Projectile_Poison"
+  },
+  "anchor": "body",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "contact",
+      "expect": "Short acid splatter"
+    },
+    {
+      "frame": 12,
+      "name": "body",
+      "expect": "Uneven wet pool forms beneath target"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "Low fumes and droplets have distinct weights"
+    },
+    {
+      "frame": 54,
+      "name": "cooling",
+      "expect": "Fumes turn murky purple-grey"
+    },
+    {
+      "frame": 78,
+      "name": "tail",
+      "expect": "Wet pool thins with low moving haze"
+    },
+    {
+      "frame": 105,
+      "name": "clear",
+      "expect": "No lingering pool or smoke"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Acid pool",
+      "role": "persistent wet ground footprint",
+      "primitive": "Sprite T_Smoke02",
+      "exit": "flow/erosion and color fade; gone by absolute f104"
+    },
+    {
+      "name": "1:Pool sheen",
+      "role": "small wet reflected highlight",
+      "primitive": "Sprite T_Smoke02",
+      "exit": "flow/erosion and color fade; gone by absolute f84"
+    },
+    {
+      "name": "2:Acid glints",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Star01",
+      "exit": "authored movement and fade; gone by absolute f90"
+    },
+    {
+      "name": "3:Splash shadow",
+      "role": "broken supporting shape: Splash shadow",
+      "primitive": "Sprite T_Explosion01",
+      "exit": "flow/erosion and color fade; gone by absolute f10"
+    },
+    {
+      "name": "4:Splash core",
+      "role": "broken supporting shape: Splash core",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f4"
+    },
+    {
+      "name": "5:Splash flash",
+      "role": "brief contact",
+      "primitive": "Sprite T_Explosion01",
+      "exit": "authored movement and fade; gone by absolute f4"
+    },
+    {
+      "name": "6:Splash strokes",
+      "role": "broken supporting shape: Splash strokes",
+      "primitive": "Ring T_WispTrail01",
+      "exit": "flow/erosion and color fade; gone by absolute f11"
+    },
+    {
+      "name": "7:Burst puff",
+      "role": "liquid impact body",
+      "primitive": "Sprite T_Explosion01",
+      "exit": "flow/erosion and color fade; gone by absolute f25"
+    },
+    {
+      "name": "8:Sick glow",
+      "role": "subordinate light or refraction",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f50"
+    },
+    {
+      "name": "9:Bruise smoke",
+      "role": "bruised low underside",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f88"
+    },
+    {
+      "name": "10:Lingering fumes",
+      "role": "cooling low poison mass",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f92"
+    },
+    {
+      "name": "11:Ground pivot",
+      "role": "floor-space coordinate system",
+      "primitive": "None ",
+      "exit": "authored movement and fade; gone by absolute f105"
+    },
+    {
+      "name": "11:Ground pivot/0:Low fog",
+      "role": "rolling floor matter",
+      "primitive": "Sprite T_SmokeSheet01",
+      "exit": "flow/erosion and color fade; gone by absolute f99"
+    },
+    {
+      "name": "11:Ground pivot/1:Pool bubbles",
+      "role": "ground footprint",
+      "primitive": "Sprite T_Bubble01",
+      "exit": "authored movement and fade; gone by absolute f99"
+    },
+    {
+      "name": "12:Acid drops",
+      "role": "broken supporting shape: Acid drops",
+      "primitive": "Sprite T_Dot01",
+      "exit": "authored movement and fade; gone by absolute f33"
+    },
+    {
+      "name": "13:Acid spatter",
+      "role": "broken supporting shape: Acid spatter",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored movement and fade; gone by absolute f21"
+    },
+    {
+      "name": "14:Spores",
+      "role": "slow drifting residue",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f97"
+    },
+    {
+      "name": "15:Purple spores",
+      "role": "secondary material and motion",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored movement and fade; gone by absolute f90"
+    }
+  ],
+  "acceptance": [
+    "Head/body silhouette reads at standard camera after the brightest accent",
+    "Material moves with its element and stays attached to the correct space",
+    "Final third shows deliberate dissipation, with clear end frame"
+  ],
+  "avoid": [
+    "Large persistent white blob erasing the body",
+    "Same round silhouette and radial motion recolored for each element",
+    "Full rigid shape disappearing while separate debris appears"
+  ]
+}

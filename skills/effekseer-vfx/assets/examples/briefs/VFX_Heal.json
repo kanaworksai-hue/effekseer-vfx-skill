@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Heal",
+  "role": "self heal",
+  "style": "stylized anime combat",
+  "dominant_shape": "No impact frame at all: slow seal, soft scrolling column, rings and plus signs drifting upward, a gentle bloom on the body.",
+  "palette": {
+    "core": [
+      225,
+      255,
+      235
+    ],
+    "body": [
+      110,
+      255,
+      170
+    ],
+    "dark": [
+      20,
+      90,
+      70
+    ],
+    "matter": [
+      40,
+      220,
+      160
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "ground",
+  "beats": [
+    {
+      "frame": 8,
+      "name": "seal",
+      "expect": "A green seal unfolds on the floor with a soft floor glow; no white flash"
+    },
+    {
+      "frame": 24,
+      "name": "column",
+      "expect": "A soft scrolling column rises; the first ring travels up"
+    },
+    {
+      "frame": 40,
+      "name": "rise",
+      "expect": "Plus signs and motes drift upward; a gentle bloom on the body"
+    },
+    {
+      "frame": 64,
+      "name": "thin",
+      "expect": "Column and rings thin out from the top down"
+    },
+    {
+      "frame": 90,
+      "name": "exit",
+      "expect": "The seal fades last; only a few motes remain"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Blessing seal",
+      "role": "ground identity",
+      "primitive": "Sprite T_Rune02 decal, slow spin",
+      "exit": "fades out by absolute frame 88"
+    },
+    {
+      "name": "1:Floor glow",
+      "role": "light",
+      "primitive": "Sprite T_Glow01 decal",
+      "exit": "fades out by absolute frame 88"
+    },
+    {
+      "name": "2:Soft column",
+      "role": "body",
+      "primitive": "Model column, scrolling T_NoiseStreak02",
+      "exit": "fades out by absolute frame 82"
+    },
+    {
+      "name": "3:Rising rings",
+      "role": "upward motion",
+      "primitive": "Ring shock_ring travelling up",
+      "exit": "last ring ends by absolute frame 74"
+    },
+    {
+      "name": "4:Plus signs",
+      "role": "identity",
+      "primitive": "Sprite T_Cross01 travelling up",
+      "exit": "last instances end by absolute frame 90"
+    },
+    {
+      "name": "5:Life motes",
+      "role": "upward motion",
+      "primitive": "Sprite T_Glow01 motes travelling up",
+      "exit": "last instances end by absolute frame 98"
+    },
+    {
+      "name": "6:Twinkles",
+      "role": "secondary",
+      "primitive": "Sprite T_Star01",
+      "exit": "gone by absolute frame 77"
+    },
+    {
+      "name": "7:Body bloom",
+      "role": "light",
+      "primitive": "Sprite T_Glow01 on the body",
+      "exit": "fades out by absolute frame 54"
+    }
+  ],
+  "acceptance": [
+    "No attack-style white flash anywhere",
+    "Everything travels upward and eases out",
+    "The seal is readable on the floor under the target"
+  ],
+  "avoid": [
+    "A contact flash or an outward burst",
+    "Particles falling or moving sideways",
+    "A solid green column that hides the body"
+  ]
+}

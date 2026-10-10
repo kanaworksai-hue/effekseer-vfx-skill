@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Shield_Dome",
+  "role": "self defense",
+  "style": "stylized anime combat",
+  "dominant_shape": "Fresnel shell pops with overshoot, scan bands sweep up; at expiry six partial spherical sheets separate and tumble outward, with fine shards between their gaps.",
+  "palette": {
+    "core": [
+      255,
+      245,
+      225
+    ],
+    "body": [
+      100,
+      170,
+      255
+    ],
+    "dark": [
+      35,
+      55,
+      110
+    ],
+    "matter": [
+      125,
+      110,
+      100
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "body",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "raise",
+      "expect": "Short glint at onset"
+    },
+    {
+      "frame": 18,
+      "name": "hold",
+      "expect": "Character inside stable shell"
+    },
+    {
+      "frame": 70,
+      "name": "flow",
+      "expect": "Scan bands and surface motion"
+    },
+    {
+      "frame": 80,
+      "name": "fracture",
+      "expect": "Surface sheets begin separating"
+    },
+    {
+      "frame": 86,
+      "name": "gaps",
+      "expect": "Open gaps in shell"
+    },
+    {
+      "frame": 94,
+      "name": "break",
+      "expect": "Fragments move outward"
+    },
+    {
+      "frame": 104,
+      "name": "residue",
+      "expect": "Last pieces fade"
+    },
+    {
+      "frame": 108,
+      "name": "exit",
+      "expect": "No shell remains"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Raise glint",
+      "role": "contact or hot accent",
+      "primitive": "Sprite T_Flare01",
+      "exit": "authored erosion/fade; gone by absolute frame 5"
+    },
+    {
+      "name": "1:Shell",
+      "role": "main shape or supporting structure",
+      "primitive": "Model ",
+      "exit": "authored erosion/fade; gone by absolute frame 84"
+    },
+    {
+      "name": "2:Rim",
+      "role": "main shape or supporting structure",
+      "primitive": "Model ",
+      "exit": "authored erosion/fade; gone by absolute frame 84"
+    },
+    {
+      "name": "3:Surface flow",
+      "role": "main shape or supporting structure",
+      "primitive": "Model ",
+      "exit": "authored erosion/fade; gone by absolute frame 84"
+    },
+    {
+      "name": "4:Equator pulse",
+      "role": "main shape or supporting structure",
+      "primitive": "Ring ",
+      "exit": "authored erosion/fade; gone by absolute frame 17"
+    },
+    {
+      "name": "5:Scan bands",
+      "role": "main shape or supporting structure",
+      "primitive": "Ring ",
+      "exit": "authored erosion/fade; gone by absolute frame 88"
+    },
+    {
+      "name": "6:Surface glints",
+      "role": "contact or hot accent",
+      "primitive": "Sprite T_Glow01",
+      "exit": "authored erosion/fade; gone by absolute frame 106"
+    },
+    {
+      "name": "7:Break shards",
+      "role": "secondary or residue",
+      "primitive": "Sprite T_Spark01",
+      "exit": "authored erosion/fade; gone by absolute frame 106"
+    },
+    {
+      "role": "separating shell surface",
+      "primitive": "shell_fragments",
+      "name": "8:Shell fragment 1",
+      "exit": "authored erosion/fade; gone by absolute frame 104"
+    },
+    {
+      "role": "separating shell surface",
+      "primitive": "shell_fragments",
+      "name": "9:Shell fragment 2",
+      "exit": "authored erosion/fade; gone by absolute frame 104"
+    },
+    {
+      "role": "separating shell surface",
+      "primitive": "shell_fragments",
+      "name": "10:Shell fragment 3",
+      "exit": "authored erosion/fade; gone by absolute frame 104"
+    },
+    {
+      "role": "separating shell surface",
+      "primitive": "shell_fragments",
+      "name": "11:Shell fragment 4",
+      "exit": "authored erosion/fade; gone by absolute frame 104"
+    },
+    {
+      "role": "separating shell surface",
+      "primitive": "shell_fragments",
+      "name": "12:Shell fragment 5",
+      "exit": "authored erosion/fade; gone by absolute frame 104"
+    },
+    {
+      "role": "separating shell surface",
+      "primitive": "shell_fragments",
+      "name": "13:Shell fragment 6",
+      "exit": "authored erosion/fade; gone by absolute frame 104"
+    }
+  ],
+  "acceptance": [
+    "Character remains legible inside the rim-lit dome",
+    "Surface moves during hold and breaks at expiry"
+  ],
+  "avoid": [
+    "A tinted solid sphere",
+    "A large glow covering the character"
+  ]
+}
