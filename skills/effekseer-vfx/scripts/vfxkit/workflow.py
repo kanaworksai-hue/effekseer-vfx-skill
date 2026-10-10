@@ -1,10 +1,6 @@
 """Shared portable storage and a reentrant, cross-process workspace lock."""
 from contextlib import contextmanager
 from pathlib import Path
-try:
-    import fcntl
-except ImportError as error:  # native Windows: the workspace lock needs POSIX file locks
-    raise ImportError('effekseer-vfx needs macOS or Linux; on Windows run it inside WSL') from error
 import functools
 import hashlib
 import json
@@ -14,6 +10,7 @@ import tempfile
 import threading
 
 from .paths import ROOT, SKILL, HOME, WORK
+from . import filelock
 
 _mutex = threading.RLock()
 _local = threading.local()
@@ -92,13 +89,13 @@ def project_lock():
         path = WORK / 'project.lock'
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('a') as stream:
-            fcntl.flock(stream, fcntl.LOCK_EX)
+            filelock.acquire(stream)
             _local.depth = 1
             try:
                 yield
             finally:
                 _local.depth = 0
-                fcntl.flock(stream, fcntl.LOCK_UN)
+                filelock.release(stream)
 
 
 def locked(function):

@@ -8,12 +8,16 @@ VFX アーティストと同じ反復の進め方で、ただしコードでゲ�
 `sh <skill>/scripts/vfx [--project <game project>] <command> ...` の形式で、JSON オブジェクトを一つ出力します
 （進捗は stderr に出ます）。プロジェクトの既定はカレントディレクトリで、エフェクトの作業領域は `<project>/vfx/` です。
 全コマンドは `sh <skill>/scripts/vfx --help` で確認できます。説明は [references/cli.md](references/cli.md) にあります。
+Windows では、`sh <skill>/scripts/vfx` は Git Bash で動作します。cmd や PowerShell からは代わりに `<skill>\scripts\vfx.cmd` を実行します
+（コマンドも出力も同じです）。
 
 ## プロジェクトでの初回実行
 
 1. `vfx doctor` — `modes`（`authoring`、`build`、`render`）、作業領域、具体的な `next` ステップを報告します。`vfx init` が作成したのではない `vfx/` フォルダが存在すると報告された場合は、初期化する前に、それがゲームプロジェクトであることをユーザーに確認します（または `--project` を渡します）。
 2. セットアップが必要な場合は、**まずユーザーに確認します**（フルモードは `~/.cache/effekseer-vfx` に約 250 MB をダウンロードします）。
-   macOS ARM64 では `sh <skill>/scripts/setup.sh`、それ以外では `sh <skill>/scripts/setup.sh --authoring-only` です。
+   macOS ARM64 では `sh <skill>/scripts/setup.sh`、Linux では `sh <skill>/scripts/setup.sh --authoring-only`、Windows では
+   `powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1` です（Git Bash からは `sh <skill>/scripts/setup.sh` でも実行でき、これが上記を呼び出します）。
+   `doctor` の `next` が、このマシン向けの正確なコマンドを表示します。
    setup には Python 3.11+ か uv が必要です（macOS 標準の Python 3.9 は古すぎます）。`doctor` がどちらもないと報告したら、ユーザーにどちらかのインストールを頼みます。Godot 4（Forward+）はユーザーがインストールする必要があります。`PATH` 上にない場合は `GODOT` を設定します。
 3. `vfx init` は `vfx/`（Godot Lab、マテリアル、数式テクスチャ、公式 Effekseer プラグイン）を作成します。`--update-templates` を付けない限り、既存のファイルは上書きしません。
 4. 任意：`vfx examples add <name>` で、完成済みで独立レビュー済みのサンプルを学習用にコピーします：ペアは `fire`、`ice`、`poison`、`dark`（飛翔体 + 着弾）、単体は `hit`、`slash`、`charge`、`shield`、`heal`、または `all`。[references/examples.md](references/examples.md) を参照してください。

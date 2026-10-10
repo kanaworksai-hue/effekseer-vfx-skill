@@ -1,7 +1,6 @@
 """Create or refresh the project's vfx/ workspace from the skill's Lab template and material profiles."""
 from contextlib import contextmanager
 from pathlib import Path
-import fcntl
 import hashlib
 import json
 import os
@@ -11,6 +10,7 @@ import urllib.request
 import zipfile
 from .paths import ROOT, ASSETS, DOWNLOADS
 from .ownership import guard
+from . import filelock
 
 PLUGIN_URL = 'https://github.com/effekseer/EffekseerForGodot4/releases/download/1.80.5.1/EffekseerForGodot4-180_5_1.zip'
 PLUGIN_SHA256 = '1a4987f748156b4707659e9b96b9e28dad42614e2862dc63ec0da8408e089cb6'
@@ -33,11 +33,11 @@ def toolchain_lock():
     """Serialise downloads into the shared EFFEKSEER_VFX_HOME across projects and processes."""
     DOWNLOADS.mkdir(parents=True, exist_ok=True)
     with (DOWNLOADS / '.lock').open('a') as stream:
-        fcntl.flock(stream, fcntl.LOCK_EX)
+        filelock.acquire(stream)
         try:
             yield
         finally:
-            fcntl.flock(stream, fcntl.LOCK_UN)
+            filelock.release(stream)
 
 
 def download(url, sha256, target):

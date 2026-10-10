@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import SCRIPTS, SKILL, cli_env
+from conftest import SCRIPTS, SKILL, cli_env, posix_only, windows_only
 
 
 def vfx(*args, cwd=None, env=None):
@@ -26,6 +26,7 @@ def system_python():
     return None
 
 
+@posix_only
 def test_doctor_runs_through_the_wrapper_on_a_bare_system_python(tmp_path):
     python = system_python()
     if not python:
@@ -45,6 +46,43 @@ def test_doctor_runs_through_the_wrapper_on_a_bare_system_python(tmp_path):
     assert result['toolchain']['home'] == str((tmp_path / 'toolchain').resolve())
     assert not result['toolchain']['effekseer_core'] and not result['modes']['build']
     assert result['next'], 'doctor must say what to do next on an empty machine'
+
+
+
+@windows_only
+def test_doctor_runs_through_vfx_cmd_on_a_bare_system_python(tmp_path):
+    if not (shutil.which('py') or shutil.which('python')):
+        pytest.skip('no system Python for vfx.cmd to fall back to')
+    # An empty toolchain home: vfx.cmd falls back to the py launcher (or python) and doctor needs only the standard library.
+    keep = ('SYSTEMROOT', 'WINDIR', 'COMSPEC', 'PATH', 'PATHEXT', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA', 'TEMP', 'TMP')
+    env = {**{k: os.environ[k] for k in keep if k in os.environ},
+           'EFFEKSEER_VFX_HOME': str(tmp_path / 'toolchain'), 'VFX_PROJECT': str(tmp_path / 'game')}
+    run = subprocess.run([str(SCRIPTS / 'vfx.cmd'), 'doctor'], capture_output=True, text=True, env=env, cwd=tmp_path, timeout=120)
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result['ok'] is True and set(result['modes']) == {'authoring', 'build', 'render'}
+    assert result['project'] == str((tmp_path / 'game').resolve())
+    assert result['toolchain']['home'] == str((tmp_path / 'toolchain').resolve())
+    assert not result['toolchain']['effekseer_core'] and not result['modes']['build']
+    assert any('setup.ps1' in step for step in result['next']), result['next']
+
+
+@windows_only
+def test_setup_ps1_rejects_unknown_options_before_touching_anything(tmp_path):
+    home = tmp_path / 'toolchain'
+    run = subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(SCRIPTS / 'setup.ps1'), '--bogus'],
+                         capture_output=True, text=True, env={**os.environ, 'EFFEKSEER_VFX_HOME': str(home)}, timeout=120)
+    assert run.returncode == 2 and '--authoring-only' in run.stderr, run.stderr
+    assert not home.exists()
+
+
+def test_launchers_keep_the_line_endings_their_shells_need():
+    # A Windows clone with core.autocrlf would give the sh scripts CRLF (sh then fails on `set -eu\r`); .gitattributes
+    # pins LF for them and CRLF for the batch launcher. Windows PowerShell reads a script without a BOM as ANSI: keep it ASCII.
+    for name in ('vfx', 'setup.sh'):
+        assert b'\r' not in (SCRIPTS / name).read_bytes(), name
+    assert b'\r\n' in (SCRIPTS / 'vfx.cmd').read_bytes()
+    assert (SCRIPTS / 'setup.ps1').read_bytes().isascii()
 
 
 def test_doctor_reports_an_initialised_workspace(project):

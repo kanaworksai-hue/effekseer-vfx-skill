@@ -10,7 +10,7 @@ from pathlib import Path
 import subprocess
 import uuid
 from . import workflow
-from .paths import ASSETS, SCRIPTS, CORE_BIN
+from .paths import ASSETS, SCRIPTS, CORE_BIN, WINDOWS
 
 RUBRIC = ASSETS / 'review_rubric.json'
 LAB = ASSETS / 'godot-lab'
@@ -31,11 +31,11 @@ def current_recipe(rid):
 
 
 def prepared(recipe):
-    from .primitives import walk, TEXTURE_KEYS
+    from .primitives import walk, TEXTURE_KEYS, is_path
     result = copy.deepcopy(recipe)
     for layer in walk(result['layers']):
         for key in TEXTURE_KEYS:
-            if layer.get(key) and '/' not in layer[key]:
+            if layer.get(key) and not is_path(layer[key]):
                 layer[key] = str(workflow.ROOT / f'vfx/textures/processed/{layer[key]}.png')
         profile = {'Add': 'M_Additive', 'Blend': 'M_Alpha', 'Sub': 'M_Subtractive'}.get(layer.get('blend', 'Add'))
         if profile:
@@ -123,12 +123,17 @@ def build_issues(rid, recipe=None):
     return issues
 
 
+# What the Lab stage is made of. The Effekseer plugin's native library is libeffekseer (a macOS framework binary) or,
+# on Windows, bin/windows/libeffekseer.<arch>.dll.
+STAGE_SUFFIXES = ('.gd', '.gdshader', '.godot', '.tscn', '.gde', '.gdextension', '.dylib', '.glb', '.json', '.cfg') + (('.dll',) if WINDOWS else ())
+
+
 def stage_snapshot():
     paths = []
     for folder in (LAB, workflow.ROOT / 'vfx/godot'):
         paths.extend(p for p in folder.rglob('*') if p.is_file()
                      and '.godot' not in p.relative_to(folder).parts
-                     and (p.suffix in ('.gd', '.gdshader', '.godot', '.tscn', '.gde', '.gdextension', '.dylib', '.glb', '.json', '.cfg') or p.name == 'libeffekseer')
+                     and (p.suffix in STAGE_SUFFIXES or p.name == 'libeffekseer')
                      and 'effects' not in p.relative_to(folder).parts
                      and p.name != 'vfx_manifest.json')
     paths += [SCRIPTS / 'vfxkit' / n for n in ('review.py', 'briefs.py', 'evidence.py')]

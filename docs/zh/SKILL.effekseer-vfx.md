@@ -8,12 +8,16 @@
 `sh <skill>/scripts/vfx [--project <game project>] <command> ...`，输出一个 JSON 对象
 （进度信息写到 stderr）。项目默认是当前目录，效果工作区是 `<project>/vfx/`。
 运行 `sh <skill>/scripts/vfx --help` 查看全部命令；[references/cli.md](references/cli.md) 有完整说明。
+在 Windows 上，`sh <skill>/scripts/vfx` 可以在 Git Bash 里运行；在 cmd 或 PowerShell 里请改用 `<skill>\scripts\vfx.cmd`
+（命令相同，输出相同）。
 
 ## 在项目里第一次运行
 
 1. `vfx doctor` —— 报告 `modes`（`authoring`、`build`、`render`）、工作区和确切的 `next` 步骤。如果它说存在一个不是由 `vfx init` 创建的 `vfx/` 文件夹，先与用户确认这就是游戏项目（或传入 `--project`），再进行初始化。
 2. 如果需要安装，**先征求用户同意**（完整模式会下载约 250 MB 到 `~/.cache/effekseer-vfx`）：
-   macOS ARM64 上运行 `sh <skill>/scripts/setup.sh`，其他系统运行 `sh <skill>/scripts/setup.sh --authoring-only`。
+   macOS ARM64 上运行 `sh <skill>/scripts/setup.sh`，Linux 上运行 `sh <skill>/scripts/setup.sh --authoring-only`；Windows 上运行
+   `powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1`（在 Git Bash 里也可以运行 `sh <skill>/scripts/setup.sh`，它会调用前者）。
+   `doctor` 的 `next` 会打印适合本机的确切命令。
    setup 需要 Python 3.11+ 或 uv（macOS 自带的 Python 3.9 太旧）；如果 `doctor` 报告两者都没有，请用户安装其中一个。Godot 4（Forward+）必须由用户自行安装；如果它不在 `PATH` 上，设置 `GODOT`。
 3. `vfx init` 创建 `vfx/`（Godot Lab、材质、数学纹理、官方 Effekseer 插件）。除非加 `--update-templates`，否则不会覆盖已有文件。
 4. 可选：`vfx examples add <name>` 复制一个完成且经过独立评审的示例用于学习：配对 `fire`、`ice`、`poison`、`dark`（飞行体 + 命中），单独效果 `hit`、`slash`、`charge`、`shield`、`heal`，或 `all`。见 [references/examples.md](references/examples.md)。

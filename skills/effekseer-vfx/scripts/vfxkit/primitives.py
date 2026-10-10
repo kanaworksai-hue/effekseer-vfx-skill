@@ -12,6 +12,9 @@ TEXTURE_KEYS=['texture','alpha_texture','distortion_texture','blend_texture']
 WHITE=(255,255,255,255)
 
 def tex(name):return str(T/f'{name}.png')
+def is_path(value):
+ """A texture already resolved to a file path (tex() returns native paths: backslashes on Windows), not a bare stem."""
+ return '/' in value or '\\' in value
 def fade(color,alpha=0):return [*color[:3],alpha]
 def walk(layers):
  for layer in layers:
@@ -360,4 +363,4 @@ def contrast_pair(layer, dark_color=(32, 24, 20, 210)):
         dark['color_curve']['A']=[[frame,value*dark_color[3]/255] for frame,value in alpha]
     return [dark, bright]
 
-__all__=[name for name in dir() if not name.startswith('_') and name not in ('Path','math','ROOT','T')]+['math']
+__all__=[name for name in dir() if not name.startswith('_') and name not in ('Path','math','ROOT','T','is_path')]+['math']

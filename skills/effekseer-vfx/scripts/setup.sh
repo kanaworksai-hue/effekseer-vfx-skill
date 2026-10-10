@@ -2,7 +2,9 @@
 # Install the effekseer-vfx toolchain into EFFEKSEER_VFX_HOME (default ~/.cache/effekseer-vfx). Safe to re-run.
 #
 #   sh setup.sh                   full mode: Python packages, Effekseer Core 1.80.7 and the .NET 9 runtime (macOS ARM64)
-#   sh setup.sh --authoring-only  Python packages only: write recipes, lint, process textures (macOS or Linux; WSL on Windows)
+#   sh setup.sh --authoring-only  Python packages only: write recipes, lint, process textures (macOS or Linux)
+#
+# On Windows (Git Bash, MSYS2) this runs setup.ps1, which installs the Windows toolchain (x64 or ARM64).
 #
 # Needs Python 3.11+ (found automatically) or uv. Exit codes: 0 ok, 1 a download or install failed, 3 full mode on an
 # unsupported system, 4 no suitable Python.
@@ -16,6 +18,11 @@ set -eu
 MODE=full
 [ "${1:-}" = "--authoring-only" ] && MODE=authoring
 SCRIPTS=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    [ -n "${EFFEKSEER_VFX_HOME:-}" ] && EFFEKSEER_VFX_HOME=$(cygpath -w "$EFFEKSEER_VFX_HOME") && export EFFEKSEER_VFX_HOME
+    exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$SCRIPTS/setup.ps1")" "$@" ;;
+esac
 TOOLCHAIN=${EFFEKSEER_VFX_HOME:-$HOME/.cache/effekseer-vfx}
 CORE_URL=https://github.com/effekseer/Effekseer/releases/download/1807/Effekseer1.80.7Win.zip
 CORE_SHA256=6f059b9cce3a79c5bfe3df9c970cfe62fd72acf130083c7b81832d90f8d1335f
@@ -55,7 +62,7 @@ fetch() {
 }
 
 if [ "$MODE" = full ] && { [ "$(uname -s)" != Darwin ] || [ "$(uname -m)" != arm64 ]; }; then
-  echo "Full mode (EffekseerCore build + Godot review) is verified on macOS ARM64 only." >&2
+  echo "Full mode (EffekseerCore build + Godot review) is verified on macOS ARM64 and Windows x64 only." >&2
   echo "On this system run: sh $0 --authoring-only" >&2
   exit 3
 fi

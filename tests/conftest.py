@@ -45,6 +45,22 @@ from vfxkit import scaffold, examples  # noqa: E402
 scaffold.initialize(install_plugin=False)
 examples.add('all')
 
+
+
+def _can_symlink():
+    probe = Path(tempfile.mkdtemp(prefix='vfx-link-probe-'))
+    try:
+        (probe / 'link').symlink_to(probe / 'target')
+        return True
+    except OSError:  # Windows without Developer Mode or administrator rights
+        return False
+    finally:
+        shutil.rmtree(probe, True)
+
+
+requires_symlinks = pytest.mark.skipif(not _can_symlink(), reason='creating symlinks needs Developer Mode or administrator rights on Windows')
+posix_only = pytest.mark.skipif(os.name == 'nt', reason='POSIX sh scripts; Windows uses vfx.cmd and setup.ps1')
+windows_only = pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
 CORE_READY = bool(os.environ.get('EFFEKSEER_AI_BIN_DIR') and (Path(os.environ['EFFEKSEER_AI_BIN_DIR']) / 'EffekseerCore.dll').is_file())
 requires_core = pytest.mark.skipif(not CORE_READY, reason='Initialize the local EffekseerCore runtime first (sh scripts/setup.sh)')
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import json, shutil, sys
 from .workflow import locked
 from .paths import ROOT, WORK
-from .primitives import walk, tex, budget, TEXTURE_KEYS
+from .primitives import walk, tex, is_path, budget, TEXTURE_KEYS
 from . import ownership
 from .ownership import MARKER, valid_id, digest
 
@@ -97,7 +97,7 @@ def build(recipes,prune=False):
  for recipe in recipes:
   for layer in walk(recipe['layers']):
    for key in TEXTURE_KEYS:
-    if layer.get(key) and '/' not in layer[key]:layer[key]=tex(layer[key])
+    if layer.get(key) and not is_path(layer[key]):layer[key]=tex(layer[key])
  missing=sorted({layer[key] for recipe in recipes for layer in walk(recipe['layers']) for key in TEXTURE_KEYS if layer.get(key) and not Path(layer[key]).is_file()})
  if missing:raise FileNotFoundError('Missing input textures; generate/process them first: '+', '.join(missing))
  check_output_dirs()

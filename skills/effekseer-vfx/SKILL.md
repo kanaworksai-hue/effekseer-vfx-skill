@@ -2,7 +2,7 @@
 name: effekseer-vfx
 description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render. Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, magic, buff or shield VFX, or a VFX library for a Godot game. Covers design briefs, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, independent scoring and export.
 license: MIT
-compatibility: Build and render need macOS on Apple silicon, Godot 4.x and network access for the first setup (Effekseer Core, .NET runtime, Effekseer Godot plugin). Authoring, lint and texture processing run on macOS or Linux with Python 3.11+ (on Windows, use WSL).
+compatibility: Build and render need macOS on Apple silicon or Windows (x64), Godot 4.x and network access for the first setup (Effekseer Core, .NET runtime, Effekseer Godot plugin). Authoring, lint and texture processing run on macOS, Linux or Windows with Python 3.11+.
 metadata:
   version: "0.1.0"
 ---
@@ -15,12 +15,16 @@ Make game effects the way a VFX artist iterates, but in code: **brief → textur
 `sh <skill>/scripts/vfx [--project <game project>] <command> ...` and prints one JSON object
 (progress goes to stderr). The project defaults to the current directory; its effect workspace is `<project>/vfx/`.
 Run `sh <skill>/scripts/vfx --help` for all commands; [references/cli.md](references/cli.md) documents them.
+On Windows, `sh <skill>/scripts/vfx` works from Git Bash; from cmd or PowerShell run `<skill>\scripts\vfx.cmd` instead
+(same commands, same output).
 
 ## First run in a project
 
 1. `vfx doctor` — reports `modes` (`authoring`, `build`, `render`), the workspace and the exact `next` steps. If it says a `vfx/` folder exists that `vfx init` did not create, confirm with the user that this is the game project (or pass `--project`) before initializing.
 2. If setup is needed, **ask the user first** (full mode downloads about 250 MB into `~/.cache/effekseer-vfx`):
-   `sh <skill>/scripts/setup.sh` on macOS ARM64, `sh <skill>/scripts/setup.sh --authoring-only` elsewhere.
+   `sh <skill>/scripts/setup.sh` on macOS ARM64, `sh <skill>/scripts/setup.sh --authoring-only` on Linux; on Windows
+   `powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1` (or `sh <skill>/scripts/setup.sh` from Git Bash, which runs it).
+   `doctor`'s `next` prints the exact command for this machine.
    Setup needs Python 3.11+ or uv (macOS's built-in Python 3.9 is too old); if `doctor` reports neither, ask the user to install one. Godot 4 (Forward+) must be installed by the user; set `GODOT` if it is not on `PATH`.
 3. `vfx init` creates `vfx/` (Godot Lab, materials, math textures, official Effekseer plugin). It never overwrites existing files unless `--update-templates`.
 4. Optional: `vfx examples add <name>` copies a finished, independently reviewed example to learn from: pairs `fire`, `ice`, `poison`, `dark` (projectile + impact) and singles `hit`, `slash`, `charge`, `shield`, `heal`, or `all`. See [references/examples.md](references/examples.md).
