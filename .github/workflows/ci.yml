@@ -21,3 +21,31 @@ jobs:
         env:
           EFFEKSEER_VFX_HOME: ${{ runner.temp }}/effekseer-vfx
         run: '"$EFFEKSEER_VFX_HOME/venv/bin/python" -m pytest -q tests'
+  windows:
+    # Full Windows toolchain (EffekseerCore through .NET 9), so the Core build tests run too; no Godot, so render skips.
+    runs-on: windows-latest
+    env:
+      EFFEKSEER_VFX_HOME: ${{ runner.temp }}\effekseer-vfx
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cache the toolchain downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\effekseer-vfx\downloads
+          key: effekseer-vfx-downloads-${{ hashFiles('skills/effekseer-vfx/scripts/setup.ps1') }}
+      - name: Install the full toolchain
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts\setup.ps1
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $python = "$env:EFFEKSEER_VFX_HOME\venv\Scripts\python.exe"
+          # setup made the venv with uv when uv is installed, and uv venvs have no pip
+          if (Get-Command uv -ErrorAction SilentlyContinue) { uv pip install --python $python pytest==9.1.1 }
+          else { & $python -m pip install pytest==9.1.1 }
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Tests
+        shell: pwsh
+        run: '& "$env:EFFEKSEER_VFX_HOME\venv\Scripts\python.exe" -X utf8 -m pytest -q tests'

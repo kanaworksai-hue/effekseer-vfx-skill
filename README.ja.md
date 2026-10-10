@@ -17,11 +17,14 @@
 
 | モード | できること | 必要なもの |
 |---|---|---|
-| authoring | ブリーフとレシピの作成、lint、テクスチャの処理と計測 | macOS または Linux 上の Python 3.11+ または [uv](https://docs.astral.sh/uv/)（macOS 標準の Python 3.9 は古すぎます。Windows では WSL を使用） |
-| build | 公式 EffekseerCore による `.efkefc` / `.efk` のコンパイル | **Apple silicon の macOS**、初回セットアップ時のネットワーク接続（`~/.cache/effekseer-vfx` に約 250 MB） |
+| authoring | ブリーフとレシピの作成、lint、テクスチャの処理と計測 | macOS、Linux または Windows 上の Python 3.11+ または [uv](https://docs.astral.sh/uv/)（macOS 標準の Python 3.9 は古すぎます） |
+| build | 公式 EffekseerCore による `.efkefc` / `.efk` のコンパイル | **Apple silicon の macOS** または **Windows x64**、初回セットアップ時のネットワーク接続（`~/.cache/effekseer-vfx` に約 250 MB） |
 | render | Godot のフィルムストリップレビュー、Lab、プレビュー、パッケージング | 上記 + `PATH` 上または `GODOT` で指定した [Godot 4](https://godotengine.org)（Forward+）。リファレンスクリップと録画には `ffmpeg` |
 
-build と render は macOS ARM64（Effekseer Core 1.80.7、EffekseerForGodot4 1.80.5.1、Godot 4.7、.NET 9）でのみ検証済みです。Linux では authoring モードで動作し、build の経路は検証されていません。
+build と render は macOS ARM64（Effekseer Core 1.80.7、EffekseerForGodot4 1.80.5.1、Godot 4.7、.NET 9）と Windows 11 x64（同じバージョン、Godot 4.7.2）で検証済みです。Windows ARM64 ではセットアップが対応する .NET ランタイムを入れますが、検証はされていません。Linux では authoring モードで動作し、build の経路は検証されていません。
+
+Windows では、以下の `sh <skill>/scripts/...` コマンドはすべて Git Bash（Claude Code が使うもの）でも動作します。cmd や PowerShell からは、`vfx` には `<skill>\scripts\vfx.cmd` を、`setup.sh` には
+`powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1` を使います。
 
 ## インストール
 
@@ -62,9 +65,9 @@ npx skills add kanaworksai-hue/effekseer-vfx-skill
    スキルは自己完結しており、実行時は読み取り専用です。
 2. **読み込む。** スキル一覧にまだ表示されない場合は、ユーザーに新しいセッションを始めてもらいます。
 3. **マシンを確認する。** ユーザーのゲームプロジェクトで `sh <skill>/scripts/vfx doctor` を実行し（`<skill>` はインストールした
-   `effekseer-vfx` フォルダ）、その `next` に従います。
-4. **ダウンロード前に確認する。** `sh <skill>/scripts/setup.sh` はツールチェーンを `~/.cache/effekseer-vfx` に入れます（macOS ARM64 で
-   約 250 MB。その他の環境では `--authoring-only`）。最初の `vfx init` は公式 Effekseer Godot プラグイン（約 34 MB）もダウンロードします。Python 3.11+ か uv が必要で、`doctor` がどちらもないと報告したらユーザーに
+   `effekseer-vfx` フォルダ。Windows で Git Bash 以外なら `<skill>\scripts\vfx.cmd doctor`）、その `next` に従います。
+4. **ダウンロード前に確認する。** `sh <skill>/scripts/setup.sh`（Windows では `setup.ps1`。正確なコマンドは `doctor` の `next` にあります）はツールチェーンを
+   `~/.cache/effekseer-vfx` に入れます（macOS ARM64 と Windows x64 で約 250 MB。その他の環境では `--authoring-only`）。最初の `vfx init` は公式 Effekseer Godot プラグイン（約 34 MB）もダウンロードします。Python 3.11+ か uv が必要で、`doctor` がどちらもないと報告したらユーザーに
    どちらかのインストールを頼みます。Godot 4 はユーザーの代わりにインストールしません。ユーザーにインストールしてもらう（または
    許可を得る）こと、`PATH` にない場合は `GODOT` を設定することを伝えます。
 5. **Godot はサンドボックスの外で実行する。** `vfx review`、`preview`、`showcase` はユーザーのデスクトップに Godot のウィンドウを開きます。
@@ -81,7 +84,7 @@ npx skills add kanaworksai-hue/effekseer-vfx-skill
 
 ```sh
 sh <skill>/scripts/vfx doctor            # what this machine can do, and what to install
-sh <skill>/scripts/setup.sh              # macOS ARM64; use --authoring-only elsewhere (asks you first)
+sh <skill>/scripts/setup.sh              # macOS ARM64 / Windows x64; use --authoring-only elsewhere (asks you first)
 sh <skill>/scripts/vfx init              # creates vfx/ with the Godot Lab, materials and math textures
 sh <skill>/scripts/vfx examples add fire
 sh <skill>/scripts/vfx build --ids VFX_Projectile_Fire VFX_Fire_Explosion
@@ -89,7 +92,7 @@ sh <skill>/scripts/vfx review --ids VFX_Projectile_Fire VFX_Fire_Explosion --not
 sh <skill>/scripts/vfx showcase          # play the library in the Lab
 ```
 
-各コマンドの役割：`doctor` はこのマシンでできることと、インストールが必要なものを報告します。`setup.sh` は macOS ARM64 用で、それ以外では `--authoring-only` を使います（実行前に確認を求めます）。`init` は Godot Lab、マテリアル、数式テクスチャを含む `vfx/` を作成します。`showcase` は Lab でライブラリを再生します。
+各コマンドの役割：`doctor` はこのマシンでできることと、インストールが必要なものを報告します。`setup.sh` は macOS ARM64 / Windows x64 用で、それ以外では `--authoring-only` を使います（実行前に確認を求めます）。`init` は Godot Lab、マテリアル、数式テクスチャを含む `vfx/` を作成します。`showcase` は Lab でライブラリを再生します。
 
 次にエフェクトを頼みます。*「ターゲット指定の魔法に使う落雷を作って。短く鋭く、リターンストロークあり」*。スキルに従ってエージェントは、ブリーフを書き、お使いの画像生成ツールに手描き風テクスチャを依頼し（またはあなたに用意を頼み）、レシピを書いてビルドし、数ラウンドにわたってストリップをレビューし、結果を独立レビュアーに渡してから、`effect-verify` の合格を報告します。独立レビューを提出して `vfx overview` を再実行するまでは、エフェクトが正しく描画されていても `effect-verify` は `verified: false` になります。その段階でエージェントは「検証済み」ではなく「ビルドと描画ができた」と報告すべきです。ツールチェーンの既定の場所は `~/.cache/effekseer-vfx` で、`EFFEKSEER_VFX_HOME` で変更できます（[コマンドリファレンス](skills/effekseer-vfx/references/cli.md) を参照）。
 
@@ -113,8 +116,9 @@ shot.arrived.connect(func(at): Vfx.play("VFX_Fire_Explosion", at))
 ## リポジトリ構成
 
 ```
-skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI, setup.sh,
-                           vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric, brief schema, examples)
+skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI and vfx.cmd,
+                           setup.sh and setup.ps1, vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric,
+                           brief schema, examples)
 skills/vfx-review/         SKILL.md for the independent reviewer
 docs/zh/, docs/ja/         Chinese and Japanese translations of the references
 .claude-plugin/            Claude Code plugin and marketplace manifests
@@ -123,7 +127,7 @@ tests/                     pure-Python tests (no Core or Godot needed)
 
 | パス | 内容 |
 |---|---|
-| `skills/effekseer-vfx/` | SKILL.md、references/（クラフト、エンジン規約、レビューなど）、scripts/（vfx CLI、setup.sh、vfxkit、同梱の effekseer_ai）、assets/（Godot Lab、マテリアル、評価基準、ブリーフスキーマ、サンプル） |
+| `skills/effekseer-vfx/` | SKILL.md、references/（クラフト、エンジン規約、レビューなど）、scripts/（vfx CLI と vfx.cmd、setup.sh と setup.ps1、vfxkit、同梱の effekseer_ai）、assets/（Godot Lab、マテリアル、評価基準、ブリーフスキーマ、サンプル） |
 | `skills/vfx-review/` | 独立レビュアー用の SKILL.md |
 | `docs/zh/`、`docs/ja/` | リファレンスの中国語訳と日本語訳 |
 | `.claude-plugin/` | Claude Code のプラグインとマーケットプレイスのマニフェスト |
@@ -132,7 +136,9 @@ tests/                     pure-Python tests (no Core or Godot needed)
 ## 制限事項
 
 - レビューの指標は実 viewport 上のピクセルヒューリスティクスであり、GPU やオーバードローの計測ではありません。
-- レビューのハーネスは macOS 上でウィンドウ表示の Godot を操作します。ヘッドレス Linux での撮影はまだサポートしていません。
+- レビューのハーネスは macOS と Windows 上でウィンドウ表示の Godot を操作します。ヘッドレス Linux での撮影はまだサポートしていません。
+  Windows では、撮影中 Godot ウィンドウがフォーカスを保持し続けます（macOS ではフォーカスがお使いのアプリに戻ります）。
+- Windows では、シンボリックリンクの安全性テストに開発者モード（または管理者権限のシェル）が必要で、無効だとスキップされます。
 - サンプルのスコアは、スキル同梱のカプセル Lab でのレンダーに対する独立レビューの結果です（13 種のうち 2 種は `iterate` 判定）。頼りにする前に、ビルドとレビューをやり直してください。
 - `soft` パーティクルは Forward+ の Lab で未検証のため、使用していません。
 
@@ -142,6 +148,14 @@ tests/                     pure-Python tests (no Core or Godot needed)
 sh skills/effekseer-vfx/scripts/setup.sh --authoring-only
 ~/.cache/effekseer-vfx/venv/bin/python -m pip install pytest
 ~/.cache/effekseer-vfx/venv/bin/python -m pytest -q tests
+```
+
+Windows の場合（PowerShell。`--authoring-only` を外すと EffekseerCore のビルドテストも実行されます）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts\setup.ps1 --authoring-only
+~\.cache\effekseer-vfx\venv\Scripts\python.exe -m pip install pytest   # a venv made by uv: uv pip install --python <that python.exe> pytest
+~\.cache\effekseer-vfx\venv\Scripts\python.exe -X utf8 -m pytest -q tests
 ```
 
 新しいエンジン規約を確認したコントリビューションでは、それを計測方法と一緒に

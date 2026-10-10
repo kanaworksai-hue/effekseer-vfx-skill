@@ -12,7 +12,7 @@ from pathlib import Path
 COMMANDS = """
 setup and workspace:   doctor, init, examples, procedural
 authoring (no Core):   list, lint, layer-schema, texture-info, texture-audit, process-texture, brief-validate, effect-context
-build (Core, macOS):   build, compile, export, discover, core
+build (Core):          build, compile, export, discover, core
 review (Godot):        review, overview, strip, frames, history, rubric, review-handoff, review-submit, effect-verify, preview, showcase, package
 reference clips:       reference-import, reference-frames, reference-compare
 """
@@ -284,7 +284,8 @@ def main(argv=None):
         try:
             from effekseer_ai.cli import main as core_main
         except ModuleNotFoundError as error:
-            print(json.dumps({'ok': False, 'error': {'type': 'SetupRequired', 'message': f'{error}. Run scripts/setup.sh.'}}))
+            from .paths import setup_command
+            print(json.dumps({'ok': False, 'error': {'type': 'SetupRequired', 'message': f'{error}. Run {setup_command()}.'}}))
             return 2
         try:
             return core_main(rest[1:] or ['--help'])
@@ -308,7 +309,8 @@ def main(argv=None):
         else:
             result = run(args)
     except ModuleNotFoundError as error:
-        print(json.dumps({'ok': False, 'error': {'type': 'SetupRequired', 'message': f'{error}. Run scripts/setup.sh (add --authoring-only off macOS).'}}))
+        from .paths import setup_command, full_mode_platform
+        print(json.dumps({'ok': False, 'error': {'type': 'SetupRequired', 'message': f'{error}. Run {setup_command(authoring_only=not full_mode_platform())}.'}}))
         return 2
     except Exception as error:
         print(json.dumps({'ok': False, 'error': {'type': type(error).__name__, 'message': str(error)}}, ensure_ascii=False))

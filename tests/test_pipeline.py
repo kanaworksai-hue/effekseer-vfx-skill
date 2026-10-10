@@ -223,7 +223,7 @@ def test_manifest_matches_assets_and_particle_lifetimes():
 
 
 def test_library_recipes_are_valid_without_core_or_assets():
-    from vfxkit.primitives import lifetime, budget, walk, TEXTURE_KEYS
+    from vfxkit.primitives import lifetime, budget, walk, is_path, TEXTURE_KEYS
     from vfxkit.library import library
     from vfxkit.textures import masks, EXTRA_PROCEDURAL
     from vfxkit.paths import ROOT
@@ -241,7 +241,7 @@ def test_library_recipes_are_valid_without_core_or_assets():
                 # Every input is either a math primitive or has a recorded image prompt; nothing is undocumented.
                 if layer.get(key):
                     assert Path(layer[key]).stem in available, (recipe['id'], layer[key])
-                    resolved = Path(layer[key]) if '/' in layer[key] else ROOT / f'vfx/textures/processed/{layer[key]}.png'
+                    resolved = Path(layer[key]) if is_path(layer[key]) else ROOT / f'vfx/textures/processed/{layer[key]}.png'
                     assert resolved.is_file(), (recipe['id'], layer[key])
 
 

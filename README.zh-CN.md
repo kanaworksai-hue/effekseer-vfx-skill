@@ -19,12 +19,17 @@
 
 | 模式 | 能做什么 | 需要 |
 |---|---|---|
-| authoring | 写简报和配方、lint、处理和测量纹理 | macOS 或 Linux 上的 Python 3.11+ 或 [uv](https://docs.astral.sh/uv/)（macOS 自带的 Python 3.9 太旧；Windows 请用 WSL） |
-| build | 通过官方 EffekseerCore 编译 `.efkefc` / `.efk` | **Apple 芯片的 macOS**，首次安装需要联网（约 250 MB，装到 `~/.cache/effekseer-vfx`） |
+| authoring | 写简报和配方、lint、处理和测量纹理 | macOS、Linux 或 Windows 上的 Python 3.11+ 或 [uv](https://docs.astral.sh/uv/)（macOS 自带的 Python 3.9 太旧） |
+| build | 通过官方 EffekseerCore 编译 `.efkefc` / `.efk` | **Apple 芯片的 macOS** 或 **Windows x64**，首次安装需要联网（约 250 MB，装到 `~/.cache/effekseer-vfx`） |
 | render | Godot 连拍复查、Lab、预览、打包 | 以上全部 + 位于 `PATH` 或 `GODOT` 中的 [Godot 4](https://godotengine.org)（Forward+）；参考视频和录像需要 `ffmpeg` |
 
-build 和 render 只在 macOS ARM64 上验证过（Effekseer Core 1.80.7、EffekseerForGodot4 1.80.5.1、Godot 4.7、
-.NET 9）。Linux 可以运行 authoring 模式，构建路径未经验证。
+build 和 render 已在 macOS ARM64（Effekseer Core 1.80.7、EffekseerForGodot4 1.80.5.1、Godot 4.7、.NET 9）和
+Windows 11 x64（版本相同，Godot 4.7.2）上验证。Windows ARM64 的安装脚本会装上对应的 .NET 运行时，但未经验证。
+Linux 可以运行 authoring 模式，构建路径未经验证。
+
+在 Windows 上，下文每条 `sh <skill>/scripts/...` 命令也都能在 Git Bash（Claude Code 使用的就是它）里运行；在 cmd 或
+PowerShell 里，`vfx` 请用 `<skill>\scripts\vfx.cmd`，`setup.sh` 请用
+`powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1`。
 
 ## 安装
 
@@ -62,9 +67,10 @@ npx skills add kanaworksai-hue/effekseer-vfx-skill
    `skills/vfx-review` 复制到 `~/.claude/skills/`（Claude Code，所有项目）、`<project>/.claude/skills/`（Claude Code，单个项目）、
    `~/.codex/skills/`（Codex；设置了 `$CODEX_HOME` 时是 `$CODEX_HOME/skills`）或宿主的技能目录（例如 `.agents/skills/`）。不要复制其他内容；技能是自包含的，运行时只读。
 2. **加载。** 如果技能还没出现在技能列表里，请用户新开一个会话。
-3. **检查本机。** 在用户的游戏项目里运行 `sh <skill>/scripts/vfx doctor`（`<skill>` 是安装好的 `effekseer-vfx` 目录），按它的 `next` 步骤操作。
-4. **下载前先询问。** `sh <skill>/scripts/setup.sh` 把工具链装到 `~/.cache/effekseer-vfx`（macOS ARM64 上约 250 MB；其他系统用
-   `--authoring-only`），第一次 `vfx init` 还会下载官方 Effekseer Godot 插件（约 34 MB）。它需要 Python 3.11+ 或 uv：`doctor` 报告两者都没有时，请用户安装其中一个。Godot 4 永远不会替用户安装；
+3. **检查本机。** 在用户的游戏项目里运行 `sh <skill>/scripts/vfx doctor`（`<skill>` 是安装好的 `effekseer-vfx` 目录；在 Windows 上，不在 Git Bash 里时用
+   `<skill>\scripts\vfx.cmd doctor`），按它的 `next` 步骤操作。
+4. **下载前先询问。** `sh <skill>/scripts/setup.sh`（Windows：`setup.ps1`，具体命令见 `doctor` 的 `next`）把工具链装到
+   `~/.cache/effekseer-vfx`（macOS ARM64 和 Windows x64 上约 250 MB；其他系统用 `--authoring-only`），第一次 `vfx init` 还会下载官方 Effekseer Godot 插件（约 34 MB）。它需要 Python 3.11+ 或 uv：`doctor` 报告两者都没有时，请用户安装其中一个。Godot 4 永远不会替用户安装；
    请用户自行安装（或允许你安装），不在 `PATH` 上时设置 `GODOT`。
 5. **在沙箱外运行 Godot。** `vfx review`、`preview` 和 `showcase` 会在用户桌面上打开 Godot 窗口。处于沙箱中的 agent（例如在工作区沙箱里的 Codex）
    打不开窗口：请在用户批准后到沙箱外运行这些命令；如果宿主无法离开沙箱，就把完整命令交给用户，让用户在自己桌面的终端里运行。
@@ -79,7 +85,7 @@ npx skills add kanaworksai-hue/effekseer-vfx-skill
 
 ```sh
 sh <skill>/scripts/vfx doctor            # what this machine can do, and what to install
-sh <skill>/scripts/setup.sh              # macOS ARM64; use --authoring-only elsewhere (asks you first)
+sh <skill>/scripts/setup.sh              # macOS ARM64 / Windows x64; use --authoring-only elsewhere (asks you first)
 sh <skill>/scripts/vfx init              # creates vfx/ with the Godot Lab, materials and math textures
 sh <skill>/scripts/vfx examples add fire
 sh <skill>/scripts/vfx build --ids VFX_Projectile_Fire VFX_Fire_Explosion
@@ -87,7 +93,7 @@ sh <skill>/scripts/vfx review --ids VFX_Projectile_Fire VFX_Fire_Explosion --not
 sh <skill>/scripts/vfx showcase          # play the library in the Lab
 ```
 
-（各命令作用依次为：检查本机能力与需要安装的内容；安装依赖（macOS ARM64，其他系统用 `--authoring-only`，会先征得你同意）；
+（各命令作用依次为：检查本机能力与需要安装的内容；安装依赖（macOS ARM64 / Windows x64，其他系统用 `--authoring-only`，会先征得你同意）；
 创建包含 Godot Lab、材质和数学纹理的 `vfx/`；添加火焰示例；构建；复查；在 Lab 中播放效果库。）
 
 然后提出一个效果需求：*"为指定目标的法术做一个落雷，短而锐利，带回击。"* 技能会让 agent 写简报、通过你的图像生成工具
@@ -115,23 +121,26 @@ shot.arrived.connect(func(at): Vfx.play("VFX_Fire_Explosion", at))
 ## 仓库结构
 
 ```
-skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI, setup.sh,
-                           vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric, brief schema, examples)
+skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI and vfx.cmd,
+                           setup.sh and setup.ps1, vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric,
+                           brief schema, examples)
 skills/vfx-review/         SKILL.md for the independent reviewer
 docs/zh/, docs/ja/         Chinese and Japanese translations of the references
 .claude-plugin/            Claude Code plugin and marketplace manifests
 tests/                     pure-Python tests (no Core or Godot needed)
 ```
 
-各目录：`skills/effekseer-vfx/` 含 `SKILL.md`、`references/`（制作规则、引擎约定、复查等）、`scripts/`（`vfx` CLI、
-`setup.sh`、`vfxkit`、内置的 `effekseer_ai`）和 `assets/`（Godot Lab、材质、评分表、简报 schema、示例）；
+各目录：`skills/effekseer-vfx/` 含 `SKILL.md`、`references/`（制作规则、引擎约定、复查等）、`scripts/`（`vfx` CLI 和 `vfx.cmd`、
+`setup.sh` 和 `setup.ps1`、`vfxkit`、内置的 `effekseer_ai`）和 `assets/`（Godot Lab、材质、评分表、简报 schema、示例）；
 `skills/vfx-review/` 是独立评审用的 `SKILL.md`；`docs/zh/`、`docs/ja/` 是参考文档的中文和日文译文；
 `.claude-plugin/` 是 Claude Code 插件与 marketplace 清单；`tests/` 是纯 Python 测试（不需要 Core 或 Godot）。
 
 ## 限制
 
 - 复查指标是基于真实 viewport 的像素启发式，不是 GPU 或 overdraw 测量。
-- 复查工具驱动的是 macOS 上带窗口的 Godot；暂不支持无头 Linux 采集。
+- 复查工具驱动的是 macOS 和 Windows 上带窗口的 Godot；暂不支持无头 Linux 采集。在 Windows 上，Godot 窗口在采集期间会一直
+  占着焦点（macOS 会把焦点还给你的应用）。
+- 在 Windows 上，符号链接安全测试需要开启开发者模式（或使用管理员 shell），否则会被跳过。
 - 示例分数来自对 skill 自带胶囊 Lab 渲染的独立评审（十三个中有两个被判为 `iterate`）；依赖它们之前请重新构建并复查。
 - `soft` 粒子在 Forward+ Lab 中未经验证，未被使用。
 
@@ -141,6 +150,14 @@ tests/                     pure-Python tests (no Core or Godot needed)
 sh skills/effekseer-vfx/scripts/setup.sh --authoring-only
 ~/.cache/effekseer-vfx/venv/bin/python -m pip install pytest
 ~/.cache/effekseer-vfx/venv/bin/python -m pytest -q tests
+```
+
+在 Windows 上（PowerShell；去掉 `--authoring-only` 还会运行 EffekseerCore 构建测试）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts\setup.ps1 --authoring-only
+~\.cache\effekseer-vfx\venv\Scripts\python.exe -m pip install pytest   # a venv made by uv: uv pip install --python <that python.exe> pytest
+~\.cache\effekseer-vfx\venv\Scripts\python.exe -X utf8 -m pytest -q tests
 ```
 
 确认了新引擎约定的贡献，应把它连同测量方法一起写进

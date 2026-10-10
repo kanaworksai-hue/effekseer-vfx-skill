@@ -1,0 +1,7 @@
+# Check out every text file with LF on all systems, so a Windows clone (core.autocrlf=true) still runs the sh scripts
+# and hashes the skill's files exactly as macOS and Linux do. Windows batch files need CRLF.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.png binary
+*.glb binary

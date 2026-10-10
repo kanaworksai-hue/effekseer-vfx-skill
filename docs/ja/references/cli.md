@@ -2,7 +2,8 @@
 
 # コマンドリファレンス
 
-`sh <skill>/scripts/vfx [--project DIR] <command> [options]`。出力：stdout に JSON オブジェクトを一つ。ビルド中の進捗と lint の
+`sh <skill>/scripts/vfx [--project DIR] <command> [options]`（Windows では、Git Bash なら同じ形式、cmd や PowerShell なら
+`<skill>\scripts\vfx.cmd [--project DIR] <command> [options]`）。出力：stdout に JSON オブジェクトを一つ。ビルド中の進捗と lint の
 警告は stderr に出ます。終了コード：0 成功、1 チェック失敗またはエラー（`{"ok": false, "error": {...}}`）、
 2 セットアップが必要：ツールチェーンがない（`SetupRequired`）か、ここに作業領域がない（`WorkspaceMissing`）。
 画像の結果はファイルパスです — 開いて見てください。
@@ -13,7 +14,14 @@
 `vfx/src` のヘルパーは `_name` ファイルとしてしか解決されないので、プロジェクトのファイルが標準ライブラリを隠すことはありません。
 
 環境変数：`VFX_PROJECT`（プロジェクト。既定はカレントディレクトリ）、`EFFEKSEER_VFX_HOME`（ツールチェーン。既定は
-`~/.cache/effekseer-vfx`）、`GODOT`（Godot 4 の実行ファイル。既定は PATH 上の `godot`、次に `/Applications/Godot.app`）。
+`~/.cache/effekseer-vfx`、Windows では `%USERPROFILE%\.cache\effekseer-vfx`）、`GODOT`（Godot 4 の実行ファイル。既定は PATH 上の
+`godot` または `godot4`、次に `/Applications/Godot.app`。Windows では、Scoop や winget が `godot` を PATH に入れた場合を除き、
+ダウンロードした `Godot_v4.x_win64_console.exe` を指定します）。
+
+セットアップ：macOS と Linux では `sh <skill>/scripts/setup.sh [--authoring-only]`、Windows では
+`powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1 [--authoring-only]`（Git Bash の
+`sh setup.sh` はこれを実行します）。どちらも再実行しても安全で、ダウンロードはすべて固定された SHA-256 で検証し、
+`EFFEKSEER_VFX_HOME` の外には何もインストールしません。
 
 | コマンド | 必要なもの | 内容 |
 |---|---|---|

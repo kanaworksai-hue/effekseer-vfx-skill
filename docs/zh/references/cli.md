@@ -1,6 +1,7 @@
 # 命令参考
 
-`sh <skill>/scripts/vfx [--project DIR] <command> [options]`。输出：stdout 上的一个 JSON 对象；构建期间的进度和 lint 警告写到 stderr。
+`sh <skill>/scripts/vfx [--project DIR] <command> [options]`（Windows 上：在 Git Bash 里用法相同，在 cmd 或 PowerShell 里用
+`<skill>\scripts\vfx.cmd [--project DIR] <command> [options]`）。输出：stdout 上的一个 JSON 对象；构建期间的进度和 lint 警告写到 stderr。
 退出码：0 成功，1 检查失败或出错（`{"ok": false, "error": {...}}`），2 需要先安装：缺少工具链（`SetupRequired`）或这里没有工作区（`WorkspaceMissing`）。
 图片结果是文件路径 —— 要打开它们。
 
@@ -9,8 +10,14 @@
 失败，而不会创建一个多余的 `vfx/`。当前目录不在 Python 的 import 路径上，`vfx/src` 中的辅助模块只按 `_name` 文件解析，
 因此项目文件绝不会遮蔽标准库。
 
-环境变量：`VFX_PROJECT`（项目，默认当前目录）、`EFFEKSEER_VFX_HOME`（工具链，默认 `~/.cache/effekseer-vfx`）、
-`GODOT`（Godot 4 可执行文件，默认先找 PATH 上的 `godot`，再找 `/Applications/Godot.app`）。
+环境变量：`VFX_PROJECT`（项目，默认当前目录）、`EFFEKSEER_VFX_HOME`（工具链，默认 `~/.cache/effekseer-vfx`，Windows 上是 `%USERPROFILE%\.cache\effekseer-vfx`）、
+`GODOT`（Godot 4 可执行文件，默认先找 PATH 上的 `godot` 或 `godot4`，再找 `/Applications/Godot.app`；Windows 上请设为下载的
+`Godot_v4.x_win64_console.exe`，除非 Scoop 或 winget 已把 `godot` 放到了 PATH 上）。
+
+安装：macOS 和 Linux 上用 `sh <skill>/scripts/setup.sh [--authoring-only]`；Windows 上用
+`powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1 [--authoring-only]`（Git Bash 里的
+`sh setup.sh` 会调用它）。两者都可以安全地重复运行，每个下载都按固定的 SHA-256 校验，并且不会在
+`EFFEKSEER_VFX_HOME` 之外安装任何东西。
 
 | 命令 | 需要 | 作用 |
 |---|---|---|

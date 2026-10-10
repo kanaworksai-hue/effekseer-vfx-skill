@@ -104,10 +104,13 @@ single-effect strips stay local (`vfx/.gitignore` written by `init` handles this
 camera kick to judge the effect on its own; `--bright` uses a bright background. Each is stored separately and never
 overwrites the standard/default baseline or its metrics; the baseline for verification is standard/default.
 
-## Capture behaviour (macOS)
+## Capture behaviour (macOS / Windows)
 
 The user may be using the machine during a review: macOS stops drawing fully covered windows, and Godot steals focus
 on launch. In capture mode the Lab keeps its window on top, parked in the bottom-right corner with only a small part
 showing (the viewport still renders at 1280×800), ignores keyboard input and close requests, and the review hands
 focus back to the previous app (about a 0.2 s flicker per launch). Effects that exit early or never play are
 re-captured (up to 3 times).
+
+On Windows the Lab parks its window the same way, but the review does not hand focus back: the Godot window keeps
+focus until the capture ends (a two-effect review takes well under a minute). Do not minimise it while it captures.

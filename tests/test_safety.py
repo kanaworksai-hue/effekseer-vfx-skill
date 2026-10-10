@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from conftest import SCRIPTS, SKILL, cli_env, requires_core
+from conftest import SCRIPTS, SKILL, cli_env, requires_core, requires_symlinks, posix_only
 from test_package import vfx
 
 
@@ -155,6 +155,7 @@ def test_ownership_needs_the_marker_or_a_matching_receipt(owned_workspace):
     assert not owned({'id': 'VFX_Old'})
 
 
+@requires_symlinks
 def test_removal_refuses_paths_that_resolve_outside_the_workspace(owned_workspace, tmp_path_factory):
     from vfxkit.build import removable
     root = owned_workspace
@@ -232,6 +233,7 @@ def test_a_build_never_replaces_a_resource_another_built_effect_uses(tmp_path):
     assert (root / 'vfx/effects/resources/T_Impact01.png').read_bytes() == before
 
 
+@requires_symlinks
 def test_output_folders_that_resolve_outside_the_workspace_are_refused(owned_workspace, tmp_path_factory):
     from vfxkit.build import check_output_dirs
     root = owned_workspace
@@ -295,6 +297,7 @@ def test_setup_locks_with_the_kernel_not_a_lock_directory():
     assert 'mkdir "$LOCK"' not in setup and 'rm -rf "$LOCK"' not in setup
 
 
+@requires_symlinks
 def test_missing_output_folders_under_an_outside_link_are_refused(owned_workspace, tmp_path_factory):
     from vfxkit.build import check_output_dirs
     root = owned_workspace
@@ -304,6 +307,7 @@ def test_missing_output_folders_under_an_outside_link_are_refused(owned_workspac
         check_output_dirs()
 
 
+@requires_symlinks
 def test_file_links_that_lead_outside_are_never_written(owned_workspace, tmp_path_factory):
     from vfxkit.build import check_targets
     root = owned_workspace
@@ -367,6 +371,7 @@ def test_case_aliases_with_the_same_content_keep_every_spelling(tmp_path):
     assert set(found) == {'T_Glow.png', 't_glow.png'}
 
 
+@requires_symlinks
 @pytest.mark.parametrize('linked', ['godot/vfx_manifest.json', 'texture_prompts.json'])
 def test_init_never_writes_through_a_link_that_leads_outside(tmp_path, tmp_path_factory, linked):
     root = game(tmp_path)
@@ -392,6 +397,7 @@ def test_resource_names_compare_in_unicode_normal_form(tmp_path):
     assert may_use(effect, composed)
 
 
+@requires_symlinks
 def test_json_stores_never_write_through_a_pre_placed_temporary_link(tmp_path, tmp_path_factory, monkeypatch):
     import os
     from vfxkit import workflow
@@ -406,6 +412,7 @@ def test_json_stores_never_write_through_a_pre_placed_temporary_link(tmp_path, t
     assert not [p for p in (tmp_path / 'vfx/work').iterdir() if p.name.endswith('.tmp') and not p.is_symlink()]
 
 
+@posix_only
 def test_setup_without_a_new_enough_python_stops_clearly_and_drops_a_stale_env(tmp_path):
     import os
     import shutil as sh

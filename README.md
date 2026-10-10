@@ -20,12 +20,17 @@ Agent skills that let a coding agent (Claude Code, Codex, Cursor, Gemini CLI, Gi
 
 | Mode | What you can do | Needs |
 |---|---|---|
-| authoring | write briefs and recipes, lint, process and measure textures | Python 3.11+ or [uv](https://docs.astral.sh/uv/) on macOS or Linux (macOS's built-in Python 3.9 is too old; Windows: use WSL) |
-| build | compile `.efkefc` / `.efk` through the official EffekseerCore | **macOS on Apple silicon**, network for the first setup (~250 MB into `~/.cache/effekseer-vfx`) |
+| authoring | write briefs and recipes, lint, process and measure textures | Python 3.11+ or [uv](https://docs.astral.sh/uv/) on macOS, Linux or Windows (macOS's built-in Python 3.9 is too old) |
+| build | compile `.efkefc` / `.efk` through the official EffekseerCore | **macOS on Apple silicon** or **Windows x64**, network for the first setup (~250 MB into `~/.cache/effekseer-vfx`) |
 | render | Godot filmstrip review, Lab, preview, packaging | the above + [Godot 4](https://godotengine.org) (Forward+) on `PATH` or in `GODOT`; `ffmpeg` for reference clips and recordings |
 
-Build and render are verified only on macOS ARM64 (Effekseer Core 1.80.7, EffekseerForGodot4 1.80.5.1, Godot 4.7,
-.NET 9). Linux runs authoring mode; its build path is not verified.
+Build and render are verified on macOS ARM64 (Effekseer Core 1.80.7, EffekseerForGodot4 1.80.5.1, Godot 4.7, .NET 9)
+and on Windows 11 x64 (the same versions, Godot 4.7.2). Windows ARM64 gets the matching .NET runtime from setup but is
+not verified. Linux runs authoring mode; its build path is not verified.
+
+On Windows every `sh <skill>/scripts/...` command below also works from Git Bash (what Claude Code uses); from cmd or
+PowerShell use `<skill>\scripts\vfx.cmd` for `vfx` and
+`powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1` for `setup.sh`.
 
 ## Install
 
@@ -68,9 +73,11 @@ carries its own `LICENSE` (and `effekseer-vfx` its `THIRD_PARTY_NOTICES.md`), so
    Do not copy anything else; the skills are self-contained and read-only at run time.
 2. **Load them.** If the skills do not appear in your skill list yet, ask the user to start a new session.
 3. **Check the machine.** From the user's game project run `sh <skill>/scripts/vfx doctor` (`<skill>` is the
-   installed `effekseer-vfx` folder) and follow its `next` steps.
-4. **Ask before downloading.** `sh <skill>/scripts/setup.sh` installs the toolchain into `~/.cache/effekseer-vfx`
-   (about 250 MB on macOS ARM64; `--authoring-only` elsewhere), and the first `vfx init` downloads the official
+   installed `effekseer-vfx` folder; on Windows outside Git Bash, `<skill>\scripts\vfx.cmd doctor`) and follow its
+   `next` steps.
+4. **Ask before downloading.** `sh <skill>/scripts/setup.sh` (Windows: `setup.ps1`, the exact command is in
+   `doctor`'s `next`) installs the toolchain into `~/.cache/effekseer-vfx`
+   (about 250 MB on macOS ARM64 and Windows x64; `--authoring-only` elsewhere), and the first `vfx init` downloads the official
    Effekseer Godot plugin (about 34 MB). Setup needs Python 3.11+ or uv: if `doctor` reports neither, ask the user to
    install one. Godot 4 is never installed for the user; ask them to install it (or to allow
    you to) and set `GODOT` if it is not on `PATH`.
@@ -90,7 +97,7 @@ Ask your agent, in your game project: *"Set up the effekseer-vfx skill here and 
 
 ```sh
 sh <skill>/scripts/vfx doctor            # what this machine can do, and what to install
-sh <skill>/scripts/setup.sh              # macOS ARM64; use --authoring-only elsewhere (asks you first)
+sh <skill>/scripts/setup.sh              # macOS ARM64 / Windows x64; use --authoring-only elsewhere (asks you first)
 sh <skill>/scripts/vfx init              # creates vfx/ with the Godot Lab, materials and math textures
 sh <skill>/scripts/vfx examples add fire
 sh <skill>/scripts/vfx build --ids VFX_Projectile_Fire VFX_Fire_Explosion
@@ -129,8 +136,9 @@ See [`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references
 ## Repository layout
 
 ```
-skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI, setup.sh,
-                           vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric, brief schema, examples)
+skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI and vfx.cmd,
+                           setup.sh and setup.ps1, vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric,
+                           brief schema, examples)
 skills/vfx-review/         SKILL.md for the independent reviewer
 docs/zh/, docs/ja/         Chinese and Japanese translations of the references
 .claude-plugin/            Claude Code plugin and marketplace manifests
@@ -140,7 +148,9 @@ tests/                     pure-Python tests (no Core or Godot needed)
 ## Limitations
 
 - Review metrics are pixel heuristics on the real viewport, not GPU or overdraw measurements.
-- The review harness drives a windowed Godot on macOS; headless Linux capture is not supported yet.
+- The review harness drives a windowed Godot on macOS and Windows; headless Linux capture is not supported yet. On
+  Windows the Godot window keeps focus while it captures (macOS hands focus back to your app).
+- On Windows, the symlink-safety tests need Developer Mode (or an administrator shell) and are skipped without it.
 - Example scores are an independent review of the skill's own capsule-Lab renders (two of the thirteen were judged
   `iterate`); rebuild and review before relying on them.
 - `soft` particles are unverified in the Forward+ Lab and not used.
@@ -151,6 +161,14 @@ tests/                     pure-Python tests (no Core or Godot needed)
 sh skills/effekseer-vfx/scripts/setup.sh --authoring-only
 ~/.cache/effekseer-vfx/venv/bin/python -m pip install pytest
 ~/.cache/effekseer-vfx/venv/bin/python -m pytest -q tests
+```
+
+On Windows (PowerShell; drop `--authoring-only` to also run the EffekseerCore build tests):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts\setup.ps1 --authoring-only
+~\.cache\effekseer-vfx\venv\Scripts\python.exe -m pip install pytest   # a venv made by uv: uv pip install --python <that python.exe> pytest
+~\.cache\effekseer-vfx\venv\Scripts\python.exe -X utf8 -m pytest -q tests
 ```
 
 Contributions that confirm a new engine convention should add it to

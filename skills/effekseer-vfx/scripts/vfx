@@ -1,22 +1,38 @@
 #!/bin/sh
 # effekseer-vfx command line. Run as `sh <skill>/scripts/vfx <command>`; `vfx --help` lists the commands.
 # Uses the toolchain installed by setup.sh in EFFEKSEER_VFX_HOME (default ~/.cache/effekseer-vfx).
+# On Windows this also works from Git Bash or MSYS2; cmd and PowerShell use vfx.cmd next to this file.
 set -eu
 SCRIPTS=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-TOOLCHAIN=${EFFEKSEER_VFX_HOME:-$HOME/.cache/effekseer-vfx}
-PYTHON="$TOOLCHAIN/venv/bin/python"
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    # Native Windows Python: hand it Windows paths and ';'-separated lists, and the same default toolchain folder
+    # (%USERPROFILE%\.cache\effekseer-vfx) that vfx.cmd and setup.ps1 use.
+    TOOLCHAIN=$(cygpath -u "${EFFEKSEER_VFX_HOME:-${USERPROFILE:-$HOME}/.cache/effekseer-vfx}")
+    PYTHON="$TOOLCHAIN/venv/Scripts/python.exe"
+    winpath() { cygpath -w "$1"; }
+    SEP=';' ;;
+  *)
+    TOOLCHAIN=${EFFEKSEER_VFX_HOME:-$HOME/.cache/effekseer-vfx}
+    PYTHON="$TOOLCHAIN/venv/bin/python"
+    winpath() { printf '%s\n' "$1"; }
+    SEP=':' ;;
+esac
 if [ ! -x "$PYTHON" ]; then
   # doctor and --help run on the system Python so an agent can find out what to install.
-  PYTHON=$(command -v python3 || true)
+  PYTHON=$(command -v python3 || command -v python || true)
   if [ -z "$PYTHON" ]; then
     echo '{"ok": false, "error": {"type": "SetupRequired", "message": "python3 is not installed"}}'
     exit 2
   fi
 fi
-export DOTNET_ROOT="$TOOLCHAIN/dotnet"
-export EFFEKSEER_AI_BIN_DIR="$TOOLCHAIN/effekseer/Effekseer1.80.7Win/Tool/bin"
-export PYTHONPATH="$SCRIPTS${PYTHONPATH:+:$PYTHONPATH}"
+export EFFEKSEER_VFX_HOME="$(winpath "$TOOLCHAIN")"
+export DOTNET_ROOT="$(winpath "$TOOLCHAIN/dotnet")"
+export EFFEKSEER_AI_BIN_DIR="$(winpath "$TOOLCHAIN/effekseer/Effekseer1.80.7Win/Tool/bin")"
+export PYTHONPATH="$(winpath "$SCRIPTS")${PYTHONPATH:+$SEP$PYTHONPATH}"
 export PYTHONDONTWRITEBYTECODE=1
 # Keep the current directory (the game project) off sys.path: a project file named like a module must not shadow it.
 export PYTHONSAFEPATH=1
+# Read and write every text file as UTF-8, whatever the system locale or Windows code page.
+export PYTHONUTF8=1
 exec "$PYTHON" -m vfxkit "$@"

@@ -1,6 +1,7 @@
 """Workflow contracts: no stale evidence, dropped key moments or unlabelled reference clocks."""
 import copy
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -251,7 +252,8 @@ def test_project_lock_serializes_two_independent_processes(tmp_path):
     owner_code = common + '\nwith workflow.project_lock():\n print("held",flush=True)\n sys.stdin.readline()\n'
     contender_code = common + '\nwith workflow.project_lock():\n print("acquired",flush=True)\n'
     args = [str(SCRIPTS), str(tmp_path)]
-    env = {'VFX_PROJECT': str(tmp_path), 'PYTHONDONTWRITEBYTECODE': '1', 'PATH': '/usr/bin:/bin'}
+    env = {'VFX_PROJECT': str(tmp_path), 'EFFEKSEER_VFX_HOME': str(tmp_path / 'toolchain'), 'PYTHONDONTWRITEBYTECODE': '1', 'PATH': '/usr/bin:/bin',
+           **{k: os.environ[k] for k in ('SYSTEMROOT',) if k in os.environ}}  # Windows needs SYSTEMROOT to start Python
     owner = subprocess.Popen([sys.executable, '-c', owner_code, *args], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, env=env)
     contender = None
     try:

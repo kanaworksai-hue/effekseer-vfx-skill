@@ -1,6 +1,7 @@
 # Command reference
 
-`sh <skill>/scripts/vfx [--project DIR] <command> [options]`. Output: one JSON object on stdout; progress and lint
+`sh <skill>/scripts/vfx [--project DIR] <command> [options]` (on Windows: the same from Git Bash, or
+`<skill>\scripts\vfx.cmd [--project DIR] <command> [options]` from cmd or PowerShell). Output: one JSON object on stdout; progress and lint
 warnings during a build go to stderr. Exit codes: 0 ok, 1 failed check or error (`{"ok": false, "error": {...}}`),
 2 setup required: the toolchain is missing (`SetupRequired`) or there is no workspace here (`WorkspaceMissing`).
 Image results are file paths — open them.
@@ -12,7 +13,14 @@ kept off Python's import path, and `vfx/src` helpers resolve only as `_name` fil
 the standard library.
 
 Environment: `VFX_PROJECT` (project, default current directory), `EFFEKSEER_VFX_HOME` (toolchain, default
-`~/.cache/effekseer-vfx`), `GODOT` (Godot 4 executable, default `godot` on PATH, then `/Applications/Godot.app`).
+`~/.cache/effekseer-vfx`, on Windows `%USERPROFILE%\.cache\effekseer-vfx`), `GODOT` (Godot 4 executable, default
+`godot` or `godot4` on PATH, then `/Applications/Godot.app`; on Windows set it to the downloaded `Godot_v4.x_win64_console.exe`
+unless Scoop or winget put `godot` on PATH).
+
+Setup: `sh <skill>/scripts/setup.sh [--authoring-only]` on macOS and Linux;
+`powershell -NoProfile -ExecutionPolicy Bypass -File <skill>\scripts\setup.ps1 [--authoring-only]` on Windows (Git Bash's
+`sh setup.sh` runs it). Both are safe to re-run, verify every download against a pinned SHA-256 and install nothing
+outside `EFFEKSEER_VFX_HOME`.
 
 | Command | Needs | What it does |
 |---|---|---|
