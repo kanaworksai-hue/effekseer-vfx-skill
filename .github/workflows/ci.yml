@@ -24,8 +24,6 @@ jobs:
   windows:
     # Full Windows toolchain (EffekseerCore through .NET 9), so the Core build tests run too; no Godot, so render skips.
     runs-on: windows-latest
-    env:
-      EFFEKSEER_VFX_HOME: ${{ runner.temp }}\effekseer-vfx
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,6 +36,8 @@ jobs:
           key: effekseer-vfx-downloads-${{ hashFiles('skills/effekseer-vfx/scripts/setup.ps1') }}
       - name: Install the full toolchain
         shell: pwsh
+        env:
+          EFFEKSEER_VFX_HOME: ${{ runner.temp }}\effekseer-vfx
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts\setup.ps1
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
@@ -48,4 +48,6 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Tests
         shell: pwsh
+        env:
+          EFFEKSEER_VFX_HOME: ${{ runner.temp }}\effekseer-vfx
         run: '& "$env:EFFEKSEER_VFX_HOME\venv\Scripts\python.exe" -X utf8 -m pytest -q tests'
