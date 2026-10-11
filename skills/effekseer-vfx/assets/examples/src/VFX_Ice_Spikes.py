@@ -12,13 +12,13 @@ def recipe():
  # Faceted crystal meshes that punch up through the frost: real silhouettes from any angle, not painted cards.
  def spikes(tag,height,radius,delay,**kw):
   return crystal(tag,(125,210,255,245),height,radius,40,edge=(190,235,255,230),delay=delay,scale_start=[1,1,1],scale_curve=grow,
-   alpha_texture='T_NoiseTile02',cutoff=[[0,0],[78,0],[100,.95]],fade_in=0,fade_out=4,emissive=.85) | dict(falloff=dict(begin=[155,215,255,235],end=[205,240,255,245],pow=.35,blend='Mul'),culling='Front') | kw
+   alpha_texture='T_NoiseTile02',cutoff=dict(start=0,end=.95,easing='EaseInQuartic'),fade_in=0,fade_out=4,emissive=.85) | dict(falloff=dict(begin=[155,215,255,235],end=[205,240,255,245],pow=.35,blend='Mul'),culling='Front') | kw
  # Prism fringe on the cold wave: the same broken stroke in three hues, a few centimetres apart (ice's complementary accent).
  prism=[wisps(f'Cold wave {tag}',color,2.6,count=1,width=.25,sweep=(-30,230),life=14,delay=delay,tilt=(-90,0,0),size=1,position=[dx,.08,0],broken=.08,flow=-.06,texture='T_Trail02')
   for tag,color,dx,delay in [('R',(255,140,190,150),-.06,8),('G',(150,255,220,150),0,8),('B',(130,170,255,190),.06,9)]]
  return effect('Ice_Spikes','Ice Spikes','element','ice',1.35,[
   # Frost: a torn, uneven patch with bright cracks running through it, not a clean disc.
-  decal('Frost creep','T_Smoke02',cyan,4.2,life=60,size_curve=[[0,.1],[12,.8],[30,1],[100,1.03]],color_end=fade(deep),cutoff=[[0,.05],[100,.5]],fade_in=0,fade_out=30,angle=60),
+  decal('Frost creep','T_Smoke02',cyan,4.2,life=60,size_curve=[[0,.1],[12,.8],[30,1],[100,1.03]],color_end=fade(deep),cutoff=dict(start=.05,end=.5,easing='Linear'),fade_in=0,fade_out=30,angle=60),
   decal('Frost cracks','T_Crack01',(200,240,255,220),4.0,life=58,delay=3,size_curve=[[0,.3],[14,1],[100,1.02]],color_end=fade(deep),fade_in=0,fade_out=26,emissive=1.3,angle=25),
   decal('Frost glow','T_Glow01',(60,150,255,130),4.6,life=55,delay=2),
   # A tight core cluster leaning apart, a scatter of uneven crystals round it, and a ripple of crystals erupting in

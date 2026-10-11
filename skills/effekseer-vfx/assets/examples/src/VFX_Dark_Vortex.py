@@ -51,14 +51,14 @@ def recipe():
   sprite('Impact frame','T_SoftCircle',(4,0,10,215),life=2,delay=62,size=26,billboard='Billboard',blend='Blend',fade_in=0,fade_out=1),
   # Contact: a narrow hot disk rim preserves the absorptive centre; the slice carries the brightest accent.
   wisps('Collapse rim',pale,.8,count=1,width=.095,sweep=(0,285),life=5,delay=62,tilt=DISK,size=1,broken=.1,emissive=2.0),
-  sprite('Collapse core','T_Smoke02',(8,2,18,245),life=8,delay=61,size=1.2,size_curve=[[0,1],[35,.85],[100,.12]],billboard='Billboard',blend='Blend',cutoff=[[0,0],[100,.7]],fade_in=0,fade_out=4),
+  sprite('Collapse core','T_Smoke02',(8,2,18,245),life=8,delay=61,size=1.2,size_curve=[[0,1],[35,.85],[100,.12]],billboard='Billboard',blend='Blend',cutoff=dict(start=0,end=.7,easing='Linear'),fade_in=0,fade_out=4),
   glow('Release bloom',(150,60,255,140),4.0,life=18,delay=62),
   slice_line('Slice line',pale,10,width=.07,angle=-14,life=14,delay=62),
   slice_line('Cross line',(225,150,255,255),5.5,width=.045,angle=68,life=10,delay=64),
   # The release lies down on the disk plane as two torn strokes sweeping opposite ways, then goes out as grey smoke arcs.
   *release_wave,*[decay(arc,ash,lag=6,stretch=1.65) for arc in release_wave],
-  decal('Ground spiral','T_Vortex01',magenta,4.2,life=26,delay=62,spin=4,color_end=fade((110,90,120,255)),position=[.35,GROUND,.2],alpha_texture='T_NoiseTile01',cutoff=[[0,.2],[100,.65]],fade_in=0,fade_out=16,emissive=1.4),
-  decal('Spiral brand','T_Vortex01',(70,62,78,190),4.4,life=30,delay=68,spin=1.2,blend='Blend',position=[.35,GROUND+.01,.2],alpha_texture='T_NoiseTile01',cutoff=[[0,.15],[100,.6]],fade_in=4,fade_out=18),
+  decal('Ground spiral','T_Vortex01',magenta,4.2,life=26,delay=62,spin=4,color_end=fade((110,90,120,255)),position=[.35,GROUND,.2],alpha_texture='T_NoiseTile01',cutoff=dict(start=.2,end=.65,easing='Linear'),fade_in=0,fade_out=16,emissive=1.4),
+  decal('Spiral brand','T_Vortex01',(70,62,78,190),4.4,life=30,delay=68,spin=1.2,blend='Blend',position=[.35,GROUND+.01,.2],alpha_texture='T_NoiseTile01',cutoff=dict(start=.15,end=.6,easing='Linear'),fade_in=4,fade_out=18),
   # Complementary accent: a hot orange rim under the near side of the release, 5-10% of the frame.
   wisps('Ember rim',ember,2.1,count=1,width=.22,sweep=(100,265),life=16,delay=62,tilt=(-90,0,0),size=1,position=[0,GROUND+.05,0],broken=.12,emissive=1.6),
   distortion_ring('Release refraction',4.4,life=14,delay=62,strength=1.1),

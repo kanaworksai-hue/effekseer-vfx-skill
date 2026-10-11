@@ -4,7 +4,7 @@ description: Author real-time game VFX as code for the Effekseer engine and veri
 license: MIT
 compatibility: Build and render need macOS on Apple silicon or Windows (x64), Godot 4.x and network access for the first setup (Effekseer Core, .NET runtime, Effekseer Godot plugin). Authoring, lint and texture processing run on macOS, Linux or Windows with Python 3.11+.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Effekseer VFX

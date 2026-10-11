@@ -67,7 +67,7 @@
 |---|---|
 | `ramp((0,c0),(30,c1),(100,c2))` | 3〜5 個のストップによるライフ上の色 → `color_curve`（2 色の線形補間は色味付けに見える） |
 | `fade(color, alpha=0)` | 同じ RGB で新しいアルファ |
-| `POP`, `DISSOLVE` | パッと出てから漂うスケールカーブ。保持してから侵食するカットオフカーブ |
+| `POP`, `DISSOLVE` | パッと出てから漂うスケールカーブ。保持（ease-in）してから侵食するカットオフのイージング |
 | `sustain(layer, interval)` | 飛翔体のエミッター：解放まで `interval` フレームごとにインスタンスを一つ |
 | `TRAIL` | 位置/回転/スケールを生成時にだけ継承：レイヤーは経路上に留まる |
 | `slash_set(colors, roll, sweep=(110,260), radius=1.5, offset=(0,0,.5), lean=-18, delay=1, life=14)` | 3 つの幅を持つ一本の刃：2 フレーム遅れる幅広で薄暗い残像、高彩度の本体、細く白熱した縁（`slash_arc`）、屈折の弧、ペイント系のセル調の三日月（`T_Slash02`、刃の平面に置いた `billboard='Fixed'`、計測した `SLASH02_BULGE` で回転）。`colors` = (残像, 本体, 縁) |
@@ -88,5 +88,5 @@ save/open の読み戻しテストとともにコンパイラに追加しなけ�
 ## 単位
 
 レイヤーの `life`、`delay`、`interval`：60 FPS のフレーム数。速度と加速度：units per frame。重力：units per frame²。
-角度：度。色：RGBA 0–255。カーブ（`size_curve`、`cutoff`、`color_curve` など）：`[[percent_of_life, value], ...]`。
+角度：度。色：RGBA 0–255。カーブ（`size_curve`、`color_curve` など）：`[[percent_of_life, value], ...]`。`cutoff`（ディゾルブのしきい値、0..1）は数値（固定）、`dict(start=a, end=b, easing='Linear')`（粒子の寿命にわたって変化し、`EaseIn*` は形をしばらく保ちます）、またはカーブ（コンパイラが最も近いイージングに当てはめます）です。FCurve のしきい値は Godot では動きません（[エンジンの規約](engine-conventions.md)を参照）。
 マニフェストの `duration` と `peak`：秒。ランダムな範囲は `[min, max]`。

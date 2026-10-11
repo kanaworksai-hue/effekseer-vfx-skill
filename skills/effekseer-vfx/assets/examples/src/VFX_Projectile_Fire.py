@@ -16,7 +16,7 @@ def recipe():
   sustain(sprite('Flame trail','T_ExplosionSheet01',**ramp((0,(255,220,140,255)),(25,orange),(60,(200,55,15,200)),(100,(90,28,12,0))),life=[18,26],size=[.45,.95],size_end=[.15,.3],
    easing='EaseInQuadratic',rotation=[0,0,[-180,180]],flipbook=dict(x=4,y=4,frame_length=2,loop='Once',start=[3,7]),
    spawn=dict(shape='Sphere',radius=[0,.12],rotate=False),travel=dict(end=[0,[.45,.8],0],easing='EaseOutCubic'),inherit=TRAIL,
-   alpha_texture='T_NoiseTile01',cutoff=[[0,0],[30,.08],[100,.8]],edge=dict(color=[255,90,20,255],threshold=.06,scaling=2),fade_in=0,fade_out=6),1.5),
+   alpha_texture='T_NoiseTile01',cutoff=dict(start=0,end=.8,easing='EaseInQuadratic'),edge=dict(color=[255,90,20,255],threshold=.06,scaling=2),fade_in=0,fade_out=6),1.5),
   # Broken flame strokes wrapping the ball at a new tilt every emission: it churns instead of reading as a disc.
   sustain(wisps('Flame wisps',(255,130,40,255),.6,count=1,width=.22,sweep=(0,150),life=8,flow=-.1,emissive=1.1),2),
   sustain(motes('Embers',1,orange,color_end=red,size=(.05,.11),life=(18,28),distance=(.1,.45),radius=(0,.15),rise=.0006,turbulence=.001,inherit=TRAIL,spawn=dict(shape='Sphere',radius=[0,.08],rotate=False),travel=dict(end=[[-.7,-.3],[.35,.65],[-.2,.2]],easing='EaseOutCubic')),2.5),
@@ -28,7 +28,7 @@ def recipe():
   # Comet: a looping flame flipbook laid along the flight, tongues streaming back behind the boiling ball.
   # Comet tail: the same turbulent flipbook stretched back along the flight, so the head reads as a teardrop.
   sustain(sprite('Comet tail','T_ExplosionSheet01',(255,150,50,255),color_end=(255,80,20,255),life=6,scale_start=[[1.5,1.8],[.6,.75],1],rotation=[0,0,[-10,10]],position=[-.75,0,0],
-   flipbook=dict(x=4,y=4,frame_length=1,loop='Once',start=[3,8]),alpha_texture='T_NoiseTile01',cutoff=[[0,.05],[100,.4]],
+   flipbook=dict(x=4,y=4,frame_length=1,loop='Once',start=[3,8]),alpha_texture='T_NoiseTile01',cutoff=dict(start=.05,end=.4,easing='Linear'),
    fade_in=1,fade_out=3,emissive=.85),2),
   # Each head sprite plays a few dense frames of the explosion sheet from a random start, so the ball boils.
   sustain(sprite('Fireball','T_ExplosionSheet01',(255,170,60,255),color_end=(255,90,20,255),life=[5,7],scale_start=[[1.15,1.35],[.75,.9],1],rotation=[0,0,[-25,25]],spin=[0,0,[-3,3]],

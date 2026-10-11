@@ -85,7 +85,7 @@ def slash_arc(name,color,radius=1.5,width=.55,sweep=(-20,200),life=11,delay=0,ti
  return dict(name=name,renderer='Ring',texture=tex(texture),color=list(color),life=life,delay=delay,billboard='Fixed',rotation=list(tilt),
   ring=dict(vertices=96,outer=[radius,depth],inner=dict(start=[radius-width,-depth*.6],end=[radius-width*.25,-depth*.15]),center_ratio=.6,
    outer_color=list(color),center_color=list(color),inner_color=list(color),angle_start=[a0,a0+(a1-a0)*.4],angle_end=[a0+(a1-a0)*.12,a1],angle_easing='EaseOutQuartic',angle_fade=[25,4]),
-  alpha_texture=tex('T_NoiseStreak01'),cutoff=[[0,0],[35,.05],[100,.75]],fade_in=0,fade_out=life*.5,wrap='Clamp',**extra) | kw
+  alpha_texture=tex('T_NoiseStreak01'),cutoff=dict(start=0,end=.75,easing='EaseInQuadratic'),fade_in=0,fade_out=life*.5,wrap='Clamp',**extra) | kw
 
 def wisps(name,color,radius,count=4,width=.3,sweep=(0,150),life=(14,22),delay=0,interval=0,tilt=((-90,90),(0,360),(0,360)),size=(.7,1.3),
   flow=-.05,broken=.1,texture='T_WispTrail01',**kw):
@@ -96,7 +96,7 @@ def wisps(name,color,radius,count=4,width=.3,sweep=(0,150),life=(14,22),delay=0,
   billboard='Fixed',rotation=[list(t) if isinstance(t,(list,tuple)) else t for t in tilt],size=list(size) if isinstance(size,(list,tuple)) else size,
   ring=dict(vertices=72,outer=[radius,0],inner=dict(start=[radius-width,0],end=[radius-width*.3,0]),center_ratio=.45,
    outer_color=fade(color,color[3]//3),center_color=list(color),inner_color=fade(color),angle_start=[a0,a0+(a1-a0)*.5],angle_end=[a0+(a1-a0)*.2,a1],angle_easing='EaseOutCubic',angle_fade=[20,6]),
-  alpha_texture=tex('T_NoiseStreak01'),alpha_scroll=[flow,0],cutoff=[[0,broken],[45,broken+.08],[100,.8]],fade_in=1,fade_out=peak*.45,wrap='Clamp',emissive=2.0) | kw
+  alpha_texture=tex('T_NoiseStreak01'),alpha_scroll=[flow,0],cutoff=dict(start=broken,end=.8,easing='EaseInQuadratic'),fade_in=1,fade_out=peak*.45,wrap='Clamp',emissive=2.0) | kw
 
 def decay(layer,color,lag=6,stretch=2.2,name=None):
  """Emissive-to-smoke afterimage: the same stroke, alpha-blended grey, a few frames late and much longer lived, so the
@@ -139,7 +139,7 @@ def smoke(name,color,count=5,size=(.5,.9),grow=1.9,life=(30,48),delay=0,interval
  """Alpha-blended puffs that grow and slow down. The default painted flipbook billows, curls and tears itself
  apart over life (a single still puff only scales), so the noise dissolve is light; still textures erode harder."""
  sheet=texture.endswith('Sheet01')
- extra=dict(flipbook=dict(x=4,y=4,frame_length=max(1,round(max(life)/16)),loop='Once'),cutoff=[[0,0],[60,.04],[100,.3]]) if sheet else dict(cutoff=[[0,0],[40,.1],[100,.7]])
+ extra=dict(flipbook=dict(x=4,y=4,frame_length=max(1,round(max(life)/16)),loop='Once'),cutoff=dict(start=0,end=.3,easing='EaseInCubic')) if sheet else dict(cutoff=dict(start=0,end=.7,easing='EaseInQuadratic'))
  return sprite(name,texture,color,color_end=fade(color),count=count,life=list(life),delay=delay,interval=interval,blend='Blend',billboard='RotatedBillboard',
   spawn=dict(shape='Sphere',radius=list(radius)),velocity=[0,list(speed),0],rotation=[0,0,[-180,180]],spin=[0,0,[-.6,.6]],
   size=list(size),size_end=[size[0]*grow,size[1]*grow],easing='EaseOutCubic',forces=[dict(type='Gravity',gravity=[0,rise,0])],
@@ -155,7 +155,7 @@ def flame(name,color,color_end,size,life,count=1,**kw):
   billboard='YAxisFixed',pivot='bottom',flipbook=dict(x=4,y=4,frame_length=max(1,round(peak/16)),loop='Once'),
   # No UV distortion: on a 4x4 sheet it is measured in whole-texture UV, so .12 shifts half a cell and samples the
   # neighbouring frames, cutting the fire into hard-edged blocks.
-  alpha_texture='T_NoiseTile01',cutoff=[[0,.04],[40,.14],[100,.75]],edge=dict(color=[255,90,20,255],threshold=.06,scaling=2),
+  alpha_texture='T_NoiseTile01',cutoff=dict(start=.04,end=.5,easing='EaseInQuintic'),edge=dict(color=[255,90,20,255],threshold=.06,scaling=2),
   fade_in=1,fade_out=8,emissive=1.5) | kw
 
 def ramp(*stops):
@@ -182,7 +182,10 @@ def distortion_ring(name,radius,life=14,delay=0,strength=1.0,ground=False,**kw):
 
 def decal(name,texture,color,size,life,delay=0,spin=0,**kw):
  """Flat ground-plane sprite (rune, crack, scorch); depth-tested so characters stand on top of it."""
- return sprite(name,texture,color,life=life,delay=delay,billboard='Fixed',rotation=[-90,0,kw.pop('angle',0)],spin=[0,0,spin],position=[0,.05,0],size=size,z_test=True,fade_in=kw.pop('fade_in',4),fade_out=kw.pop('fade_out',life*.4)) | kw
+ # Extra fields go through sprite() so texture names (alpha_texture, ...) resolve to files like every other layer.
+ base=dict(billboard='Fixed',rotation=[-90,0,kw.pop('angle',0)],spin=[0,0,spin],position=[0,.05,0],z_test=True,
+  fade_in=kw.pop('fade_in',4),fade_out=kw.pop('fade_out',life*.4))
+ return sprite(name,texture,color,life=life,delay=delay,size=size,**(base|kw))
 
 def standing(name,texture,color,size,life,delay=0,**kw):
  """Upright camera-facing sprite that grows from its base."""
@@ -215,7 +218,7 @@ def shell(name,color,radius,life=14,delay=0,pow=.35,**kw):
  volume from any angle where a camera-facing ring reads as a flat hoop."""
  # Front faces only: with both sides drawn, the inner back faces also read as 'edge' and fill the bubble in.
  return mesh(name,'Sphere',color,life,radius=1,sides=48,rings=24,scale_start=[radius]*3,scale_curve=[[0,.15],[35,.75],[100,1]],culling='Front',delay=delay,
-  falloff=dict(begin=[0,0,0,0],end=[255,255,255,255],pow=pow,blend='Mul'),alpha_texture='T_NoiseTile01',cutoff=[[0,0],[30,.08],[100,.75]],
+  falloff=dict(begin=[0,0,0,0],end=[255,255,255,255],pow=pow,blend='Mul'),alpha_texture='T_NoiseTile01',cutoff=dict(start=0,end=.75,easing='EaseInQuadratic'),
   fade_in=0,fade_out=life*.7) | kw   # the rim tears open as it expands instead of fading as one balloon
 
 def shell_fragments(name,color,radius,delay=80,life=28):
@@ -277,7 +280,10 @@ def budget(layer):
 # ---------------------------------------------------------------- recipe helpers
 
 POP=[[0,.4],[18,1],[100,1.1]]          # snap to size, then drift
-DISSOLVE=[[0,0],[40,.06],[100,.9]]     # hold solid, then erode through the alpha texture
+# Hold solid, then erode through the alpha texture. Dissolve thresholds are Easings over the particle's life (an FCurve
+# threshold does not animate in the Godot runtime, and Core clamps thresholds to 0..1): the ease-in keeps the shape
+# nearly whole for the first third, then eats it away.
+DISSOLVE=dict(start=0,end=.9,easing='EaseInQuadratic')
 # How a game performs each effect (manifest `delivery`); the Lab stages the exchange from it.
 SELF=dict(kind='self'); MELEE=dict(kind='melee'); TARGETED=dict(kind='targeted')
 # Trail layers keep the world position they were born at, so a moving projectile leaves them behind.

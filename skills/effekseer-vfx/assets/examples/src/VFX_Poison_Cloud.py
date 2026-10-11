@@ -13,19 +13,19 @@ def recipe():
   # Ground: an uneven acid pool spreads under the target, rim glowing, and bubbles keep breaking out of it.
   # An irregular painted puff laid flat is a ragged puddle; a soft circle reads as a clean disc however it is eroded.
   decal('Acid pool','T_Smoke02',(55,120,28,210),4.6,life=101,delay=3,blend='Blend',position=[.1,GROUND+.02,0],size_curve=[[0,.2],[12,.85],[100,1.05]],
-   cutoff=[[0,.05],[100,.5]],fade_in=0,fade_out=34,angle=20),
+   cutoff=dict(start=.05,end=.5,easing='Linear'),fade_in=0,fade_out=34,angle=20),
   decal('Pool sheen','T_Smoke02',(160,255,70,120),3.6,life=80,delay=4,position=[.2,GROUND+.03,.1],size_curve=[[0,.2],[12,.85],[100,1.05]],
-   cutoff=[[0,.25],[100,.8]],fade_in=0,fade_out=30,emissive=1.3,angle=140),
+   cutoff=dict(start=.25,end=.8,easing='Linear'),fade_in=0,fade_out=30,emissive=1.3,angle=140),
   sprite('Acid glints','T_Star01',(245,255,220,255),count=10,interval=8,delay=6,life=[8,12],size=.3,size_curve=[[0,.2],[30,1],[100,0]],rotation=[0,0,[0,90]],
    position=[[-.9,1.5],[GROUND+.1,GROUND+.5],[-.8,.8]],fade_in=0,fade_out=3,emissive=2.0),
   # Splash: a white-hot acid flash and three broken strokes thrown at random tilts.
   # Contact is a ragged acid splat, not the shared four-point flare.
-  sprite('Splash shadow','T_Explosion01',(65,22,78,240),life=10,delay=0,size=1.65,size_curve=[[0,1],[30,1.05],[100,1.15]],position=[0,-.12,0],rotation=[0,0,25],blend='Blend',cutoff=[[0,0],[100,.75]],fade_in=0,fade_out=5),
+  sprite('Splash shadow','T_Explosion01',(65,22,78,240),life=10,delay=0,size=1.65,size_curve=[[0,1],[30,1.05],[100,1.15]],position=[0,-.12,0],rotation=[0,0,25],blend='Blend',cutoff=dict(start=0,end=.75,easing='Linear'),fade_in=0,fade_out=5),
   glow('Splash core',(245,255,225,255),.32,life=3,delay=1,fade_out=2,emissive=1.8),
   sprite('Splash flash','T_Explosion01',(215,255,130,255),life=3,delay=1,size=.9,size_curve=[[0,.5],[30,1],[100,1.15]],rotation=[0,0,25],fade_in=0,fade_out=2,emissive=2.0),
   wisps('Splash strokes',acid,1.0,count=3,width=.3,sweep=(0,120),life=10,delay=1,size=(.8,1.2),emissive=1.6),
   sprite('Burst puff','T_Explosion01',(105,190,45,255),color_end=dark,count=2,delay=1,life=[18,24],size=[.65,.9],size_end=[1.0,1.3],easing='EaseOutQuartic',blend='Blend',
-   spawn=dict(shape='Sphere',radius=[.1,.3]),rotation=[0,0,[-180,180]],alpha_texture='T_NoiseTile01',cutoff=[[0,0],[30,.1],[100,.9]],fade_in=0,fade_out=5),
+   spawn=dict(shape='Sphere',radius=[.1,.3]),rotation=[0,0,[-180,180]],alpha_texture='T_NoiseTile01',cutoff=dict(start=0,end=.9,easing='EaseInQuadratic'),fade_in=0,fade_out=5),
   glow('Sick glow',(140,255,60,45),1.8,life=50,size_curve=[[0,.3],[10,1],[100,1.1]],fade_in=2,fade_out=30),
   # Value structure: a bruised purple underside first, then fumes that cool from acid yellow-green to murky green
   # to purple-grey, piled low and downwind (+X) instead of a round ball.

@@ -132,8 +132,11 @@ def test_advanced_layer_features_survive_core_roundtrip(tmp_path):
     arc, sparks, shell, spike, haze = [f'node/root/{i}' for i in range(5)]
     assert s.property_get(arc + '/DrawingValues/Ring/RingShape/Type/Value') == 'Crescent'
     assert s.property_get(arc + '/DrawingValues/Ring/RingShape/Crescent/EndingAngle_Easing/End/Max') == 200
-    assert s.property_get(arc + '/AdvancedRendererCommonValuesValues/AlphaCutoffParam/Type/Value') == 'FCurve'
-    assert len(s.curve_keys(arc + '/AdvancedRendererCommonValuesValues/AlphaCutoffParam/FCurve/S')) == 2
+    # A cutoff curve compiles to an Easing threshold (an FCurve threshold does not animate in the Godot runtime).
+    cut = arc + '/AdvancedRendererCommonValuesValues/AlphaCutoffParam/'
+    assert s.property_get(cut + 'Type/Value') == 'Easing'
+    assert s.property_get(cut + 'Easing/Type/Value') == 'Linear'
+    assert s.property_get(cut + 'Easing/Start/Max') == 0 and s.property_get(cut + 'Easing/End/Max') == pytest.approx(.8)
     assert s.property_get(sparks + '/GenerationLocationValues/Type/Value') == 'Sphere'
     assert s.property_get(sparks + '/LocationValues/Type/Value') == 'Easing'
     assert s.property_get(sparks + '/LocationValues/Easing/End/Y/Max') == 2
@@ -279,7 +282,7 @@ def test_reference_primitives_break_shapes_and_decay_to_smoke():
     arcs = wisps('w', (200, 100, 255, 255), 1.2, count=4, life=(14, 22), tilt=((-90, 90), (0, 360), (0, 360)))
     # Each stroke takes its own tilt and size, and the erosion starts above zero so no arc is ever a clean ring.
     assert arcs['renderer'] == 'Ring' and isinstance(arcs['rotation'][0], list) and isinstance(arcs['size'], list)
-    assert arcs['cutoff'][0][1] > 0 and arcs['ring']['angle_start'] != arcs['ring']['angle_end']
+    assert arcs['cutoff']['start'] > 0 and arcs['ring']['angle_start'] != arcs['ring']['angle_end']
     smoke = decay(arcs | {'delay': 5, 'emissive': 2}, (110, 100, 120, 170), lag=6, stretch=2)
     assert smoke['blend'] == 'Blend' and smoke['delay'] == 11 and smoke['life'] == [28, 44] and 'emissive' not in smoke
     assert smoke['ring']['center_color'] == [110, 100, 120, 170] and smoke['alpha_scroll'][0] == arcs['alpha_scroll'][0] * .4
@@ -360,3 +363,49 @@ def test_scaffold_syncs_character_models(tmp_path):
     (models / 'player.glb').write_bytes(b'glTF v2')
     initialize(tmp_path, install_plugin=False)
     assert copy.read_bytes() == b'glTF v2'
+
+
+def test_cutoff_curves_become_easings_that_keep_hold_and_tear():
+    from effekseer_ai.authoring import cutoff_easing, validate_layer
+    # Hold, then erode: an ease-in from 0 (Core clamps thresholds to 0..1, so a negative start cannot hold).
+    assert cutoff_easing([[0, 0], [40, .06], [100, .9]]) == {'start': 0, 'end': .9, 'easing': 'EaseInQuadratic'}
+    assert cutoff_easing([[0, 0], [84, 0], [90, .25], [96, .6], [100, .98]])['easing'] == 'EaseInQuartic'
+    # A shape that is already torn at birth keeps its starting threshold; a straight ramp stays linear.
+    assert cutoff_easing([[0, .1], [45, .18], [100, .8]])['start'] == .1
+    assert cutoff_easing([[0, .05], [100, .5]]) == {'start': .05, 'end': .5, 'easing': 'Linear'}
+    # A final key before 100 % is extrapolated to the end of life and clamped to 1.
+    assert cutoff_easing([[0, 0], [50, .6]]) == {'start': 0, 'end': 1.0, 'easing': 'Linear'}
+    assert cutoff_easing([[0, .3]]) == {'start': .3, 'end': .3, 'easing': 'Linear'}
+    assert validate_layer({'name': 'x', 'cutoff': {'start': 0, 'end': .5, 'easing': 'EaseInCubic'}}) == []
+    assert any('unknown field' in e for e in validate_layer({'name': 'x', 'cutoff': {'begin': 0, 'end': .5}}))
+
+
+@requires_core
+def test_easing_cutoff_survives_core_roundtrip(tmp_path):
+    from effekseer_ai.authoring import compile_effect
+    from effekseer_ai.session import EffectSession
+    tex = tmp_path / 'mask.png'
+    Image.new('RGBA', (64, 64), (255, 255, 255, 200)).save(tex)
+    recipe = {'duration': 1, 'layers': [
+        {'name': 'burn', 'texture': str(tex), 'alpha_texture': str(tex), 'life': 30,
+         'cutoff': {'start': .1, 'end': [.7, .9], 'easing': 'EaseInCubic'}, 'edge': {'color': [255, 150, 60, 255], 'threshold': .05}},
+        {'name': 'curve', 'texture': str(tex), 'alpha_texture': str(tex), 'life': 30, 'cutoff': [[0, 0], [40, .06], [100, .9]]}]}
+    compile_effect(recipe, tmp_path / 'burn.efkefc', tmp_path / 'burn.efk')
+    s = EffectSession.open(tmp_path / 'burn.efkefc')
+    cut = 'node/root/0/AdvancedRendererCommonValuesValues/AlphaCutoffParam/'
+    assert s.property_get(cut + 'Enabled/Value') is True and s.property_get(cut + 'Type/Value') == 'Easing'
+    assert s.property_get(cut + 'Easing/Type/Value') == 'EaseInCubic'
+    assert s.property_get(cut + 'Easing/Start/Min') == pytest.approx(.1) and s.property_get(cut + 'Easing/Start/Max') == pytest.approx(.1)
+    assert s.property_get(cut + 'Easing/End/Min') == pytest.approx(.7) and s.property_get(cut + 'Easing/End/Max') == pytest.approx(.9)
+    # A cutoff curve compiles to its fitted easing instead of an FCurve.
+    cut = 'node/root/1/AdvancedRendererCommonValuesValues/AlphaCutoffParam/'
+    assert s.property_get(cut + 'Type/Value') == 'Easing' and s.property_get(cut + 'Easing/Type/Value') == 'EaseInQuadratic'
+    assert s.property_get(cut + 'Easing/End/Max') == pytest.approx(.9)
+
+
+def test_decal_resolves_extra_textures_and_accepts_overrides():
+    from vfxkit.primitives import decal, DISSOLVE
+    seal = decal('seal', 'T_Ring01', (255, 255, 255, 255), 2, 30, alpha_texture='T_NoiseTile01', cutoff=DISSOLVE, emissive=1.4, position=[0, .2, 0])
+    # Extra texture fields resolve to files like every other layer; unresolved names were silently dropped by the compiler.
+    assert seal['alpha_texture'].endswith('T_NoiseTile01.png') and Path(seal['alpha_texture']).is_absolute()
+    assert seal['emissive'] == 1.4 and seal['position'] == [0, .2, 0] and seal['billboard'] == 'Fixed' and seal['z_test'] is True

@@ -66,6 +66,14 @@ lifetime · rendering, HDR and the Lab · anchors and placement · extending the
 - **UV distortion textures must be opaque RG offset maps** (`T_Distort01/02`). A white-on-alpha mask used as a
   distortion map distorts nothing.
 - **Alpha textures read the alpha channel**; every `T_Noise*` mask works directly for a `cutoff` dissolve.
+- **Dissolve thresholds animate only as an Easing.** Measured in Godot renders (EffekseerForGodot4 1.80.5.1, Lab and a
+  Mobile-renderer game): with `AlphaCutoffParam/Type = FCurve` (Percent or Time timeline) the threshold stays at its
+  first key for the whole life, so the shape never erodes; with `Type = Easing` it animates, and the easing type
+  (`Linear`, `EaseInQuadratic`, `EaseInCubic`, `EaseInQuartic`, `EaseInQuintic`, `EaseOut*`) shapes it. Core clamps
+  the start and end thresholds to 0..1, so a hold-then-erode dissolve is an ease-in, not a negative start. The
+  compiler always writes an Easing: `cutoff=dict(start=a, end=b, easing='EaseInQuadratic')` for exact control, or a
+  curve `[[percent, value], ...]`, which it fits with the closest easing (`cutoff_easing`). Read-back alone does not
+  show this; look at the strip.
 - **Flipbook integers**: `flipbook.frame_length`, `x` and `y` are integer Core properties and must be positive integers
   (4.5 is rejected natively; the field validator catches it first). Lengthen playback with integer frame lengths
   and life together.

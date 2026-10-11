@@ -21,7 +21,7 @@ def recipe():
    travel=dict(end=[0,[-1.15,-.9],0],easing='EaseInCubic'),fade_in=2,fade_out=2,emissive=2.2),1),
   sustain(distortion_ring('Lens',.8,life=6,strength=1.4,fade_in=1,fade_out=3),3),
   # The orb's body is churning black smoke rather than a clean disc: its silhouette tears and boils every frame.
-  sustain(sprite('Seed core','T_Smoke02',(6,1,16,245),life=7,size=.85,size_end=.5,blend='Blend',billboard='Billboard',cutoff=[[0,0],[100,.65]],fade_in=0,fade_out=3),3),
+  sustain(sprite('Seed core','T_Smoke02',(6,1,16,245),life=7,size=.85,size_end=.5,blend='Blend',billboard='Billboard',cutoff=dict(start=0,end=.65,easing='Linear'),fade_in=0,fade_out=3),3),
   sustain(smoke('Churn core',(4,0,10,250),size=(.85,1.05),grow=.85,life=(7,9),speed=(0,0),rise=0,radius=(0,.07),fade_in=0,fade_out=4),1),
   # Grey-violet dust visibly dragged into the orb from all sides.
   sustain(motes('Drawn dust',1,(190,170,210,255),color_end=(120,60,200,255),size=(.06,.11),life=(12,16),spawn=dict(shape='Sphere',radius=[1.1,1.5]),

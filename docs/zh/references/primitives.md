@@ -63,7 +63,7 @@
 |---|---|
 | `ramp((0,c0),(30,c1),(100,c2))` | 用 3–5 个节点描述随寿命变化的颜色 → `color_curve`（两色插值读起来只是一层色调） |
 | `fade(color, alpha=0)` | 相同的 RGB，新的 alpha |
-| `POP`、`DISSOLVE` | 先弹出再缓慢漂移的缩放曲线；先保持再侵蚀的 cutoff 曲线 |
+| `POP`、`DISSOLVE` | 先弹出再缓慢漂移的缩放曲线；先保持（ease-in）再侵蚀的 cutoff 缓动 |
 | `sustain(layer, interval)` | 飞行体发射器：每 `interval` 帧一个实例，直到释放 |
 | `TRAIL` | 只在创建时继承位置/旋转/缩放：该层留在路径上 |
 | `slash_set(colors, roll, sweep=(110,260), radius=1.5, offset=(0,0,.5), lean=-18, delay=1, life=14)` | 一把刀刃的三种宽度：晚两帧出现的宽而暗的残影、饱和的主体、细的白热边（`slash_arc`），一道折射弧，以及一个手绘赛璐璐月牙（`T_Slash02`，`billboard='Fixed'`，位于刀刃所在平面，按实测的 `SLASH02_BULGE` 旋转）；`colors` = (残影, 主体, 热边) |
@@ -82,5 +82,5 @@
 ## 单位
 
 层的 `life`、`delay`、`interval`：60 FPS 帧数。速度和加速度：单位/帧；重力：单位/帧²。角度：度。颜色：RGBA 0–255。
-曲线（`size_curve`、`cutoff`、`color_curve` 等）：`[[percent_of_life, value], ...]`。manifest 的 `duration` 和 `peak`：秒。
+曲线（`size_curve`、`color_curve` 等）：`[[percent_of_life, value], ...]`。`cutoff`（溶解阈值，0..1）可以是数字（固定）、`dict(start=a, end=b, easing='Linear')`（在粒子生命周期内变化，`EaseIn*` 会先保持形状），或者曲线（编译器会拟合为最接近的缓动）——FCurve 阈值在 Godot 中不会变化（见[引擎约定](engine-conventions.md)）。manifest 的 `duration` 和 `peak`：秒。
 随机范围写作 `[min, max]`。

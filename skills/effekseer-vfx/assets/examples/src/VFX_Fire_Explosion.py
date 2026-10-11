@@ -28,11 +28,11 @@ def recipe():
   # Painted flipbook billows that cool as they roll, thrown off-centre along the shot so the ball is lopsided.
   billow('Fireball',[(0,(255,210,150,255)),(12,orange),(45,(235,65,10,240)),(75,(170,35,10,200)),(100,(60,10,5,0))],size=[1.6,3.4],life=[24,32],count=3,delay=6,interval=1,
    spawn=dict(shape='Sphere',radius=[.2,1.0]),position=[.35,0,0],velocity=[0,[.006,.02],0],spin=[0,0,[-.8,.8]],emissive=.85,
-   alpha_texture='T_NoiseTile01',cutoff=[[0,0],[30,.12],[60,.42],[100,.8]],alpha_scroll=[.018,-.01],edge=dict(color=[255,80,15,255],threshold=.05,scaling=2)),
+   alpha_texture='T_NoiseTile01',cutoff=dict(start=0,end=.8,easing='Linear'),alpha_scroll=[.018,-.01],edge=dict(color=[255,80,15,255],threshold=.05,scaling=2)),
   # A mushroom head that keeps climbing after the blast.
   billow('Mushroom',[(0,orange),(25,(235,80,20,240)),(70,(150,35,10,180)),(100,(50,15,8,0))],size=[1.6,2.2],life=[30,36],count=2,delay=12,interval=3,
    spawn=dict(shape='Sphere',radius=[0,.3],rotate=False),travel=dict(end=[[.3,.75],[1.6,2.1],[-.2,.2]],easing='EaseOutCubic'),emissive=.85,
-   alpha_texture='T_NoiseTile01',cutoff=[[0,0],[40,.08],[100,.6]],edge=dict(color=[255,80,15,255],threshold=.05,scaling=2)),
+   alpha_texture='T_NoiseTile01',cutoff=dict(start=0,end=.6,easing='EaseInQuadratic'),edge=dict(color=[255,80,15,255],threshold=.05,scaling=2)),
   *ground_arcs,*[decay(arc,(90,78,70,170),lag=5,stretch=2.0) for arc in ground_arcs],
   distortion_ring('Refraction wave',3.8,life=16,delay=6,strength=1.0),
   heat_haze('Heat haze',4.2,life=50,delay=8,strength=.5),

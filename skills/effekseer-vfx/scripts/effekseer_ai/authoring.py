@@ -23,6 +23,7 @@ NESTED_FIELDS={
  'flipbook':{'x','y','frame_length','loop','start','lerp'},
  'inherit':{'location','rotation','scale','color'},
  'collide':{'height','bounce','friction','reduction','world'},
+ 'cutoff':{'start','end','easing'},
 }
 FORCE_FIELDS={'type','power','gravity','scale','octave','kind','control','min_range','max_range','position','rotation'}
 
@@ -54,6 +55,32 @@ def validate_layer(spec,where='',recursive=True):
  if recursive:
   for child in spec.get('children') or []:errors+=validate_layer(child,here)
  return errors
+
+CUTOFF_EASINGS={'Linear':lambda t:t,'EaseInQuadratic':lambda t:t**2,'EaseInCubic':lambda t:t**3,'EaseInQuartic':lambda t:t**4,
+ 'EaseOutQuadratic':lambda t:1-(1-t)**2,'EaseOutCubic':lambda t:1-(1-t)**3}
+
+def cutoff_easing(curve):
+ """{'start','end','easing'} equivalent of a cutoff curve [[percent_of_life, threshold], ...].
+
+ Thresholds are written as an Easing because the Godot runtime keeps an FCurve threshold at its first key. Core
+ clamps the values to 0..1, so the curve's shape goes into the easing type: start is the first key, end the curve
+ extended to 100 %, and the easing type is the one that fits the keys best (a curve that holds and then erodes
+ becomes an ease-in). Write the dict yourself for exact control.
+ """
+ keys=sorted((float(f),float(v)) for f,v in curve)
+ if not keys:raise ValueError('cutoff curve needs at least one key')
+ clamp=lambda v:round(min(1.0,max(0.0,v)),4)
+ start=clamp(keys[0][1])
+ if len(keys)==1:return {'start':start,'end':start,'easing':'Linear'}
+ (f0,v0),(f1,v1)=keys[-2],keys[-1]
+ end=clamp(v1+(v1-v0)/max(f1-f0,1e-6)*(100-f1))
+ def at(t):
+  for (a,va),(b,vb) in zip(keys,keys[1:]):
+   if t<=b:return va+(vb-va)*(t-a)/max(b-a,1e-6) if t>=a else va
+  return vb+(v1-v0)/max(f1-f0,1e-6)*(t-keys[-1][0])
+ samples=[at(t) for t in range(0,101,5)]
+ error=lambda f:sum((start+(end-start)*f(t/100)-v)**2 for t,v in zip(range(0,101,5),samples))
+ return {'start':start,'end':end,'easing':min(CUTOFF_EASINGS,key=lambda name:error(CUTOFF_EASINGS[name]))}
 
 def layer_schema():
  """Field names accepted by layer specs, for agents that want to check a recipe before compiling."""
@@ -129,7 +156,12 @@ class LayerBuilder:
    C=A+'AlphaCutoffParam/'; s(n,C+'Enabled',True)
    if isinstance(cutoff,(int,float)):s(n,C+'Type','Fixed'); s(n,C+'Fixed/Threshold',cutoff)
    else:
-    s(n,C+'Type','FCurve'); s(n,C+'FCurve/Timeline','Percent'); self.curve(n,C+'FCurve/S',cutoff)
+    # The threshold is always written as an Easing over the particle's life: the Godot runtime
+    # (EffekseerForGodot4 1.80.5.1) keeps an FCurve threshold at its first key, so a curve never erodes there.
+    # Core clamps the thresholds to 0..1; a hold-then-erode shape comes from an ease-in curve, not a negative start.
+    ease=cutoff if isinstance(cutoff,dict) else cutoff_easing(cutoff)
+    s(n,C+'Type','Easing'); r(n,C+'Easing/Start',ease['start']); r(n,C+'Easing/End',ease['end'])
+    s(n,C+'Easing/Type',ease.get('easing','Linear'))
    edge=spec.get('edge')
    if edge:
     self.color(n,C+'EdgeParam/EdgeColor',edge['color']); s(n,C+'EdgeParam/EdgeThreshold',edge.get('threshold',.1)); s(n,C+'EdgeParam/EdgeColorScaling',edge.get('scaling',2))

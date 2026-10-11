@@ -66,6 +66,13 @@
 - **UV ディストーションのテクスチャは不透明な RG オフセットマップでなければなりません**（`T_Distort01/02`）。アルファ上の白いマスクを
   ディストーションマップとして使っても、何も歪みません。
 - **アルファテクスチャはアルファチャンネルを読みます**。`T_Noise*` のマスクはどれも `cutoff` のディゾルブにそのまま使えます。
+- **ディゾルブのしきい値は Easing でないと動きません。** Godot の描画で計測しました（EffekseerForGodot4 1.80.5.1、Lab と
+  Mobile レンダラーのゲーム）。`AlphaCutoffParam/Type = FCurve`（Percent でも Time でも）のしきい値は寿命の間ずっと最初の
+  キーのままで、形は侵食されません。`Type = Easing` なら動き、カーブの形はイージングの種類（`Linear`、`EaseInQuadratic`、
+  `EaseInCubic`、`EaseInQuartic`、`EaseInQuintic`、`EaseOut*`）で決まります。Core は開始・終了しきい値を 0..1 に丸めるので、
+  「保ってから侵食する」形は負の開始値ではなく ease-in で作ります。コンパイラは常に Easing を書きます。正確に制御するなら
+  `cutoff=dict(start=a, end=b, easing='EaseInQuadratic')`、カーブ `[[percent, value], ...]` を書けば最も近いイージングに
+  当てはめます（`cutoff_easing`）。読み戻しだけでは分からないので、ストリップを見てください。
 - **フリップブックの整数**：`flipbook.frame_length`、`x`、`y` は Core の整数プロパティで、正の整数でなければなりません
   （4.5 はネイティブで拒否され、その前にフィールドのバリデータが捕まえます）。再生を長くするには、整数のフレーム長とライフを一緒に延ばします。
 - **フリップブックに UV ディストーションをかけない**：`distortion_intensity` はテクスチャ全体の UV で測られるので、4×4 シートで 0.12 は

@@ -66,7 +66,7 @@ nature: contact stars, glows, sparks and smoke puffs (stacked into volume).
 |---|---|
 | `ramp((0,c0),(30,c1),(100,c2))` | colour over life as 3–5 stops → `color_curve` (a two-colour lerp reads as a tint) |
 | `fade(color, alpha=0)` | same RGB, new alpha |
-| `POP`, `DISSOLVE` | scale curve that snaps then drifts; cutoff curve that holds then erodes |
+| `POP`, `DISSOLVE` | scale curve that snaps then drifts; cutoff easing that holds (ease-in) then erodes |
 | `sustain(layer, interval)` | projectile emitter: one instance every `interval` frames until release |
 | `TRAIL` | inherit position/rotation/scale only when created: the layer stays on the path |
 | `slash_set(colors, roll, sweep=(110,260), radius=1.5, offset=(0,0,.5), lean=-18, delay=1, life=14)` | one blade at three widths: a wide dim afterimage two frames late, a saturated body, a thin white-hot edge (`slash_arc`), a refraction arc, and a painted cel crescent (`T_Slash02`, `billboard='Fixed'` in the blade's plane, rotated by the measured `SLASH02_BULGE`); `colors` = (afterimage, body, edge) |
@@ -87,5 +87,8 @@ save/open read-back test, not written as raw property paths in a recipe (procedu
 ## Units
 
 Layer `life`, `delay`, `interval`: 60 FPS frames. Velocity and acceleration: units per frame; gravity: units per frame².
-Angles: degrees. Colours: RGBA 0–255. Curves (`size_curve`, `cutoff`, `color_curve`...): `[[percent_of_life, value], ...]`.
+Angles: degrees. Colours: RGBA 0–255. Curves (`size_curve`, `color_curve`...): `[[percent_of_life, value], ...]`.
+`cutoff` (dissolve threshold, 0..1): a number (fixed), `dict(start=a, end=b, easing='Linear')` (over the particle's life;
+`EaseIn*` holds the shape first), or a curve, which the compiler fits to the closest easing — an FCurve threshold does
+not animate in Godot (see [engine conventions](engine-conventions.md)).
 Manifest `duration` and `peak`: seconds. Random ranges are `[min, max]`.

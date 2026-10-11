@@ -49,6 +49,12 @@
 
 - **UV 扰动纹理必须是不透明的 RG 偏移图**（`T_Distort01/02`）。把白色带 alpha 的遮罩用作扰动图，什么也不会扭曲。
 - **Alpha 纹理读取 alpha 通道**；每个 `T_Noise*` 遮罩都可以直接用于 `cutoff` 溶解。
+- **溶解阈值只有写成 Easing 才会动。** 在 Godot 渲染中实测（EffekseerForGodot4 1.80.5.1，Lab 与 Mobile 渲染器游戏）：
+  `AlphaCutoffParam/Type = FCurve`（Percent 或 Time 时间轴）时，阈值整个生命周期都停在第一个关键帧，形状永远不会被侵蚀；
+  `Type = Easing` 时会正常变化，曲线形状由缓动类型决定（`Linear`、`EaseInQuadratic`、`EaseInCubic`、`EaseInQuartic`、
+  `EaseInQuintic`、`EaseOut*`）。Core 会把起止阈值限制在 0..1，所以“先保持再侵蚀”要用 ease-in，而不是负的起始值。
+  编译器总是写成 Easing：需要精确控制时写 `cutoff=dict(start=a, end=b, easing='EaseInQuadratic')`；写曲线
+  `[[percent, value], ...]` 时，编译器会用最接近的缓动拟合（`cutoff_easing`）。仅靠读回无法发现这个问题，要看条带图。
 - **序列帧整数**：`flipbook.frame_length`、`x` 和 `y` 是 Core 的整数属性，必须是正整数（4.5 会被原生拒绝；字段校验器会先拦下它）。
   要延长播放，就同时调整整数的帧长度和寿命。
 - **序列帧上不能用 UV 扰动**：`distortion_intensity` 以整张纹理的 UV 计量，所以在 4×4 图集上 0.12 会偏移半格，采样到相邻帧 ——

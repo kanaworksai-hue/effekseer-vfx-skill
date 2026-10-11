@@ -71,6 +71,9 @@ In the original iterations the geometric gaps worked first, but large fragments 
 independent review still said iterate; a further round adjusted fragment life and RGB decay to finish the exit.
 Adding a new shape does not excuse the last frame. This failure shows only that this shell material combination
 does not erode visibly — not that Model layers never support alpha cutoff — and the fix kept the official renderer.
+Later measurement found the cause: in the Godot runtime an FCurve cutoff threshold never leaves its first key, so no
+cutoff curve eroded anything (see [engine conventions](engine-conventions.md)). Cutoffs now compile to Easings; the
+fragments remain the readable break-up.
 
 ## Using a case
 
