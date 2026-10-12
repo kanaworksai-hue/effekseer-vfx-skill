@@ -11,7 +11,8 @@
 
 - **`effekseer-vfx`** — 制作スキル。クラフトルール、実測で確認済みの Effekseer/Godot エンジン規約、組み合わせて使える約 30 個のレイヤープリミティブ、静的 linter、save/open の読み戻し検証付きの公式 EffekseerCore コンパイラ、すべてのエフェクトを 2 体のダミー間のやり取りとして演出する Godot Lab、ピクセルフラグ付きのフィルムストリップ撮影、反復履歴、そしてレビューを実際に見たビルドへ結び付ける改ざん検知可能なエビデンスを備えています。
 - **`vfx-review`** — レビュアースキル。作者は自分の作品を採点しないため、別のエージェントがレシピを見ずに、固定の評価基準でストリップを採点します。
-- **サンプル** — 完成済みのエフェクト 13 種。ブリーフとテクスチャ付き：遠距離ペア 4 組（炎、氷、毒、闇：飛翔体 + 着弾）と、ヒット・斬撃・チャージ・シールド・ヒール各 1 種。前後比較の診断事例 3 件も付属。
+- **サンプル** — 完成済みのエフェクト 16 種。ブリーフとテクスチャ付き：遠距離ペア 4 組（炎、氷、毒、闇：飛翔体 + 着弾）、ヒット・斬撃・チャージ・シールド・ヒール各 1 種、そして怪獣セット（背びれを昇っていくチャージ、薙ぎ払えるアトミックビーム、写真調の爆発）。前後比較の診断事例 3 件も付属。
+- **大規模でリアルなエフェクト** — `scale='kaiju'` は、キャラクタースケールのレシピを 40 倍大きく 2.5 倍遅くビルドします（サイズ、速度、重力、予算、レビューのカメラがすべて追従します）。`beam()` は、ゲームが毎フレーム終点を動かす保持型のビームを作ります（`Vfx.beam()` → `aim()` → `release()`）。`charge_chain()` は点の連なりに沿ってアークを灯します。写真調の炎、煤、煙のフリップブック。Forward+ で検証済みのソフトパーティクル。
 
 ## 動作要件
 
@@ -111,7 +112,18 @@ var shot = Vfx.launch("VFX_Projectile_Fire", from, to)
 shot.arrived.connect(func(at): Vfx.play("VFX_Fire_Explosion", at))
 ```
 
-[`docs/ja/references/godot.md`](docs/ja/references/godot.md) を参照してください（英語原文：[`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references/godot.md)）。
+ビームは毎フレーム狙いを付けます。終点（レイキャスト、ターゲットのボーン）はゲームが持ちます。
+
+```gdscript
+var ray = Vfx.beam("VFX_Kaiju_Atomic_Beam", mouth, target)
+ray.aim(mouth, new_target)   # each frame: sweep, follow the head
+ray.release()                # narrows and fades out, then frees itself
+```
+
+`aim()` は毎フレーム呼び、薙ぎ払いと頭部への追従を行います。`release()` でビームは細くなってフェードアウトし、その後自身を解放します。
+
+[`docs/ja/references/godot.md`](docs/ja/references/godot.md) を参照してください（英語原文：[`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references/godot.md)）。巨人や怪獣については
+[`docs/ja/references/scale.md`](docs/ja/references/scale.md)（英語原文：[`skills/effekseer-vfx/references/scale.md`](skills/effekseer-vfx/references/scale.md)）も参照してください。
 
 ## リポジトリ構成
 
@@ -139,8 +151,8 @@ tests/                     pure-Python tests (no Core or Godot needed)
 - レビューのハーネスは macOS と Windows 上でウィンドウ表示の Godot を操作します。ヘッドレス Linux での撮影はまだサポートしていません。
   Windows では、撮影中 Godot ウィンドウがフォーカスを保持し続けます（macOS ではフォーカスがお使いのアプリに戻ります）。
 - Windows では、シンボリックリンクの安全性テストに開発者モード（または管理者権限のシェル）が必要で、無効だとスキップされます。
-- サンプルのスコアは、スキル同梱のカプセル Lab でのレンダーに対する独立レビューの結果です（13 種のうち 2 種は `iterate` 判定）。頼りにする前に、ビルドとレビューをやり直してください。
-- `soft` パーティクルは Forward+ の Lab で未検証のため、使用していません。
+- サンプルのスコアは、スキル同梱のカプセル Lab でのレンダーに対する独立レビューの結果です（16 種のうち 2 種は `iterate` 判定）。頼りにする前に、ビルドとレビューをやり直してください。
+- `soft` パーティクルは Forward+ で検証済みです（フェードするのは不透明な深度に対してだけです）。Compatibility レンダラーには深度テクスチャがなく、使用できません。
 
 ## 開発
 

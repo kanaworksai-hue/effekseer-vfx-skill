@@ -15,7 +15,7 @@ on top** (the Godot plugin ignores ZWrite between effect layers).
 
 ## `effect()` fields
 
-`effect(id, name, category, element, duration, layers, attach='impact', peak=.1, impact=0, light=(1,.85,.6), loop=False, design='', delivery=None, flight=None, arc=None)`
+`effect(id, name, category, element, duration, layers, attach='impact', peak=.1, impact=0, light=(1,.85,.6), loop=False, design='', delivery=None, flight=None, arc=None, hold=None, inputs=None, scale=None)`
 
 | Field | Meaning |
 |---|---|
@@ -24,8 +24,11 @@ on top** (the Godot plugin ignores ZWrite between effect layers).
 | `duration`, `peak` | seconds; `peak` is the contact/release moment the Lab flash, kick and target reaction use |
 | `attach` | anchor: `ground`, `body`, `impact`, `caster`, `caster_ground`, `projectile` |
 | `impact`, `light` | 0–1 strength and RGB of the Lab's stage flash and camera kick (demo staging only) |
-| `delivery` | how a game performs it: `SELF`, `MELEE`, `TARGETED`, `dict(kind='area')`, `dict(kind='projectile')` for the projectile itself, `dict(kind='projectile', projectile='VFX_X')` for its impact |
+| `delivery` | how a game performs it: `SELF`, `MELEE`, `TARGETED`, `dict(kind='area')`, `dict(kind='projectile')` for the projectile itself, `dict(kind='projectile', projectile='VFX_X')` for its impact, `BEAM` or `dict(kind='beam', charge='VFX_X')` for a held beam (the Lab plays the charge first) |
 | `flight`, `arc` | projectile only: reference flight seconds and lob height in metres |
+| `hold` | beam only: seconds the Lab fires it before release; `infinite` layers emit until then |
+| `inputs` | default values of the game inputs `@In0..@In3` that `bind` equations read; beams use `beam_inputs(length)` |
+| `scale` | `'giant'`, `'kaiju'`, a number or `{'world','time','budget'}`: build a character-scale recipe for a larger world ([scale](scale.md)) |
 | `design` | one sentence of what the player sees; shown in the Lab and given to reviewers |
 
 ## Primitives
@@ -59,6 +62,8 @@ nature: contact stars, glows, sparks and smoke puffs (stacked into volume).
 | `slice_line` | long thin line at release | `T_Streak01` shooting from 35 % to full length while thinning; `width` is the visible thickness |
 | `spray(end)` / `debris` | directional spray along the shot, dark tumbling chunks | non-rotating emission + world-direction `travel` box; Blend `T_Shard01` with gravity, can land |
 | `decay(layer, color)` | glow → grey smoke afterimage | copy as Blend grey, `lag` frames later, life × `stretch`, no emissive, slower flow |
+| `beam(name, core, body, rim, width=.5, ...)` | sustained beam the game aims and sweeps (breath weapon, laser, death ray) | axial billboards (`YAxisFixed`, pivot at the base) stretched to `@In0` and widened by `@In1` through `bind`; `T_BeamSection01` cross-section, noise streaming outward, mouth and end flashes, end sparks, optional `steam` and `scorch` left in world space ([godot](godot.md#beams)) |
+| `charge_chain(name, anchors, color, hot, step=4, ...)` | arcs lighting a chain of points one after another (dorsal plates, coils, a ley line) | node glow + pop per anchor at `delay + i*step`; painted `T_ArcStrand01` arcs on a `DirectionalBillboard` aimed at the next anchor by an imperceptible velocity, re-struck mirrored every `restrike` frames until `until` |
 
 ## Helpers
 
@@ -68,6 +73,8 @@ nature: contact stars, glows, sparks and smoke puffs (stacked into volume).
 | `fade(color, alpha=0)` | same RGB, new alpha |
 | `POP`, `DISSOLVE` | scale curve that snaps then drifts; cutoff easing that holds (ease-in) then erodes |
 | `sustain(layer, interval)` | projectile emitter: one instance every `interval` frames until release |
+| `held(layer, interval)` | sustained cross-fade: an instance every `interval` frames, each fading in and out over `interval`, so two always overlap and sum to a constant (a steady beam with no loop seam) |
+| `beam_inputs(length, power=1)`, `BEAM_LENGTH`, `BEAM_POWER`, `BEAM` | the beam's default inputs, the `@In0`/`@In1` names its bind equations use, and its delivery |
 | `TRAIL` | inherit position/rotation/scale only when created: the layer stays on the path |
 | `slash_set(colors, roll, sweep=(110,260), radius=1.5, offset=(0,0,.5), lean=-18, delay=1, life=14)` | one blade at three widths: a wide dim afterimage two frames late, a saturated body, a thin white-hot edge (`slash_arc`), a refraction arc, and a painted cel crescent (`T_Slash02`, `billboard='Fixed'` in the blade's plane, rotated by the measured `SLASH02_BULGE`); `colors` = (afterimage, body, edge) |
 | `swing(layers, yaw, pitch=0)` | wrap blade layers in a `renderer='None'` pivot so the arc cuts through 3D space; yaw about ±30–40° reads as an ellipse rather than a screen crescent |
@@ -76,13 +83,24 @@ nature: contact stars, glows, sparks and smoke puffs (stacked into volume).
 
 ## Layer fields
 
-Beyond PVA, scale and colour the compiler supports: `collide` (floor bounce), `soft` (see engine conventions),
+Beyond PVA, scale and colour the compiler supports: `collide` (floor bounce), `soft` (fade distance in world units
+where the particle meets opaque geometry; verified in Forward+, see engine conventions), `bind` (position/scale
+recomputed every frame from the game inputs, below),
 `size` / `size_end` / `size_curve` (uniform scale), `color_end`, `color_curve`, `travel` (eased displacement), `spawn`
 (sphere, circle, line emitters), `forces` (gravity, turbulence, vortex), `alpha_texture` + `cutoff` + `edge`
 (dissolve with a hot rim), `distortion_texture`, `blend_texture`, `falloff` (fresnel), `flipbook`, `pivot`,
 `ring{...}`, `inherit`, `track_size`, `material` (`BackDistortion`), `children`. `vfx layer-schema` lists every
 accepted key; unknown keys fail with a spelling suggestion. Anything else must be added to the compiler with a
 save/open read-back test, not written as raw property paths in a recipe (procedure: [engine conventions](engine-conventions.md#extending-the-compiler)).
+
+### `bind`: values the game drives
+
+`bind={'position': [x, y, z], 'scale': [x, y, z]}` replaces the layer's position or scale with a Fixed vector that
+an Effekseer dynamic equation recomputes **every frame** from the game inputs `@In0..@In3` (`handle.set_input()` /
+`Vfx.beam()` in Godot). Each component is a number, an equation string (`'@In0'`, `'@In0 * 0.5'`) or a product
+`[k, '@In1']` whose constant `k` scales with the recipe's world scale while the input stays a world value. The
+recipe must give `inputs=[...]` defaults for every input it reads. A bound scale cannot be combined with
+`size`/`scale_*` fields and a bound position not with `travel`/`velocity`; children follow a bound parent.
 
 ## Units
 

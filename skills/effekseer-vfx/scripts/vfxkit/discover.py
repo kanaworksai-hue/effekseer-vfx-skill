@@ -5,8 +5,8 @@ from .paths import WORK
 
 def discover():
     from effekseer_ai.session import EffectSession
-    from System import Enum
     s = EffectSession.new()
+    from System import Enum  # .NET namespaces import only after EffectSession has loaded Core
     p = 'node/root/0'
     result = {}
     for x in s.property_list(p, 12):

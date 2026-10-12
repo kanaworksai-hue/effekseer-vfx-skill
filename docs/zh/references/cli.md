@@ -23,9 +23,9 @@
 |---|---|---|
 | `doctor` | — | 平台、工具链、工作区；`modes` 和 `next` 步骤 |
 | `init [--update-templates] [--no-plugin]` | Python | 创建/刷新 `vfx/`（Lab、材质、数学纹理、入门手绘纹理）；下载官方 Effekseer Godot 插件（固定校验和） |
-| `examples [list]` | — | 随附的配对和单独效果，以及它们的历史分数、结论和最弱项 |
-| `examples show <name\|ID>` | Python | 带绝对帧号和职责的层计划（配对会同时显示两个效果） |
-| `examples add <name\|ID\|all> [--force]` | Python | 把示例源码、简报、手绘纹理和提示词复制到项目中；名称：`fire`、`ice`、`poison`、`dark`、`hit`、`slash`、`charge`、`shield`、`heal` |
+| `examples [list]` | — | 随附的配对、单独效果和套组，以及它们的历史分数、结论和最弱项 |
+| `examples show <name\|ID>` | Python | 带绝对帧号和职责的层计划（配对或套组会显示其中每个效果） |
+| `examples add <name\|ID\|all> [--force]` | Python | 把示例源码、简报、手绘纹理和提示词复制到项目中；名称：`fire`、`ice`、`poison`、`dark`、`hit`、`slash`、`charge`、`shield`、`heal`、`kaiju` |
 | `procedural` | Python | 重新生成数学基元纹理 |
 | `list` | Python | `vfx/src` 中的效果及其类别、时间、delivery、design 和构建状态；加载失败的源码列在 `unloaded` 中 |
 | `lint [--ids ...] [--timeline]` | Python | 静态规则（error）和制作启发式（warning），见下文 |

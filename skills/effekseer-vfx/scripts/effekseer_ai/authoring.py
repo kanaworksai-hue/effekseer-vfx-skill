@@ -1,6 +1,6 @@
 """Reusable, discovered-property layer authoring. No GUI state is required."""
 from pathlib import Path
-import difflib, math
+import difflib, math, re
 from .session import EffectSession
 from .runtime import load_core
 
@@ -13,7 +13,7 @@ LAYER_FIELDS={
  'travel','position','velocity','acceleration','rotation','spin','scale_start','scale_end','scale_curve','size','size_end','size_curve','easing',
  'wrap','flipbook','alpha_texture','alpha_scroll','alpha_wrap','distortion_texture','distortion_scroll','distortion_intensity',
  'blend_texture','blend_scroll','blend_type','cutoff','edge','falloff','soft','collide','spawn','forces','inherit',
- 'infinite','remove_with_parent','z_sort','priority','properties','curves','children'}
+ 'infinite','remove_with_parent','z_sort','priority','properties','curves','children','bind'}
 NESTED_FIELDS={
  'ring':{'vertices','outer','inner','center_ratio','outer_color','center_color','inner_color','angle_start','angle_end','angle_easing','angle_fade'},
  'travel':{'start','end','easing'},
@@ -24,8 +24,19 @@ NESTED_FIELDS={
  'inherit':{'location','rotation','scale','color'},
  'collide':{'height','bounce','friction','reduction','world'},
  'cutoff':{'start','end','easing'},
+ 'bind':{'position','scale'},
 }
+# Dynamic equations: a game input (@In0..@In3), numbers, arithmetic and Effekseer's built-in functions only.
+EQUATION=re.compile(r'^[\s\w@.+\-*/(),]*$')
 FORCE_FIELDS={'type','power','gravity','scale','octave','kind','control','min_range','max_range','position','rotation'}
+
+def _number(v):return isinstance(v,(int,float)) and not isinstance(v,bool)
+def _term(v):
+ """A bind component: a number, an equation string, or [number, equation] meaning their product."""
+ return _number(v) or isinstance(v,str) or (isinstance(v,(list,tuple)) and len(v)==2 and _number(v[0]) and isinstance(v[1],str))
+def _code(v):
+ if isinstance(v,(list,tuple)):return f'{float(v[0])!r} * ({v[1]})'
+ return repr(float(v)) if _number(v) else v
 
 def _unknown(keys,allowed,where):
  errors=[]
@@ -52,6 +63,13 @@ def validate_layer(spec,where='',recursive=True):
  for i,force in enumerate(spec.get('forces') or []):
   if 'type' not in force:errors.append(f'{here}.forces[{i}]: force needs a type')
   errors+=_unknown(force,FORCE_FIELDS,f'{here}.forces[{i}]')
+ bind=spec.get('bind')
+ if isinstance(bind,dict):
+  for key,value in bind.items():
+   if not isinstance(value,(list,tuple)) or len(value)!=3 or not all(_term(v) for v in value):
+    errors.append(f'{here}.bind.{key}: needs three components, each a number, an equation string such as "@In0" or [number, "equation"] (their product)')
+   elif not all(EQUATION.match(_code(v)) for v in value):
+    errors.append(f'{here}.bind.{key}: equations may only use @In0..@In3, numbers, arithmetic and functions')
  if recursive:
   for child in spec.get('children') or []:errors+=validate_layer(child,here)
  return errors
@@ -91,6 +109,8 @@ class LayerBuilder:
   self.session=session
   self.schema=None
   self.writes=[]
+  self.equations={}   # equation code -> Core DynamicEquation, shared by every layer that binds the same code
+  self.bindings=[]    # (vector property path, equation code) for the save/open check
  def set(self,node,field,value):
   if self.schema is None:
    self.schema={p.removeprefix(node+'/') for p in self.session.property_list(node,12)}
@@ -130,6 +150,24 @@ class LayerBuilder:
    self.scalar(n,root+'/UV','Scroll')
    for axis,dim,speed in zip('XY',size,scroll):
     self.rand(n,root+'/UVScroll/Size/'+axis,dim); self.rand(n,root+'/UVScroll/Speed/'+axis,speed*dim)
+ def bind(self,n,bind):
+  """Fixed position/scale that a dynamic equation recomputes every frame from the game's inputs (@In0..@In3):
+  a beam's length or its end point follows Vfx.beam() while the particles are alive."""
+  core=load_core()
+  for key,group,vector in (('position','LocationValues','Fixed/Location'),('scale','ScalingValues','Fixed/Scale')):
+   if key not in bind:continue
+   code='\n'.join(f'@O.{axis} = {_code(value)}' for axis,value in zip('xyz',bind[key]))
+   if code not in self.equations:
+    core.Dynamic.Equations.New()
+    equation=list(core.Dynamic.Equations.Values)[-1]
+    equation.Name.SetValue(f'bind {len(self.equations)}'); equation.Code.SetValue(code)
+    self.equations[code]=equation
+   self.scalar(n,group+'/Type','Fixed')
+   for axis,value in zip('XYZ',bind[key]):
+    self.scalar(n,f'{group}/{vector}/{axis}',float(value) if _number(value) else 0.)
+   self.scalar(n,f'{group}/{vector}/IsDynamicEquationEnabled',True)
+   self.session._object_at_path(f'{n}/{group}/{vector}').DynamicEquation.SetValue(self.equations[code])
+   self.bindings.append((f'{n}/{group}/{vector}',code))
  def advanced(self,n,spec):
   """Optional native features: dissolve, UV distortion, blend texture, fresnel, flipbook, spawn shapes, forces."""
   s=self.scalar; r=self.rand; A='AdvancedRendererCommonValuesValues/'
@@ -334,6 +372,7 @@ class LayerBuilder:
    s(n,'ScalingValues/Type','Easing')
    v(n,'ScalingValues/Easing/Start',start,True); v(n,'ScalingValues/Easing/End',end,True)
    s(n,'ScalingValues/Easing/Type',spec.get('easing','EaseOutCubic'))
+  if spec.get('bind'):self.bind(n,spec['bind'])
   for field,value in spec.get('properties',{}).items(): self.set(n,field,value)
   for field,keys in spec.get('curves',{}).items(): self.curve(n,field,keys)
   for child in spec.get('children',[]):self.layer(child,n)
@@ -353,6 +392,11 @@ def compile_effect(recipe,source_path,runtime_path=None):
  for layer in recipe['layers']:builder.layer(layer)
  core=load_core(); core.EndFrame=int(recipe.get('duration',1)*60); core.IsLoop=bool(recipe.get('loop',False))
  core.Global.RandomSeed.SetValue(int(recipe.get('seed',1729)))
+ # Default values of the game inputs (@In0..@In3) that bind equations read: what the Effekseer editor previews with and
+ # what a new Godot handle starts from until Vfx.gd pushes the game's values.
+ inputs=[float(v) for v in recipe.get('inputs') or []]
+ if len(inputs)>4:raise ValueError('Effekseer has four game inputs (@In0..@In3)')
+ for slot,value in enumerate(inputs):list(core.Dynamic.Inputs.Values)[slot].Input.SetValue(value)
  session.save()
  # Round-trip through the official reader before runtime export.
  session=EffectSession.open(source)
@@ -362,5 +406,10 @@ def compile_effect(recipe,source_path,runtime_path=None):
   actual=session.property_get(path)
   equal=math.isclose(actual,value,rel_tol=1e-5,abs_tol=1e-6) if isinstance(value,(int,float)) and not isinstance(value,bool) else actual==value
   if not equal:raise RuntimeError(f'Property did not survive Core save/open: {path}: {value!r} -> {actual!r}')
+ for path,code in builder.bindings:
+  equation=session._object_at_path(path).DynamicEquation.Value
+  if equation is None or equation.Code.Value!=code:raise RuntimeError(f'Dynamic equation did not survive Core save/open: {path}')
+ saved=[float(i.Input.Value) for i in load_core().Dynamic.Inputs.Values][:len(inputs)]
+ if not all(math.isclose(a,b,rel_tol=1e-5,abs_tol=1e-6) for a,b in zip(saved,inputs)):raise RuntimeError(f'Game input defaults did not survive Core save/open: {inputs} -> {saved}')
  if runtime_path:session.export(runtime_path)
  return {'source':str(source),'runtime':str(runtime_path) if runtime_path else None,'nodes':session.node_list(),'writes':len(builder.writes)}

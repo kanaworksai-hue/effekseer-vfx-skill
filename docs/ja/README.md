@@ -26,7 +26,9 @@
 | [review.md](references/review.md) | レビューループ、エビデンス、納品：フラグ、ストリップの読み方、独立レビュー、検証 |
 | [cases.md](references/cases.md) | 診断済みのケース：火の爆発、飛翔体の煙のテール、シールドの崩れを再構成したビフォー/アフター（画像付き） |
 | [cli.md](references/cli.md) | コマンドリファレンスと作業領域の構成 |
-| [examples.md](references/examples.md) | 同梱サンプル：炎・氷・毒・闇の飛翔体と着弾のペア 4 組と、ヒット・斬撃・チャージ・シールド・ヒールの単体 5 つ |
-| [godot.md](references/godot.md) | Godot でエフェクトを使う：API、Lab、チェック |
-| [engine-conventions.md](references/engine-conventions.md) | 検証済みのエンジン規約：角度と軸、力、メッシュとフレネル、フリップブック、継承、HDR、アンカー、コンパイラの拡張 |
-| [primitives.md](references/primitives.md) | レシピコードとプリミティブ：`effect()` のフィールド、プリミティブ、ヘルパー、レイヤーフィールド、単位 |
+| [examples.md](references/examples.md) | 同梱サンプル：炎・氷・毒・闇の飛翔体と着弾のペア 4 組、ヒット・斬撃・チャージ・シールド・ヒールの単体 5 つ、怪獣セット（チャージ、ビーム、爆発） |
+| [godot.md](references/godot.md) | Godot でエフェクトを使う：API、ビーム、スケールしたエフェクト、ソフトパーティクル、Lab、チェック |
+| [engine-conventions.md](references/engine-conventions.md) | 検証済みのエンジン規約：角度と軸、力、メッシュとフレネル、フリップブック、継承、ゲーム入力と動的方程式、HDR とソフトパーティクル、アンカー、コンパイラの拡張 |
+| [primitives.md](references/primitives.md) | レシピコードとプリミティブ：`effect()` のフィールド、プリミティブ、ヘルパー、レイヤーフィールド、`bind`、単位 |
+| [scale.md](references/scale.md) | ワールドスケール：巨人・怪獣・軍艦向けの `scale` の宣言、変換されるもの、スケール時の Lab とチェック |
+| [realism.md](references/realism.md) | 写真調の爆発・炎・煙：写真から取る色と明るさ、写真調のフリップブック、地面との接触、レイヤー計画 |

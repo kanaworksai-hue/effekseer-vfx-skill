@@ -13,7 +13,7 @@
 
 ## `effect()` 字段
 
-`effect(id, name, category, element, duration, layers, attach='impact', peak=.1, impact=0, light=(1,.85,.6), loop=False, design='', delivery=None, flight=None, arc=None)`
+`effect(id, name, category, element, duration, layers, attach='impact', peak=.1, impact=0, light=(1,.85,.6), loop=False, design='', delivery=None, flight=None, arc=None, hold=None, inputs=None, scale=None)`
 
 | 字段 | 含义 |
 |---|---|
@@ -22,8 +22,11 @@
 | `duration`、`peak` | 秒；`peak` 是 Lab 闪光、镜头抖动和目标反应所用的接触/释放时刻 |
 | `attach` | 锚点：`ground`、`body`、`impact`、`caster`、`caster_ground`、`projectile` |
 | `impact`、`light` | Lab 舞台闪光和镜头抖动的强度（0–1）和 RGB（仅用于演示舞台） |
-| `delivery` | 游戏如何演出它：`SELF`、`MELEE`、`TARGETED`、`dict(kind='area')`；飞行体本身用 `dict(kind='projectile')`，它的命中用 `dict(kind='projectile', projectile='VFX_X')` |
+| `delivery` | 游戏如何演出它：`SELF`、`MELEE`、`TARGETED`、`dict(kind='area')`；飞行体本身用 `dict(kind='projectile')`，它的命中用 `dict(kind='projectile', projectile='VFX_X')`；持续光束用 `BEAM` 或 `dict(kind='beam', charge='VFX_X')`（Lab 会先播放蓄力） |
 | `flight`、`arc` | 仅飞行体：参考飞行秒数和抛射高度（米） |
+| `hold` | 仅光束：Lab 在释放前持续发射它的秒数；`infinite` 的层一直发射到那时 |
+| `inputs` | `bind` 方程读取的游戏输入 `@In0..@In3` 的默认值；光束用 `beam_inputs(length)` |
+| `scale` | `'giant'`、`'kaiju'`、一个数字或 `{'world','time','budget'}`：为更大的世界构建角色尺度的配方（[scale](scale.md)） |
 | `design` | 一句话描述玩家看到什么；显示在 Lab 中，并提供给评审 |
 
 ## 基元
@@ -56,6 +59,8 @@
 | `slice_line` | 释放时的长细线 | `T_Streak01` 从 35 % 射到全长，同时变细；`width` 是可见粗细 |
 | `spray(end)` / `debris` | 沿射击方向的定向喷射、翻滚的暗色碎块 | 不旋转的发射 + 世界方向的 `travel` 盒；Blend `T_Shard01` 带重力，可以落地 |
 | `decay(layer, color)` | 光 → 灰烟残影 | 复制为 Blend 灰色，晚 `lag` 帧，寿命 × `stretch`，无 emissive，流动更慢 |
+| `beam(name, core, body, rim, width=.5, ...)` | 由游戏瞄准和扫动的持续光束（吐息武器、激光、死光） | 轴向 billboard（`YAxisFixed`，枢轴在底部），通过 `bind` 拉伸到 `@In0` 并按 `@In1` 加宽；`T_BeamSection01` 截面、向外流动的噪声、口部与末端闪光、末端火花，可选的 `steam` 和 `scorch` 留在世界空间中（[godot](godot.md#光束)） |
+| `charge_chain(name, anchors, color, hot, step=4, ...)` | 依次点亮一串点的电弧（背鳍骨板、线圈、地脉） | 每个锚点在 `delay + i*step` 处的节点光晕 + 弹出；手绘 `T_ArcStrand01` 电弧放在 `DirectionalBillboard` 上，由一个察觉不到的速度瞄准下一个锚点，每 `restrike` 帧镜像重新击出一次，直到 `until` |
 
 ## 辅助函数
 
@@ -65,6 +70,8 @@
 | `fade(color, alpha=0)` | 相同的 RGB，新的 alpha |
 | `POP`、`DISSOLVE` | 先弹出再缓慢漂移的缩放曲线；先保持（ease-in）再侵蚀的 cutoff 缓动 |
 | `sustain(layer, interval)` | 飞行体发射器：每 `interval` 帧一个实例，直到释放 |
+| `held(layer, interval)` | 持续的交叉淡化：每 `interval` 帧一个实例，每个实例在 `interval` 内淡入并淡出，因此总有两个重叠且总和恒定（没有循环接缝的稳定光束） |
+| `beam_inputs(length, power=1)`、`BEAM_LENGTH`、`BEAM_POWER`、`BEAM` | 光束的默认输入、其 bind 方程使用的 `@In0`/`@In1` 名称，以及它的 delivery |
 | `TRAIL` | 只在创建时继承位置/旋转/缩放：该层留在路径上 |
 | `slash_set(colors, roll, sweep=(110,260), radius=1.5, offset=(0,0,.5), lean=-18, delay=1, life=14)` | 一把刀刃的三种宽度：晚两帧出现的宽而暗的残影、饱和的主体、细的白热边（`slash_arc`），一道折射弧，以及一个手绘赛璐璐月牙（`T_Slash02`，`billboard='Fixed'`，位于刀刃所在平面，按实测的 `SLASH02_BULGE` 旋转）；`colors` = (残影, 主体, 热边) |
 | `swing(layers, yaw, pitch=0)` | 把刀刃层包进一个 `renderer='None'` 枢轴，让弧在 3D 空间中劈过；约 ±30–40° 的 yaw 读起来是椭圆，而不是屏幕上的月牙 |
@@ -73,11 +80,19 @@
 
 ## 层字段
 
-除 PVA、缩放和颜色之外，编译器还支持：`collide`（地面弹跳）、`soft`（见引擎约定）、`size` / `size_end` / `size_curve`（统一缩放）、
+除 PVA、缩放和颜色之外，编译器还支持：`collide`（地面弹跳）、`soft`（粒子与不透明几何体相接处的淡出距离，世界单位；已在 Forward+ 中验证，见引擎约定）、
+`bind`（每帧根据游戏输入重新计算的位置/缩放，见下文）、`size` / `size_end` / `size_curve`（统一缩放）、
 `color_end`、`color_curve`、`travel`（缓动位移）、`spawn`（球形、圆形、线形发射器）、`forces`（重力、湍流、涡旋）、
 `alpha_texture` + `cutoff` + `edge`（带热边的溶解）、`distortion_texture`、`blend_texture`、`falloff`（fresnel）、`flipbook`、`pivot`、
 `ring{...}`、`inherit`、`track_size`、`material`（`BackDistortion`）、`children`。`vfx layer-schema` 列出所有接受的键；
 未知的键会报错并给出拼写建议。其他任何东西都必须连同 save/open 回读测试一起加进编译器，而不是在配方里写裸属性路径（流程见 [引擎约定](engine-conventions.md#扩展编译器)）。
+
+### `bind`：由游戏驱动的值
+
+`bind={'position': [x, y, z], 'scale': [x, y, z]}` 把层的位置或缩放替换为一个 Fixed 向量，由 Effekseer 动态方程根据游戏输入
+`@In0..@In3`（Godot 中的 `handle.set_input()` / `Vfx.beam()`）**每帧**重新计算。每个分量可以是数字、方程字符串（`'@In0'`、`'@In0 * 0.5'`）
+或乘积 `[k, '@In1']`，其中常数 `k` 随配方的世界尺度缩放，而输入保持为世界值。配方必须用 `inputs=[...]` 为它读取的每个输入给出默认值。
+绑定的缩放不能与 `size`/`scale_*` 字段组合，绑定的位置不能与 `travel`/`velocity` 组合；子层跟随绑定的父层。
 
 ## 单位
 

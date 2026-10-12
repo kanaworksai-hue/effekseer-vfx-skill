@@ -28,7 +28,9 @@
 | [review.md](references/review.md) | 复查循环、证据与交付：review 产出、flag 含义、阅读连拍、独立评审、`effect-verify` |
 | [cases.md](references/cases.md) | 诊断案例：火焰爆炸、飞行体烟尾、护盾破碎三个重建的前后对照案例，附真实渲染对照图 |
 | [cli.md](references/cli.md) | 命令参考：所有 `vfx` 命令、所需环境和工作区结构 |
-| [examples.md](references/examples.md) | 随附示例：火、冰、毒、暗四组飞行体 + 命中配对，以及命中、斩击、蓄力、护盾、治疗五个单独效果及其用法 |
-| [godot.md](references/godot.md) | 在 Godot 中使用效果：`Vfx` API、Lab 操作、替身角色和运行时检查 |
-| [engine-conventions.md](references/engine-conventions.md) | 已验证的引擎约定：角度与坐标轴、力、网格与 fresnel、序列帧、继承、HDR 与 Lab、锚点、扩展编译器 |
-| [primitives.md](references/primitives.md) | 配方代码与基元：`effect()` 字段、基元表、辅助函数、层字段和单位 |
+| [examples.md](references/examples.md) | 随附示例：火、冰、毒、暗四组飞行体 + 命中配对，命中、斩击、蓄力、护盾、治疗五个单独效果，以及怪兽套组及其用法 |
+| [godot.md](references/godot.md) | 在 Godot 中使用效果：`Vfx` API、光束、放大的效果、软粒子、Lab 操作、替身角色和运行时检查 |
+| [engine-conventions.md](references/engine-conventions.md) | 已验证的引擎约定：角度与坐标轴、力、网格与 fresnel、序列帧、继承、游戏输入与动态方程、HDR 与 Lab、锚点、扩展编译器 |
+| [primitives.md](references/primitives.md) | 配方代码与基元：`effect()` 字段、基元表、辅助函数、层字段（含 `bind`）和单位 |
+| [scale.md](references/scale.md) | 世界尺度：巨人、怪兽、战舰的 `scale` 档位、哪些字段会换算、放大后的 Lab 和检查 |
+| [realism.md](references/realism.md) | 照片级的爆炸、火焰和烟：来自照片的颜色与亮度、照片级序列帧、与地面相接的 soft、层计划 |

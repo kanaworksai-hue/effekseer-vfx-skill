@@ -13,8 +13,13 @@ Agent skills that let a coding agent (Claude Code, Codex, Cursor, Gemini CLI, Gi
   tamper-evident evidence that ties a review to the exact build it saw.
 - **`vfx-review`** — the reviewer skill: a separate agent scores the strip against a fixed rubric without seeing the
   recipe, because the author never grades its own work.
-- **Examples** — thirteen finished effects with briefs and textures: four ranged pairs (fire, ice, poison, dark:
-  projectile + impact) and one each of hit, slash, charge, shield and heal, plus three diagnosed before/after cases.
+- **Examples** — sixteen finished effects with briefs and textures: four ranged pairs (fire, ice, poison, dark:
+  projectile + impact), one each of hit, slash, charge, shield and heal, and a kaiju set (a charge that climbs the
+  dorsal plates, a sweepable atomic beam, a photographic explosion), plus three diagnosed before/after cases.
+- **Large and realistic effects** — `scale='kaiju'` builds a character-scale recipe 40x larger and 2.5x slower
+  (sizes, speeds, gravity, budgets and the review camera all follow); `beam()` makes a held beam whose end point the
+  game moves every frame (`Vfx.beam()` → `aim()` → `release()`); `charge_chain()` lights arcs along a chain of
+  points; photographic fire, soot and smoke flipbooks; soft particles verified in Forward+.
 
 ## Requirements
 
@@ -131,7 +136,16 @@ var shot = Vfx.launch("VFX_Projectile_Fire", from, to)
 shot.arrived.connect(func(at): Vfx.play("VFX_Fire_Explosion", at))
 ```
 
-See [`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references/godot.md).
+Beams are aimed every frame; the game owns the end point (a ray cast, a target bone):
+
+```gdscript
+var ray = Vfx.beam("VFX_Kaiju_Atomic_Beam", mouth, target)
+ray.aim(mouth, new_target)   # each frame: sweep, follow the head
+ray.release()                # narrows and fades out, then frees itself
+```
+
+See [`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references/godot.md) and, for giants and kaiju,
+[`references/scale.md`](skills/effekseer-vfx/references/scale.md).
 
 ## Repository layout
 
@@ -151,9 +165,10 @@ tests/                     pure-Python tests (no Core or Godot needed)
 - The review harness drives a windowed Godot on macOS and Windows; headless Linux capture is not supported yet. On
   Windows the Godot window keeps focus while it captures (macOS hands focus back to your app).
 - On Windows, the symlink-safety tests need Developer Mode (or an administrator shell) and are skipped without it.
-- Example scores are an independent review of the skill's own capsule-Lab renders (two of the thirteen were judged
+- Example scores are an independent review of the skill's own capsule-Lab renders (two of the sixteen were judged
   `iterate`); rebuild and review before relying on them.
-- `soft` particles are unverified in the Forward+ Lab and not used.
+- `soft` particles are verified in Forward+ (they fade against opaque depth only); the Compatibility renderer has no
+  depth texture and cannot use them.
 
 ## Development
 

@@ -1,4 +1,5 @@
-"""Shipped example effects: four ranged pairs (projectile + impact) and five single effects, with briefs and painted textures.
+"""Shipped example effects: four ranged pairs (projectile + impact), five single effects and the kaiju set (world scale,
+beam, charge chain, photographic explosion), with briefs and painted textures.
 
 `add` copies an example into the project like any hand-written effect. Its historical review describes the
 source renders, not your build: build and review it again before relying on it.
@@ -21,15 +22,20 @@ def ids(name):
     data = catalog()
     pairs = {p['name']: p for p in data['pairs']}
     singles = {s['name']: s for s in data.get('singles', [])}
+    sets = {s['name']: s for s in data.get('sets', [])}
     if name == 'all':
-        return [i for p in pairs.values() for i in (p['projectile'], p['impact'])] + [s['effect'] for s in singles.values()]
+        return ([i for p in pairs.values() for i in (p['projectile'], p['impact'])] + [s['effect'] for s in singles.values()]
+                + [i for s in sets.values() for i in s['effects']])
     if name in pairs:
         return [pairs[name]['projectile'], pairs[name]['impact']]
     if name in singles:
         return [singles[name]['effect']]
+    if name in sets:
+        return list(sets[name]['effects'])
     if (EXAMPLES / f'src/{name}.py').is_file():
         return [name]
-    raise ValueError(f'Unknown example {name!r}; choose all, a pair ({", ".join(pairs)}), a single ({", ".join(singles)}) or an effect ID')
+    raise ValueError(f'Unknown example {name!r}; choose all, a pair ({", ".join(pairs)}), a single ({", ".join(singles)}), '
+                     f'a set ({", ".join(sets)}) or an effect ID')
 
 
 def textures(rid):
@@ -41,7 +47,7 @@ def textures(rid):
 
 def listing():
     data = catalog()
-    return {'ok': True, 'note': data['note'], 'pairs': data['pairs'], 'singles': data.get('singles', []),
+    return {'ok': True, 'note': data['note'], 'pairs': data['pairs'], 'singles': data.get('singles', []), 'sets': data.get('sets', []),
             'historical_scores': data['historical_scores'], 'historical_review': data.get('historical_review'),
             'usage': 'vfx examples show <name|ID>; vfx examples add <name|ID|all>; then vfx lint, vfx build, vfx review'}
 
@@ -91,7 +97,7 @@ def show(rid):
     brief = json.loads((EXAMPLES / f'briefs/{rid}.json').read_text())
     roles = {item['name']: item['role'] for item in brief.get('layer_plan', [])}
     plan = []
-    for row, layer in zip(timeline(recipe['layers'], release=recipe.get('flight', 0) * 60), walk(recipe['layers'])):
+    for row, layer in zip(timeline(recipe['layers'], release=(recipe.get('flight') or recipe.get('hold') or 0) * 60), walk(recipe['layers'])):
         plan.append({**row, 'role': roles.get(row['path'], 'supporting detail'), 'renderer': layer.get('renderer', 'Sprite'),
                      'texture': Path(layer['texture']).stem if layer.get('texture') else None})
     result = {'ok': True, 'id': rid, 'design': recipe.get('design'), 'delivery': recipe.get('delivery'),

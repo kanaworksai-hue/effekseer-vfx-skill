@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Kaiju_Atomic_Charge",
+  "role": "self charge before a beam",
+  "style": "realistic kaiju film, electric blue",
+  "dominant_shape": "Crystal plates on the back switch on one by one from the hips to the head, each with a spark and an arc jumping to the next, and stay lit, until the mouth gathers a blue glow and one flash hands over to the beam.",
+  "palette": {
+    "core": [
+      225,
+      245,
+      255
+    ],
+    "body": [
+      70,
+      150,
+      255
+    ],
+    "dark": [
+      30,
+      70,
+      220
+    ],
+    "matter": [
+      20,
+      40,
+      120
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster",
+  "beats": [
+    {
+      "frame": 4,
+      "name": "hips",
+      "expect": "The lowest plate on the back lights and a jagged arc already jumps to the next plate"
+    },
+    {
+      "frame": 60,
+      "name": "climb",
+      "expect": "Three plates are lit and the arc is still climbing; lit plates keep re-striking"
+    },
+    {
+      "frame": 125,
+      "name": "head",
+      "expect": "The last plate behind the head lights; streaks converge on a glowing mouth"
+    },
+    {
+      "frame": 161,
+      "name": "release",
+      "expect": "One flash at the mouth: the only white flash of the effect"
+    },
+    {
+      "frame": 185,
+      "name": "release sparks",
+      "expect": "Sparks thrown forward from the mouth cool to blue; the plates fade"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Back glow",
+      "role": "volume",
+      "primitive": "Sprite T_Glow01 glow behind the spine",
+      "exit": "fades by absolute frame 175"
+    },
+    {
+      "name": "1:Plate 1 fin",
+      "role": "shape",
+      "primitive": "crystal fin (six-sided cylinder mesh with fresnel edge), dim from frame 0, pops white at its turn, then blue",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "2:Plate 2 fin",
+      "role": "shape",
+      "primitive": "crystal fin (six-sided cylinder mesh with fresnel edge), dim from frame 0, pops white at its turn, then blue",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "3:Plate 3 fin",
+      "role": "shape",
+      "primitive": "crystal fin (six-sided cylinder mesh with fresnel edge), dim from frame 0, pops white at its turn, then blue",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "4:Plate 4 fin",
+      "role": "shape",
+      "primitive": "crystal fin (six-sided cylinder mesh with fresnel edge), dim from frame 0, pops white at its turn, then blue",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "5:Plate 5 fin",
+      "role": "shape",
+      "primitive": "crystal fin (six-sided cylinder mesh with fresnel edge), dim from frame 0, pops white at its turn, then blue",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "6:Plate 6 fin",
+      "role": "shape",
+      "primitive": "crystal fin (six-sided cylinder mesh with fresnel edge), dim from frame 0, pops white at its turn, then blue",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "7:Plates node 1",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "8:Plates node 1 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 12"
+    },
+    {
+      "name": "9:Plates arc 1a",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 160"
+    },
+    {
+      "name": "10:Plates arc 1b",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 152"
+    },
+    {
+      "name": "11:Plates node 2",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "12:Plates node 2 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 32"
+    },
+    {
+      "name": "13:Plates arc 2a",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 150"
+    },
+    {
+      "name": "14:Plates arc 2b",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 158"
+    },
+    {
+      "name": "15:Plates node 3",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "16:Plates node 3 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 52"
+    },
+    {
+      "name": "17:Plates arc 3a",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 155"
+    },
+    {
+      "name": "18:Plates arc 3b",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 162"
+    },
+    {
+      "name": "19:Plates node 4",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "20:Plates node 4 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 72"
+    },
+    {
+      "name": "21:Plates arc 4a",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 160"
+    },
+    {
+      "name": "22:Plates arc 4b",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 152"
+    },
+    {
+      "name": "23:Plates node 5",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "24:Plates node 5 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 92"
+    },
+    {
+      "name": "25:Plates arc 5a",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 150"
+    },
+    {
+      "name": "26:Plates arc 5b",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 158"
+    },
+    {
+      "name": "27:Plates node 6",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "28:Plates node 6 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 112"
+    },
+    {
+      "name": "29:Plates arc 6a",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 155"
+    },
+    {
+      "name": "30:Plates arc 6b",
+      "role": "shape",
+      "primitive": "charge_chain arc: T_ArcStrand01 on a DirectionalBillboard aimed at the next plate, re-struck mirrored",
+      "exit": "last strike ends by absolute frame 162"
+    },
+    {
+      "name": "31:Plates node 7",
+      "role": "body",
+      "primitive": "Sprite T_Glow01 plate glow, stays lit",
+      "exit": "fades by absolute frame 160"
+    },
+    {
+      "name": "32:Plates node 7 spark",
+      "role": "ignition",
+      "primitive": "Sprite T_Glow01 pop on the plate as it lights",
+      "exit": "gone by absolute frame 132"
+    },
+    {
+      "name": "33:Plate 1 sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks as each plate ignites",
+      "exit": "gone by absolute frame 30"
+    },
+    {
+      "name": "34:Plate 2 sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks as each plate ignites",
+      "exit": "gone by absolute frame 50"
+    },
+    {
+      "name": "35:Plate 3 sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks as each plate ignites",
+      "exit": "gone by absolute frame 70"
+    },
+    {
+      "name": "36:Plate 4 sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks as each plate ignites",
+      "exit": "gone by absolute frame 90"
+    },
+    {
+      "name": "37:Plate 5 sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks as each plate ignites",
+      "exit": "gone by absolute frame 110"
+    },
+    {
+      "name": "38:Plate 6 sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks as each plate ignites",
+      "exit": "gone by absolute frame 130"
+    },
+    {
+      "name": "39:Mouth body",
+      "role": "hand-over",
+      "primitive": "Sprite T_Glow01 blue glow growing at the mouth",
+      "exit": "gone by absolute frame 170"
+    },
+    {
+      "name": "40:Mouth core",
+      "role": "hand-over",
+      "primitive": "Sprite T_Glow01 small white core inside it",
+      "exit": "gone by absolute frame 170"
+    },
+    {
+      "name": "41:Mouth pivot",
+      "role": "placement",
+      "primitive": "None pivot at the mouth",
+      "exit": "ends by absolute frame 165"
+    },
+    {
+      "name": "41:Mouth pivot/0:Mouth gather",
+      "role": "inward motion",
+      "primitive": "radial_sparks spawned on a shell round the mouth, EaseInCubic travel inward",
+      "exit": "last streak ends by absolute frame 193"
+    },
+    {
+      "name": "42:Ion motes",
+      "role": "secondary",
+      "primitive": "Sprite T_Glow01 motes drifting round the back",
+      "exit": "last mote ends by absolute frame 175"
+    },
+    {
+      "name": "43:Charged flash",
+      "role": "release",
+      "primitive": "Sprite T_Flare01 flash at the mouth",
+      "exit": "gone by absolute frame 172"
+    },
+    {
+      "name": "44:Release sparks",
+      "role": "release",
+      "primitive": "radial_sparks thrown forward from the mouth",
+      "exit": "cool and fade by absolute frame 200"
+    },
+    {
+      "name": "45:Plate afterglow",
+      "role": "tail",
+      "primitive": "Sprite T_Glow01 fading on the back",
+      "exit": "gone by absolute frame 200"
+    }
+  ],
+  "acceptance": [
+    "The plates light one after another from the tail to the head, never all at once",
+    "Each arc connects two neighbouring plates and changes shape while it burns",
+    "The chain reads at kaiju scale: the dummies are 70 m tall and the arcs span the whole back"
+  ],
+  "avoid": [
+    "A uniform glow over the whole back",
+    "Arcs that point away from the next plate",
+    "A flash before the chain reaches the head"
+  ]
+}

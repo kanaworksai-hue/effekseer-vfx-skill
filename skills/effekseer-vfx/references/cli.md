@@ -26,9 +26,9 @@ outside `EFFEKSEER_VFX_HOME`.
 |---|---|---|
 | `doctor` | — | platform, toolchain, workspace; `modes` and `next` steps |
 | `init [--update-templates] [--no-plugin]` | Python | create/refresh `vfx/` (Lab, materials, math textures, starter painted textures); download the official Effekseer Godot plugin (checksum pinned) |
-| `examples [list]` | — | shipped pairs and single effects with historical scores, verdicts and weakest points |
-| `examples show <name\|ID>` | Python | layer plan with absolute frames and roles (a pair shows both effects) |
-| `examples add <name\|ID\|all> [--force]` | Python | copy example source, brief, painted textures and prompts into the project; names: `fire`, `ice`, `poison`, `dark`, `hit`, `slash`, `charge`, `shield`, `heal` |
+| `examples [list]` | — | shipped pairs, single effects and sets with historical scores, verdicts and weakest points |
+| `examples show <name\|ID>` | Python | layer plan with absolute frames and roles (a pair or set shows every effect) |
+| `examples add <name\|ID\|all> [--force]` | Python | copy example source, brief, painted textures and prompts into the project; names: `fire`, `ice`, `poison`, `dark`, `hit`, `slash`, `charge`, `shield`, `heal`, `kaiju` |
 | `procedural` | Python | regenerate the math-primitive textures |
 | `list` | Python | effects in `vfx/src` with category, timing, delivery, design and build state; sources that fail to load are listed in `unloaded` |
 | `lint [--ids ...] [--timeline]` | Python | static rules (errors) and craft heuristics (warnings), see below |

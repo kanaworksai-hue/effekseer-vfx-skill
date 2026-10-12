@@ -56,6 +56,9 @@ def masks(n=256):
  out['T_Trail02']=(1-v)**3*np.clip(v/.03,0,1)  # clean gradient band without streaks
  # Static alpha gradient for columns; the scrolling streaks come from T_NoiseStreak02.
  out['T_GradientV01']=v**1.6*np.clip((1-v)/.03,0,1)  # procedural mesh V runs top->base: solid at the base, gone at the top
+ # Beam cross-section: soft Gaussian across U, constant along V, so a sprite stretched along V keeps full strength
+ # from end to end (a radial glow stretched into a beam pinches at both ends).
+ out['T_BeamSection01']=np.exp(-(x/.42)**2)*np.clip((1-np.abs(x))/.08,0,1)
  # Polar patterns: ground shockwave with radial streaks, and thin speed lines for impacts.
  polar=np.random.default_rng(71).random(96)**2
  spokes=np.interp((angle+np.pi)/(2*np.pi)*96,np.arange(97),np.append(polar,polar[0]))

@@ -20,7 +20,7 @@
    `doctor` 的 `next` 会打印适合本机的确切命令。
    setup 需要 Python 3.11+ 或 uv（macOS 自带的 Python 3.9 太旧）；如果 `doctor` 报告两者都没有，请用户安装其中一个。Godot 4（Forward+）必须由用户自行安装；如果它不在 `PATH` 上，设置 `GODOT`。
 3. `vfx init` 创建 `vfx/`（Godot Lab、材质、数学纹理、官方 Effekseer 插件）。除非加 `--update-templates`，否则不会覆盖已有文件。
-4. 可选：`vfx examples add <name>` 复制一个完成且经过独立评审的示例用于学习：配对 `fire`、`ice`、`poison`、`dark`（飞行体 + 命中），单独效果 `hit`、`slash`、`charge`、`shield`、`heal`，或 `all`。见 [references/examples.md](references/examples.md)。
+4. 可选：`vfx examples add <name>` 复制一个完成且经过独立评审的示例用于学习：配对 `fire`、`ice`、`poison`、`dark`（飞行体 + 命中），单独效果 `hit`、`slash`、`charge`、`shield`、`heal`，套组 `kaiju`（世界尺度、光束、蓄力链、照片级爆炸），或 `all`。见 [references/examples.md](references/examples.md)。
 
 `vfx review`、`preview` 和 `showcase` 会在用户桌面上打开 Godot 窗口。如果你运行在沙箱里（例如 Codex 的工作区沙箱），
 请在用户批准后到沙箱外运行这些命令；无法离开沙箱时，把完整命令交给用户在自己桌面的终端里运行。以 "rendered no frame" 停止的 review
@@ -31,7 +31,7 @@
 
 ## 制作或修改一个效果
 
-1. **先读再写。** 必读 [craft](references/craft.md)、[design](references/design.md)、[layering](references/layering.md)、[timing](references/timing.md) 和 [skeletons](references/skeletons.md)；再按下面的路由表读对应主题文件，并用 `vfx examples show <name>` 查看对应示例的层计划（名称：`hit`、`slash`、`charge`、`shield`、`heal`，飞行体和爆炸等命中效果用配对 `fire`、`ice`、`poison`、`dark`；也可以直接用效果 ID）。修改已有效果时运行 `vfx effect-context <ID>` 并阅读它的历史，避免重复已经失败的改法。
+1. **先读再写。** 必读 [craft](references/craft.md)、[design](references/design.md)、[layering](references/layering.md)、[timing](references/timing.md) 和 [skeletons](references/skeletons.md)；再按下面的路由表读对应主题文件，并用 `vfx examples show <name>` 查看对应示例的层计划（名称：`hit`、`slash`、`charge`、`shield`、`heal`，飞行体和爆炸等命中效果用配对 `fire`、`ice`、`poison`、`dark`，大尺度、光束和写实效果用 `kaiju`；也可以直接用效果 ID）。修改已有效果时运行 `vfx effect-context <ID>` 并阅读它的历史，避免重复已经失败的改法。
 2. **简报。** 编写 `vfx/briefs/<ID>.json`（三个关键画面、调色板职责、节拍、层计划、验收条件、避免事项）。格式见 [design.md](references/design.md)。
 3. **纹理。** `init` 之后已经有数学形状（光晕、环、噪声、拖尾、扰动图），以及一套入门用的手绘烟、爆炸、丝状笔触、裂纹和冰纹理。复杂的手绘形状（火焰、斩击、烟、裂纹、冰、符文）来自图像生成模型 —— 按 [textures.md](references/textures.md) 操作。使用任何纹理的角度之前，先用 `vfx texture-info` 实测。
 4. **配方。** 编写 `vfx/src/<ID>.py`，用 [primitives.md](references/primitives.md) 中的基元定义 `recipe()`。坐标轴、单位和混合行为遵循 [engine-conventions.md](references/engine-conventions.md) 中已实测的引擎规则，不要猜。
@@ -50,6 +50,7 @@
 - 不要用 Python 画复杂的手绘形状。如果没有图像生成工具，把提示词写进 `vfx/texture_prompts.json`，向用户索要图片。
 - 生成的原图保留在 `vfx/textures/generated/`，处理后的副本写到 `vfx/textures/processed/`；记录每一条提示词。
 - 单位：配方 timing 是 60 FPS 帧数，F-Curve 是生命周期百分比，manifest 的 duration/peak 是秒，Godot API 的 rotation 是弧度。
+- 按 Lab 的角色尺度编写配方；更大的世界要声明 `scale`，而不是手动缩放数值（[scale](references/scale.md)）。简报和复查中的帧号是构建后、已缩放的时间线上的帧。
 - 每个效果都声明 `delivery`；飞行体需要一个反向指向它的配对命中效果。
 - 只使用编译器认识的层字段（`vfx layer-schema`）；需要新功能时扩展编译器，不要把裸属性路径写进配方。
 - 全量 `vfx build`（不带 `--ids`）会清除由本技能构建、但源码已离开 `vfx/src/` 的效果的产物；它绝不删除不是它构建的效果，并且拒绝在空的效果库上运行。只做局部工作时用 `--ids`（其他地方损坏的源码会列在 `unloaded` 中，而不会阻塞它）。
@@ -63,6 +64,9 @@
 | 斩击、飞行体、蓄力、光环，任何会移动的东西 | [motion.md](references/motion.md) |
 | 护盾、光柱、Boss、状态、体积、遮挡 | [shapes.md](references/shapes.md) |
 | 对照参考视频 | [reference.md](references/reference.md) |
+| 巨人、怪兽、战舰：任何远大于角色的东西 | [scale.md](references/scale.md) |
+| 光束、激光、吐息武器、蓄力链、由游戏在运行时驱动的值 | [primitives.md](references/primitives.md)（`beam`、`charge_chain`、`bind`）、[godot.md](references/godot.md#光束) |
+| 写实 / 照片级的爆炸、火焰、烟、蒸汽 | [realism.md](references/realism.md) |
 | 具体的视觉失败（白团、尾段空白、没有破碎） | [cases.md](references/cases.md) |
 | 给编译器添加引擎功能 | [engine-conventions.md](references/engine-conventions.md#扩展编译器)、`vfx discover`、`vfx core property-list/get/set` |
 | 在游戏中使用效果 | [godot.md](references/godot.md) |

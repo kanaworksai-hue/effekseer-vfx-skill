@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Kaiju_Atomic_Beam",
+  "role": "sustained breath weapon",
+  "style": "realistic kaiju film, electric blue",
+  "dominant_shape": "A white-hot line inside a saturated blue beam with a wide dim rim; noise streams outward along it, steam, sparks, cooling scorch and smouldering smoke stay where it lands, and it stays locked to its end point while the game rakes it.",
+  "palette": {
+    "core": [
+      230,
+      246,
+      255
+    ],
+    "body": [
+      60,
+      150,
+      255
+    ],
+    "dark": [
+      25,
+      60,
+      220
+    ],
+    "matter": [
+      205,
+      215,
+      225
+    ]
+  },
+  "delivery": {
+    "kind": "beam",
+    "charge": "VFX_Kaiju_Atomic_Charge"
+  },
+  "anchor": "caster",
+  "beats": [
+    {
+      "frame": 4,
+      "name": "ignition",
+      "expect": "A white flash at the mouth as a thin beam shoots to its end point"
+    },
+    {
+      "frame": 30,
+      "name": "full power",
+      "expect": "White core inside a saturated blue body with a dim rim; sparks at the end"
+    },
+    {
+      "frame": 160,
+      "name": "rake",
+      "expect": "The end point has climbed toward the target; the beam stays attached to it"
+    },
+    {
+      "frame": 225,
+      "name": "release",
+      "expect": "The beam narrows and fades within a quarter second; steam is left at the end"
+    },
+    {
+      "frame": 300,
+      "name": "steam",
+      "expect": "Rising steam and cooling scorch marks along the raked path"
+    },
+    {
+      "frame": 360,
+      "name": "exit",
+      "expect": "Smouldering smoke along the raked path is still thinning out"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Breath haze",
+      "role": "heat",
+      "primitive": "beam strip BackDistortion T_DistortHaze01",
+      "exit": "fades within two intervals of release, by absolute frame 255"
+    },
+    {
+      "name": "1:Breath rim",
+      "role": "rim",
+      "primitive": "beam strip T_BeamSection01, noise alpha streaming outward",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "2:Breath body",
+      "role": "body",
+      "primitive": "beam strip T_BeamSection01, saturated blue, blend-texture streaks",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "3:Breath core",
+      "role": "core",
+      "primitive": "beam strip T_BeamSection01, thin white-hot line",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "4:Breath origin glow",
+      "role": "source",
+      "primitive": "held point sprite at the mouth, scaled by power",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "5:Breath origin flare",
+      "role": "source",
+      "primitive": "held point sprite at the mouth, scaled by power",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "6:Breath end glow",
+      "role": "hit",
+      "primitive": "held point sprite bound to the end point (@In0)",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "7:Breath end flare",
+      "role": "hit",
+      "primitive": "held point sprite bound to the end point (@In0)",
+      "exit": "fades by absolute frame 255"
+    },
+    {
+      "name": "8:Breath hit point",
+      "role": "emitter",
+      "primitive": "None pivot riding the end point",
+      "exit": "last instance by absolute frame 255"
+    },
+    {
+      "name": "8:Breath hit point/0:Breath end sparks",
+      "role": "secondary",
+      "primitive": "radial_sparks left behind in world space",
+      "exit": "cool and fade by absolute frame 265"
+    },
+    {
+      "name": "8:Breath hit point/1:Breath end steam",
+      "role": "residue",
+      "primitive": "soft smoke (T_SmokeSheet01) rising from the hit point",
+      "exit": "dissipates by absolute frame 350"
+    },
+    {
+      "name": "8:Breath hit point/2:Breath scorch",
+      "role": "residue",
+      "primitive": "Sprite T_Glow01 scorch left in world space, cooling blue-white to dark",
+      "exit": "cools out by absolute frame 350"
+    },
+    {
+      "name": "8:Breath hit point/3:Breath smoulder",
+      "role": "residue",
+      "primitive": "soft photographic smoke (T_SmokeSheet02) left along the raked path, slow flipbook",
+      "exit": "thins out by absolute frame 375"
+    },
+    {
+      "name": "9:Ignition flash",
+      "role": "contact",
+      "primitive": "Sprite T_Flare01 at the mouth",
+      "exit": "gone by absolute frame 14"
+    },
+    {
+      "name": "10:Ignition shell",
+      "role": "contact",
+      "primitive": "Model shell punched out by the beam",
+      "exit": "fades by absolute frame 38"
+    }
+  ],
+  "acceptance": [
+    "The beam keeps a white core and a blue body; it never turns into a white bar",
+    "The end flash, sparks and steam stay on the moving end point",
+    "Ignition and release read in a few frames, not as a slow fade"
+  ],
+  "avoid": [
+    "A beam that pinches at either end",
+    "Sparks that stay glued to the end point after it moves on",
+    "Blue lost under the bloom"
+  ]
+}

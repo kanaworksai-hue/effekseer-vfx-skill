@@ -27,9 +27,9 @@
 |---|---|---|
 | `doctor` | — | プラットフォーム、ツールチェーン、作業領域。`modes` と `next` ステップ |
 | `init [--update-templates] [--no-plugin]` | Python | `vfx/`（Lab、マテリアル、数式テクスチャ、ペイント系テクスチャのスターター）を作成/更新。公式 Effekseer Godot プラグインをダウンロード（チェックサム固定） |
-| `examples [list]` | — | 同梱のペアと単体エフェクト。過去のスコア、判定、最も弱い点付き |
-| `examples show <name\|ID>` | Python | 絶対フレームと役割付きのレイヤー計画（ペアなら両方のエフェクト） |
-| `examples add <name\|ID\|all> [--force]` | Python | サンプルのソース、ブリーフ、ペイント系テクスチャ、プロンプトをプロジェクトにコピー。名前：`fire`、`ice`、`poison`、`dark`、`hit`、`slash`、`charge`、`shield`、`heal` |
+| `examples [list]` | — | 同梱のペア、単体エフェクト、セット。過去のスコア、判定、最も弱い点付き |
+| `examples show <name\|ID>` | Python | 絶対フレームと役割付きのレイヤー計画（ペアやセットならすべてのエフェクト） |
+| `examples add <name\|ID\|all> [--force]` | Python | サンプルのソース、ブリーフ、ペイント系テクスチャ、プロンプトをプロジェクトにコピー。名前：`fire`、`ice`、`poison`、`dark`、`hit`、`slash`、`charge`、`shield`、`heal`、`kaiju` |
 | `procedural` | Python | 数式プリミティブのテクスチャを再生成 |
 | `list` | Python | `vfx/src` 内のエフェクトを、カテゴリ、タイミング、delivery、design、ビルド状態とともに一覧。読み込めないソースは `unloaded` に列挙 |
 | `lint [--ids ...] [--timeline]` | Python | 静的ルール（エラー）とクラフト上のヒューリスティクス（警告）。下記参照 |

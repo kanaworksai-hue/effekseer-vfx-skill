@@ -13,13 +13,16 @@ def example_ids():
     return sorted(p.stem for p in (EXAMPLES / 'src').glob('VFX_*.py'))
 
 
-def test_catalog_lists_every_shipped_example_as_pairs_and_singles():
+def test_catalog_lists_every_shipped_example_as_pairs_singles_and_sets():
     from vfxkit import examples
     catalog = examples.catalog()
     ids = examples.ids('all')
-    assert sorted(ids) == example_ids() and len(ids) == len(set(ids)) == 13
+    assert sorted(ids) == example_ids() and len(ids) == len(set(ids)) == 16
     assert [p['name'] for p in catalog['pairs']] == ['fire', 'ice', 'poison', 'dark']
     assert [s['name'] for s in catalog['singles']] == ['hit', 'slash', 'charge', 'shield', 'heal']
+    assert [s['name'] for s in catalog['sets']] == ['kaiju']
+    assert examples.ids('kaiju') == ['VFX_Kaiju_Atomic_Charge', 'VFX_Kaiju_Atomic_Beam', 'VFX_Kaiju_Explosion']
+    assert catalog['sets'][0]['teaches']
     for pair in catalog['pairs']:
         assert examples.ids(pair['name']) == [pair['projectile'], pair['impact']]
         assert pair['teaches']

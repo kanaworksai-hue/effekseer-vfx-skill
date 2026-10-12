@@ -88,7 +88,7 @@ def test_launchers_keep_the_line_endings_their_shells_need():
 def test_doctor_reports_an_initialised_workspace(project):
     code, result = vfx('--project', str(project), 'doctor')
     assert code == 0 and result['modes']['authoring']
-    assert result['workspace']['initialized'] and result['workspace']['effects'] == 13
+    assert result['workspace']['initialized'] and result['workspace']['effects'] == 16
 
 
 def test_help_lists_commands_without_dependencies(tmp_path):

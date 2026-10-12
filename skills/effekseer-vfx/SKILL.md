@@ -1,10 +1,10 @@
 ---
 name: effekseer-vfx
-description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render. Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, magic, buff or shield VFX, or a VFX library for a Godot game. Covers design briefs, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, independent scoring and export.
+description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render. Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, beam, charge, magic, buff or shield VFX, realistic or kaiju/giant-scale effects, or a VFX library for a Godot game. Covers design briefs, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, independent scoring and export.
 license: MIT
 compatibility: Build and render need macOS on Apple silicon or Windows (x64), Godot 4.x and network access for the first setup (Effekseer Core, .NET runtime, Effekseer Godot plugin). Authoring, lint and texture processing run on macOS, Linux or Windows with Python 3.11+.
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
 ---
 
 # Effekseer VFX
@@ -27,7 +27,7 @@ On Windows, `sh <skill>/scripts/vfx` works from Git Bash; from cmd or PowerShell
    `doctor`'s `next` prints the exact command for this machine.
    Setup needs Python 3.11+ or uv (macOS's built-in Python 3.9 is too old); if `doctor` reports neither, ask the user to install one. Godot 4 (Forward+) must be installed by the user; set `GODOT` if it is not on `PATH`.
 3. `vfx init` creates `vfx/` (Godot Lab, materials, math textures, official Effekseer plugin). It never overwrites existing files unless `--update-templates`.
-4. Optional: `vfx examples add <name>` copies a finished, independently reviewed example to learn from: pairs `fire`, `ice`, `poison`, `dark` (projectile + impact) and singles `hit`, `slash`, `charge`, `shield`, `heal`, or `all`. See [references/examples.md](references/examples.md).
+4. Optional: `vfx examples add <name>` copies a finished, independently reviewed example to learn from: pairs `fire`, `ice`, `poison`, `dark` (projectile + impact), singles `hit`, `slash`, `charge`, `shield`, `heal`, the set `kaiju` (world scale, beam, charge chain, photographic explosion), or `all`. See [references/examples.md](references/examples.md).
 
 `vfx review`, `preview` and `showcase` open a Godot window on the user's desktop. If you run inside a sandbox (Codex's
 workspace sandbox, for example), run those commands outside it with the user's approval, or give the user the exact
@@ -39,7 +39,7 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 
 ## Making or changing one effect
 
-1. **Read before writing.** Always read [craft](references/craft.md), [design](references/design.md), [layering](references/layering.md), [timing](references/timing.md) and [skeletons](references/skeletons.md); then the topic files from the routing table below, and `vfx examples show <name>` for the matching example's layer plan (names: `hit`, `slash`, `charge`, `shield`, `heal`, or the pairs `fire`, `ice`, `poison`, `dark` for projectiles and impacts such as explosions; an effect ID also works). For an existing effect run `vfx effect-context <ID>` and read its history so you do not repeat a failed change.
+1. **Read before writing.** Always read [craft](references/craft.md), [design](references/design.md), [layering](references/layering.md), [timing](references/timing.md) and [skeletons](references/skeletons.md); then the topic files from the routing table below, and `vfx examples show <name>` for the matching example's layer plan (names: `hit`, `slash`, `charge`, `shield`, `heal`, the pairs `fire`, `ice`, `poison`, `dark` for projectiles and impacts such as explosions, or `kaiju` for large-scale, beam and realistic effects; an effect ID also works). For an existing effect run `vfx effect-context <ID>` and read its history so you do not repeat a failed change.
 2. **Brief.** Write `vfx/briefs/<ID>.json` (three key frames, palette roles, beats, layer plan, acceptance, avoid). Format in [design.md](references/design.md).
 3. **Textures.** Math shapes (glows, rings, noise, trails, distortion maps) and a starter set of painted smoke, explosion, wisp, crack and ice textures already exist after `init`. Complex painted shapes (flame, slash, smoke, crack, ice, rune) come from an image generation model — follow [textures.md](references/textures.md). Measure every texture with `vfx texture-info` before using its angle.
 4. **Recipe.** Write `vfx/src/<ID>.py` defining `recipe()` with the primitives in [primitives.md](references/primitives.md). Follow the verified engine rules in [engine-conventions.md](references/engine-conventions.md) instead of guessing axes, units or blend behaviour.
@@ -58,6 +58,7 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 - Do not draw complex painted shapes with Python. If no image generation tool is available, write the prompt into `vfx/texture_prompts.json` and ask the user for the image.
 - Keep generated originals in `vfx/textures/generated/` and write processed copies to `vfx/textures/processed/`; record every prompt.
 - Units: recipe timing in 60 FPS frames, F-curves in percent of life, manifest duration/peak in seconds, Godot API rotation in radians.
+- Write recipes at the Lab's character scale; for a larger world declare `scale` instead of hand-scaling numbers ([scale](references/scale.md)). Frames in briefs and reviews are the built, scaled timeline.
 - Every effect declares `delivery`; a projectile needs a paired impact effect that points back to it.
 - Use only layer fields the compiler knows (`vfx layer-schema`); extend the compiler instead of writing raw property paths into recipes.
 - A full `vfx build` (no `--ids`) prunes the outputs of effects this skill built whose source left `vfx/src/`; it never deletes effects it did not build and refuses to run on an empty library. Use `--ids` for partial work (a broken source elsewhere is reported in `unloaded` instead of blocking it).
@@ -71,6 +72,9 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 | slash, projectile, charge, aura, anything that travels | [motion.md](references/motion.md) |
 | shield, pillar, boss, status, volumes, occlusion | [shapes.md](references/shapes.md) |
 | matching a reference video | [reference.md](references/reference.md) |
+| giants, kaiju, warships: anything far larger than a character | [scale.md](references/scale.md) |
+| beam, laser, breath weapon, charge chain, values the game drives at runtime | [primitives.md](references/primitives.md) (`beam`, `charge_chain`, `bind`), [godot.md](references/godot.md#beams) |
+| realistic / photographic explosion, fire, smoke, steam | [realism.md](references/realism.md) |
 | a specific visual failure (white blob, empty tail, no break-up) | [cases.md](references/cases.md) |
 | adding an engine feature to the compiler | [engine-conventions.md](references/engine-conventions.md#extending-the-compiler), `vfx discover`, `vfx core property-list/get/set` |
 | using the effects in a game | [godot.md](references/godot.md) |

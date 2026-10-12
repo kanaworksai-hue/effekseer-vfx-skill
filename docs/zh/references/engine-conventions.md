@@ -3,7 +3,8 @@
 下面每一条都在真实渲染中确认过。照原样使用；不要重新猜坐标轴、单位或混合行为。确认了新的约定时，把它连同测量方法一起补充到这里
 （请补充到英文原文 `skills/effekseer-vfx/references/engine-conventions.md`）。
 
-目录：角度与坐标轴 · 力与运动 · 网格与 fresnel · 纹理与序列帧 · 继承与寿命 · 渲染、HDR 与 Lab · 锚点与放置 · 扩展编译器
+目录：角度与坐标轴 · 力与运动 · 网格与 fresnel · 纹理与序列帧 · 继承与寿命 · 游戏输入与动态方程 · 渲染、HDR 与 Lab · 锚点与放置 ·
+扩展编译器
 
 ## 角度与坐标轴
 
@@ -16,6 +17,13 @@
 - **`rotate=True` 的圆形发射（默认 Y 轴）不同**：Core 构造的是 `Translation(r,0,0)*RotationY(angle)`，所以局部 **+X** 指向外侧，
   +Y 仍然向上。沿地面向外滚动的烟需要 `travel.end=[[d0,d1],0,0]`；`[0,d,0]` 会把它变成笔直上升的柱子。`rotate=False` 时位移按世界方向计算
   （上升的粒子用它）。
+- **`rotate=True` 的球形发射也会旋转 PVA `velocity`**：`velocity=[0, v, 0]` 沿每个粒子随机的出生方向飞，而不是向上。
+  这样发射的烟柱向侧面漂移并下沉（复查的 `sinks` flag）；`spawn=dict(shape='Sphere', radius=[...], rotate=False)` 让 `velocity`
+  保持世界方向。
+- **轴向 billboard**：`billboard='YAxisFixed'` 配 `pivot='bottom'` 是一张从原点沿局部 +Y 延伸的面片，绕该轴旋转以面向镜头 ——
+  这样的光束从任何角度看都保持宽度，只有正对着它的轴看时除外。`DirectionalBillboard` 让 +Y 对齐粒子的运动方向；
+  配一个察觉不到的速度（1e-4 单位/帧，`charge_chain`），它不用欧拉角就能把一个静止的 sprite 瞄准任意点（实测：在弯曲脊背上的
+  7 点链中，电弧连上了每一个锚点）。
 - **`travel.end` 是绝对的局部位置**，不是相对 `position` 的偏移，而且 `rotate=True` 的发射也会旋转这个局部坐标系。
   把沿地面滚动的烟放在一个 `renderer='None'`、`position` 位于地面高度的枢轴下；需要按世界方向位移时用 `spawn rotate=False`（`spray`）。
 
@@ -77,6 +85,18 @@
 - **随机尺寸不能配曲线**：随机的 `size` / `scale_start` 范围与 `size_curve` / `scale_curve` 组合会编译失败（编译器把曲线乘以固定的起始缩放；
   lint 会拒绝）。用第二层来变化尺寸。
 
+## 游戏输入与动态方程
+
+- **`bind` 在 Godot 插件中于运行时生效。** 带动态方程（`@O.y = @In0`）的 Fixed 位置或缩放每帧都会重新计算：一个探针在正在播放的
+  handle 上把 `@In0` 从 3 改到 9 再改到 5，光束的长度和末端闪光在 2 帧内跟上；旋转发射器会重新瞄准它。编译器把方程写进
+  `Core.Dynamic.Equations`（相同的代码共用一条），并在 save/open 之后检查它们。
+- **新 handle 从 .efk 中的输入默认值开始**（配方的 `inputs`）：在第一帧模拟时，怪兽光束命中点的喷溅出现在默认的 160 m 处，
+  而不是真实的终点。因此 `Vfx.play()` / `Vfx.beam()` 在创建 handle 后立刻推送它的输入，`CombatVfxHandle` 之后每帧再推送一次。
+  （早期探针看到 0，只是因为它的 .efk 没有保存默认值。）
+- **持续主体**：光束主体是一个 `held()` 交叉淡化（每个间隔一个实例，寿命 2×间隔，淡入淡出各一个间隔），而不是一个长寿命的实例，
+  所以 `release()`（`stop_root()`）能按时结束它：在连拍中，怪兽光束在释放后约 15 帧内变细并消失，`TestApi.gd` 会检查
+  释放后的光束会自行释放。
+
 ## 渲染、HDR 与 Lab
 
 - **屏幕扭曲 `material='BackDistortion'`** 在 Godot 插件中可用（`hint_screen_texture`）；`distortion` 是强度（0.4–1.2）。
@@ -90,8 +110,14 @@
   在改变舞台亮度、假人光照或替身角色之后，先重新测量假人峰值（线性 tonemap，在曝光 1/8 下读回），再移动阈值。`godot --path vfx/godot -- --no-glow` 关闭后处理以便对比。
   配方基元 `glow()` 是一个纹理层，不是这个 HDR 后处理。舞台改动之后重新渲染整个总览。
 - 在强泛光下，接触本来就该白热的效果会在峰值帧报告 `washed out`；它只持续 1–3 帧 —— 看连拍判断，不要为了消掉这个 flag 而削弱接触。
-- **软粒子 `soft`** 在早期的 Compatibility 渲染器 Lab 中不可用（没有深度纹理；sprite 几乎完全透明）。Lab 现在使用 Forward+，
-  但 `soft` 尚未重新验证：不要使用，也不要声称它可用。
+- **软粒子 `soft` 在 Forward+ 中可用**（EffekseerForGodot4 1.80.5.1、Godot 4.7.2）。插件的着色器采样 `hint_depth_texture`，
+  在不透明深度前方 `soft` 个世界单位的范围内让粒子淡出。在半埋进 Lab 地面、开启深度测试的卡片上实测：没有 `soft` 时，
+  亮度在地面线处一个像素内从 206 降到 81；`soft=0.3` 时在约 9 个像素内渐变为 198 → 188 → 169 → 124 → 81；悬在空中的卡片
+  有无 `soft` 颜色完全相同（216, 198, 155）。接近粒子尺寸的 `soft` 会让整张卡片淡出（lint 会警告）。深度纹理中只有不透明几何体：
+  透明的水面必须写入深度（或有一个不透明的深度预渲染 pass），烟才能在它上面柔化。Compatibility 渲染器没有深度纹理：
+  在早期的 Lab 中，`soft` 在那里让 sprite 几乎完全透明 —— 不要在 Compatibility 下使用它。
+- **放大后的舞台闪光**：Godot 的 omni 光按 1/距离衰减（attenuation 1），所以 Lab 把闪光能量乘以舞台缩放，而不是它的平方
+  （用平方时，一次怪兽命中把整个舞台都冲白了）。
 
 ## 锚点与放置
 

@@ -13,7 +13,8 @@
   静态检查器、带 save/open 回读的官方 EffekseerCore 编译器、把每个效果演成两个假人之间一次交锋的 Godot Lab、
   带像素 flag 的连拍采集、迭代历史，以及把评审绑定到它所看构建的防篡改证据。
 - **`vfx-review`** —— 评审技能：由另一个 agent 在看不到配方的情况下，按固定评分表给连拍图打分，因为作者从不给自己的作品打分。
-- **示例** —— 十三个完成的效果，附设计简报和纹理：四组远程配对（火、冰、毒、暗：飞行体 + 命中），以及打击、斩击、蓄力、护盾、治疗各一个；另有三个前后对照的诊断教案。
+- **示例** —— 十六个完成的效果，附设计简报和纹理：四组远程配对（火、冰、毒、暗：飞行体 + 命中），打击、斩击、蓄力、护盾、治疗各一个，以及一个怪兽套组（沿背鳍骨板攀升的蓄力、可以扫动的原子光束、照片级的爆炸）；另有三个前后对照的诊断教案。
+- **大型与写实效果** —— `scale='kaiju'` 把角色尺度的配方构建得大 40 倍、慢 2.5 倍（尺寸、速度、重力、预算和复查镜头全都随之变化）；`beam()` 制作一条持续光束，终点由游戏每帧移动（`Vfx.beam()` → `aim()` → `release()`）；`charge_chain()` 沿一串点点亮电弧；照片级的火焰、烟灰和烟雾序列帧；软粒子已在 Forward+ 中验证。
 
 ## 环境要求
 
@@ -115,8 +116,19 @@ var shot = Vfx.launch("VFX_Projectile_Fire", from, to)
 shot.arrived.connect(func(at): Vfx.play("VFX_Fire_Explosion", at))
 ```
 
+光束需要每帧瞄准；终点由游戏掌握（射线检测结果、目标骨骼）：
+
+```gdscript
+var ray = Vfx.beam("VFX_Kaiju_Atomic_Beam", mouth, target)
+ray.aim(mouth, new_target)   # each frame: sweep, follow the head
+ray.release()                # narrows and fades out, then frees itself
+```
+
+（`aim()` 每帧调用：扫动、跟随头部；`release()` 让光束变细并淡出，然后自行释放。）
+
 参见 [`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references/godot.md)（中文译文：
-[docs/zh/references/godot.md](docs/zh/references/godot.md)）。
+[docs/zh/references/godot.md](docs/zh/references/godot.md)）；巨人和怪兽另见
+[`references/scale.md`](skills/effekseer-vfx/references/scale.md)（中文译文：[docs/zh/references/scale.md](docs/zh/references/scale.md)）。
 
 ## 仓库结构
 
@@ -141,8 +153,8 @@ tests/                     pure-Python tests (no Core or Godot needed)
 - 复查工具驱动的是 macOS 和 Windows 上带窗口的 Godot；暂不支持无头 Linux 采集。在 Windows 上，Godot 窗口在采集期间会一直
   占着焦点（macOS 会把焦点还给你的应用）。
 - 在 Windows 上，符号链接安全测试需要开启开发者模式（或使用管理员 shell），否则会被跳过。
-- 示例分数来自对 skill 自带胶囊 Lab 渲染的独立评审（十三个中有两个被判为 `iterate`）；依赖它们之前请重新构建并复查。
-- `soft` 粒子在 Forward+ Lab 中未经验证，未被使用。
+- 示例分数来自对 skill 自带胶囊 Lab 渲染的独立评审（十六个中有两个被判为 `iterate`）；依赖它们之前请重新构建并复查。
+- `soft` 粒子已在 Forward+ 中验证（只会对不透明深度淡出）；Compatibility 渲染器没有深度纹理，无法使用它们。
 
 ## 开发
 

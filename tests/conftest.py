@@ -2,7 +2,7 @@
 
 vfxkit.paths computes the project ROOT when it is first imported, so this file points VFX_PROJECT at a fresh
 temporary game project *before* anything imports vfxkit, initialises its vfx/ workspace without the Godot plugin
-and adds the thirteen shipped example effects. Those examples are the library every library-wide test checks.
+and adds the sixteen shipped example effects. Those examples are the library every library-wide test checks.
 
 Tests that need an isolated workspace either monkeypatch the module-level ROOT/WORK attributes (as the original
 pipeline tests did) or run the CLI in a subprocess with --project.
@@ -76,5 +76,5 @@ def cli_env(**extra):
 
 @pytest.fixture
 def project():
-    """The shared temporary game project whose vfx/src holds the thirteen examples."""
+    """The shared temporary game project whose vfx/src holds the sixteen examples."""
     return PROJECT

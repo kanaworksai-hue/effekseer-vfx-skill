@@ -29,7 +29,7 @@ def test_briefs_expand_child_births_and_validate_the_shipped_examples():
         bad['beats'][0]['frame'] = .3
         assert not briefs.validate(bad, recipe)['ok']
         checked += 1
-    assert checked == 13
+    assert checked == 16
     duplicate = briefs.timeline([{'name': 'same'}, {'name': 'same'}])
     assert duplicate[0]['path'] != duplicate[1]['path']
     assert not briefs.validate(None, library()[0])['ok']

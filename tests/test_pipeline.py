@@ -233,12 +233,13 @@ def test_library_recipes_are_valid_without_core_or_assets():
     available = set(masks(16)) | EXTRA_PROCEDURAL | {p['id'] for p in json.loads((ROOT / 'vfx/texture_prompts.json').read_text())['prompts']}
     recipes = library()
     ids = [r['id'] for r in recipes]
-    assert len(set(ids)) == len(ids) == 13
+    assert len(set(ids)) == len(ids) == 16
     for recipe in recipes:
         layers = list(walk(recipe['layers']))
         assert recipe['design'] and len(layers) >= 4, recipe['id']
-        assert max(lifetime(layer, release=recipe.get('flight', 0) * 60) for layer in recipe['layers']) <= recipe['duration'] * 60, recipe['id']
-        assert sum(budget(layer) for layer in recipe['layers']) <= 250, recipe['id']
+        release = (recipe.get('flight') or recipe.get('hold') or 0) * 60
+        assert max(lifetime(layer, release=release) for layer in recipe['layers']) <= recipe['duration'] * 60, recipe['id']
+        assert sum(budget(layer) for layer in recipe['layers']) <= 250 * (recipe.get('scale') or {}).get('budget', 1), recipe['id']
         for layer in layers:
             for key in TEXTURE_KEYS:
                 # Every input is either a math primitive or has a recorded image prompt; nothing is undocumented.
@@ -253,7 +254,7 @@ def test_every_effect_declares_how_a_game_delivers_it():
     from vfxkit.library import library
     recipes = library()
     by_id = {r['id']: r for r in recipes}
-    kinds = {'self', 'melee', 'projectile', 'targeted', 'area'}
+    kinds = {'self', 'melee', 'projectile', 'targeted', 'area', 'beam'}
     for recipe in recipes:
         delivery = recipe.get('delivery') or {}
         assert delivery.get('kind') in kinds, recipe['id']
@@ -262,6 +263,10 @@ def test_every_effect_declares_how_a_game_delivers_it():
             assert any((r.get('delivery') or {}).get('projectile') == recipe['id'] for r in recipes), f"{recipe['id']} has no impact effect"
         elif delivery['kind'] == 'projectile':
             assert by_id[delivery['projectile']]['category'] == 'projectile', recipe['id']
+        elif delivery['kind'] == 'beam':
+            # A beam is held by the game: the Lab fires it for `hold` seconds; its optional charge must exist.
+            assert recipe.get('hold') and recipe.get('inputs'), recipe['id']
+            assert delivery.get('charge') is None or delivery['charge'] in by_id, recipe['id']
 
 
 def test_sustained_layers_live_until_release_and_budget_by_overlap():

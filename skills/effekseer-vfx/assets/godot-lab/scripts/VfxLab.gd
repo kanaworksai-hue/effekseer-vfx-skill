@@ -44,6 +44,8 @@ const ATTACH_OFFSET := {"ground": Vector3(0, 0, 0.12), "body": Vector3(0, 0.95, 
 # The GLBs are expected 1 unit tall; 1.75 puts the hips at the "body" anchor.
 const CHARACTERS := {"PlayerDummy": "res://characters/player.glb", "EnemyDummy": "res://characters/target.glb"}
 const CHARACTER_SCALE := 1.75
+# Where a ranged attack leaves the caster (hand or mouth), relative to the caster's feet.
+const MUZZLE := Vector3(0.45, 1.3, 0.12)
 # Each faces the other, turned 25° toward the camera so the action reads in three-quarter view.
 const CHARACTER_YAW := {"PlayerDummy": 65.0, "EnemyDummy": -65.0}
 # Clip times measured from the bone data (hand speed, hips height): the moment each clip is synced to.
@@ -91,6 +93,17 @@ var camera_home: Transform3D
 var flash_light: OmniLight3D
 var impact_fired: bool = false
 var shake: float = 0.0
+# World scale of the selected effect (manifest scale.world): the whole stage, the dummies and the camera grow with it, so
+# a kaiju effect is staged between 70 m dummies and frames the same as a character-scale one.
+var stage_scale: float = 1.0
+var stage: Node3D
+var sun: DirectionalLight3D
+var isolated_camera_base: Transform3D
+var combat_camera_base: Transform3D
+# The beam the current sequence is firing and how it sweeps: two {t, to} keys and the muzzle; released at beam_end.
+var beam_handle: CombatVfxHandle
+var beam_path: Array = []
+var beam_end: float = 0.0
 
 func _ready() -> void:
 	_build_stage()
@@ -209,7 +222,10 @@ func _build_stage() -> void:
 	flash_light.light_energy = 0
 	add_child(flash_light)
 	add_child(world)
-	var sun := DirectionalLight3D.new()
+	stage = Node3D.new()
+	stage.name = "Stage"
+	add_child(stage)
+	sun = DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-48, -25, 0)
 	sun.light_energy = 1.5
 	sun.shadow_enabled = true
@@ -222,14 +238,14 @@ func _build_stage() -> void:
 	add_child(fill)
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(100, 100)
-	var floor_mesh := _mesh(plane, DARK_FLOOR, Vector3(0, -0.12, 0))
+	var floor_mesh := _mesh(plane, DARK_FLOOR, Vector3(0, -0.12, 0), stage)
 	floor_material = floor_mesh.material_override
 	var platform := CylinderMesh.new()
 	platform.top_radius = 3.0
 	platform.bottom_radius = 3.0
 	platform.height = 0.12
 	platform.radial_segments = 96
-	_mesh(platform, Color("2a3848"), Vector3(0, -0.045, 0))
+	_mesh(platform, Color("2a3848"), Vector3(0, -0.045, 0), stage)
 	# Thin concentric stage markings give a scale reference.
 	for radius in [1.0, 2.0, 2.95]:
 		var torus := TorusMesh.new()
@@ -237,7 +253,7 @@ func _build_stage() -> void:
 		torus.outer_radius = radius + 0.012
 		torus.rings = 64
 		torus.ring_segments = 6
-		_mesh(torus, Color("5f86a6"), Vector3(0, 0.018, 0))
+		_mesh(torus, Color("5f86a6"), Vector3(0, 0.018, 0), stage)
 	player = _dummy("PlayerDummy", ISOLATED_PLAYER, Color("5cbbca"), "PLAYER")
 	enemy = _dummy("EnemyDummy", ISOLATED_ENEMY, Color("d47f66"), "TARGET")
 	camera = Camera3D.new()
@@ -252,12 +268,27 @@ func _build_stage() -> void:
 	camera.position = Vector3(0, 3.5, 10.6)
 	camera.look_at(Vector3(0, 1.25, 0))
 	combat_camera = camera.transform
+	isolated_camera_base = isolated_camera
+	combat_camera_base = combat_camera
 	camera.transform = isolated_camera
 	camera_home = camera.transform
 
+func _set_stage_scale(value: float) -> void:
+	# Everything in the stage frame scales about the world origin: the camera keeps its view direction and the framing
+	# of the dummies, and every metric measured in stage heights compares across scales.
+	stage_scale = maxf(value, 0.001)
+	stage.scale = Vector3.ONE * stage_scale
+	for dummy in [player, enemy]: dummy.scale = Vector3.ONE * stage_scale
+	isolated_camera = Transform3D(isolated_camera_base.basis, isolated_camera_base.origin * stage_scale)
+	combat_camera = Transform3D(combat_camera_base.basis, combat_camera_base.origin * stage_scale)
+	camera.near = 0.05 * stage_scale
+	camera.far = 4000.0 * stage_scale
+	flash_light.omni_range = 9 * stage_scale
+	sun.directional_shadow_max_distance = 100.0 * stage_scale
+
 func _layout() -> void:
-	player.position = COMBAT_PLAYER if combat else ISOLATED_PLAYER
-	enemy.position = COMBAT_ENEMY if combat else ISOLATED_ENEMY
+	player.position = (COMBAT_PLAYER if combat else ISOLATED_PLAYER) * stage_scale
+	enemy.position = (COMBAT_ENEMY if combat else ISOLATED_ENEMY) * stage_scale
 	camera_home = combat_camera if combat else isolated_camera
 	camera.transform = camera_home
 	# The offset only re-centres the view in the space the side panel leaves free.
@@ -506,15 +537,20 @@ func _select(i: int, start: bool = true) -> void:
 	if Vfx.manifest.is_empty(): return
 	index = posmod(i,Vfx.manifest.size())
 	var item: Dictionary = Vfx.manifest[index]
+	var world := float(item.get("scale", {}).get("world", 1.0))
+	if not is_equal_approx(world, stage_scale):
+		_set_stage_scale(world)
+		_layout()
 	if capture_mode and review_view == "close":
 		var self_cast := str(item.get("delivery", {}).get("kind", "")) == "self"
-		var focus := (COMBAT_PLAYER if self_cast else COMBAT_ENEMY) + Vector3(0, 1.0, 0)
-		camera.position = focus + Vector3(1.4, 2.2, 5.8)
+		var focus := ((COMBAT_PLAYER if self_cast else COMBAT_ENEMY) + Vector3(0, 1.0, 0)) * stage_scale
+		camera.position = focus + Vector3(1.4, 2.2, 5.8) * stage_scale
 		camera.look_at(focus)
 		camera_home = camera.transform
 	if showcase: print(JSON.stringify({"showcase_index":index+1,"id":item.id}))
 	title.text = "%02d / %s" % [index+1,item.name]
 	subtitle.text = "%s   /   %s   /   %s" % [item.category.to_upper(),item.element.to_upper(),item.id]
+	if stage_scale != 1.0: subtitle.text += "   /   %s x%s" % [str(item.get("scale", {}).get("profile", "scale")).to_upper(), str(stage_scale)]
 	info.text = "%.2f s duration     •     %d layers     •     ≤ %d particles     •     %s" % [item.duration,item.layers,item.particle_budget,item.attach.to_upper()]
 	for j in range(library_list.item_count):
 		if int(library_list.get_item_metadata(j)) == index:
@@ -526,6 +562,8 @@ func _replay() -> void:
 	if Vfx.manifest.is_empty(): return
 	if capture_mode: seed(int(Vfx.manifest[index].get("seed", 1729)))
 	Vfx.stop_all()
+	beam_handle = null
+	beam_path = []
 	elapsed = 0
 	sequence_id += 1
 	events.clear()
@@ -546,14 +584,14 @@ func _replay() -> void:
 	sequence_end = float(item.duration)
 	if item.category == "projectile":
 		var to := _anchor(item, enemy)
-		Vfx.launch(item.id, to + Vector3(-3.2, -0.15, 0), to)
+		Vfx.launch(item.id, to + Vector3(-3.2, -0.15, 0) * stage_scale, to)
 		return
 	var at := _anchor(item, player if item.attach.begins_with("caster") else enemy)
 	Vfx.play(item.id,at,Vector3.ZERO,Vector3.ONE,{"loop":false})
 	_at(float(item.get("peak", 0.1)), func(): _kick(item, at))
 
 func _anchor(item: Dictionary, actor: Node3D) -> Vector3:
-	return actor.position + ATTACH_OFFSET.get(item.attach, ATTACH_OFFSET.impact)
+	return actor.position + ATTACH_OFFSET.get(item.attach, ATTACH_OFFSET.impact) * stage_scale
 
 func _paired_impact(projectile_id: String) -> Dictionary:
 	for entry in Vfx.manifest:
@@ -605,7 +643,7 @@ func _stage(item: Dictionary) -> void:
 					_hit_at(elapsed + float(impact_item.peak), impact_item, player))
 				return
 			_at(launch_at, func():
-				var handle := Vfx.launch(projectile_id, player.position + Vector3(0.45, 1.3, 0.12), to)
+				var handle := Vfx.launch(projectile_id, player.position + MUZZLE * stage_scale, to)
 				# A projectile's own capture stops at arrival: the paired impact has its own strip and metrics.
 				if handle == null or impact_item.is_empty() or (capture_mode and item.category == "projectile"): return
 				handle.arrived.connect(func(_p):
@@ -613,6 +651,27 @@ func _stage(item: Dictionary) -> void:
 					# Impact begins on the arrival frame; the target reacts at the impact's own peak.
 					_play(impact_item, _anchor(impact_item, enemy))
 					_hit_at(elapsed + float(impact_item.peak), impact_item, player)))
+		"beam":
+			# The caster breathes the beam at the ground in front of the target and rakes it up onto the target's chest,
+			# so one take shows ignition, a moving end point, the hit and the release.
+			var charge_id: String = delivery.get("charge", "")
+			var charge: Dictionary = Vfx.effects.get(charge_id, {})
+			var launch_at := 0.2
+			delivery_text = "BEAM  ·  player rakes the beam onto the target" + (("  ·  after " + charge_id) if not charge.is_empty() else "")
+			_move(player, {"kind": "cast", "t": 0.0})
+			if not charge.is_empty() and not capture_mode:
+				_at(0.0, func(): _play(charge, _anchor(charge, player)))
+				launch_at = float(charge.duration) * 0.85
+			var hold := float(item.get("hold", 1.0))
+			var from := player.position + MUZZLE * stage_scale
+			var near := enemy.position + Vector3(-1.6, 0.0, 0.12) * stage_scale
+			var chest := enemy.position + ATTACH_OFFSET.body * stage_scale
+			beam_path = [{"t": launch_at, "to": near}, {"t": launch_at + hold * 0.7, "to": chest}, {"from": from}]
+			beam_end = launch_at + hold
+			effect_start = launch_at
+			_at(launch_at, func(): beam_handle = Vfx.beam(item.id, from, near))
+			_hit_at(launch_at + float(item.peak), item, player)
+			sequence_end = launch_at + float(item.duration)
 		"area":
 			delivery_text = "AREA  ·  the boss slams the ground; the shock wave reaches the player"
 			var peak := float(item.peak)
@@ -694,7 +753,7 @@ func _pose(actor: Node3D, keys: Array, t: float) -> void:
 				elif u < land: y = 0.95 * (1.0 - _ease_in((u - up) / (land - up)))
 				offset.y += y
 				squash += 0.2 * (1.0 - _smooth(u / 0.08)) * float(u < up) + 0.25 * maxf(0.0, 1.0 - (u - land) / 0.25) * float(u >= land)
-	actor.position = (COMBAT_PLAYER if actor == player else COMBAT_ENEMY) + offset if combat else (ISOLATED_PLAYER if actor == player else ISOLATED_ENEMY)
+	actor.position = ((COMBAT_PLAYER if actor == player else COMBAT_ENEMY) + offset if combat else (ISOLATED_PLAYER if actor == player else ISOLATED_ENEMY)) * stage_scale
 	if actor.has_meta("anim"):
 		# A rigged character performs the lean and squash through its clips; only the flash stays procedural.
 		var flash: StandardMaterial3D = actor.get_meta("flash")
@@ -758,13 +817,15 @@ func _kick(item: Dictionary, at: Vector3) -> void:
 	impact_fired = true
 	var tint: Array = item.get("light", [1.0, 0.85, 0.6])
 	flash_light.light_color = Color(tint[0], tint[1], tint[2])
-	flash_light.light_energy = 5.0 * power
-	flash_light.position = at + Vector3(0.4, 0.5, 1.2)
-	shake = 0.16 * power
+	# Godot's omni light falls off as 1/distance (attenuation 1): at stage_scale times the distance it needs
+	# stage_scale times the energy to light the stage the same.
+	flash_light.light_energy = 5.0 * power * stage_scale
+	flash_light.position = at + Vector3(0.4, 0.5, 1.2) * stage_scale
+	shake = 0.16 * power * stage_scale
 
 func _game_feel(delta: float) -> void:
-	flash_light.light_energy = move_toward(flash_light.light_energy, 0.0, delta * 22.0)
-	shake = move_toward(shake, 0.0, delta * 0.7)
+	flash_light.light_energy = move_toward(flash_light.light_energy, 0.0, delta * 22.0 * stage_scale)
+	shake = move_toward(shake, 0.0, delta * 0.7 * stage_scale)
 	camera.transform = camera_home
 	if shake > 0.0:
 		camera.position += Vector3(randf_range(-shake, shake), randf_range(-shake, shake), 0)
@@ -785,6 +846,7 @@ func _process(delta: float) -> void:
 	if not Vfx.paused and (not capture_mode or capture_started):
 		_run_events()
 		_game_feel(delta)
+		_steer_beam()
 	# Captures keep the dummies where they stand: a lunge or recoil would count as effect motion in the metrics.
 	if combat and not capture_mode:
 		_pose(player, moves.get(player.name, []), elapsed)
@@ -797,6 +859,15 @@ func _process(delta: float) -> void:
 		if movie_mode and index == Vfx.manifest.size()-1: get_tree().quit()
 		else: _select(index+1)
 	elif looped and not showcase and elapsed > sequence_end+.55: _replay()
+
+func _steer_beam() -> void:
+	# Sweep the beam's end point between its keys, then release it; captures and playback follow the same clock.
+	if beam_handle == null or not is_instance_valid(beam_handle) or beam_handle.released or beam_path.size() < 3: return
+	var a: Dictionary = beam_path[0]
+	var b: Dictionary = beam_path[1]
+	var u := _smooth(clampf((elapsed - float(a.t)) / maxf(float(b.t) - float(a.t), 0.001), 0.0, 1.0))
+	beam_handle.aim(beam_path[2].from, (a.to as Vector3).lerp(b.to, u))
+	if elapsed >= beam_end: beam_handle.release()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST and capture_mode:

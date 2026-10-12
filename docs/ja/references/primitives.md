@@ -17,7 +17,7 @@
 
 ## `effect()` のフィールド
 
-`effect(id, name, category, element, duration, layers, attach='impact', peak=.1, impact=0, light=(1,.85,.6), loop=False, design='', delivery=None, flight=None, arc=None)`
+`effect(id, name, category, element, duration, layers, attach='impact', peak=.1, impact=0, light=(1,.85,.6), loop=False, design='', delivery=None, flight=None, arc=None, hold=None, inputs=None, scale=None)`
 
 | フィールド | 意味 |
 |---|---|
@@ -26,8 +26,11 @@
 | `duration`, `peak` | 秒。`peak` は Lab のフラッシュ、キック、ターゲットのリアクションが使う接触/解放の瞬間 |
 | `attach` | アンカー：`ground`、`body`、`impact`、`caster`、`caster_ground`、`projectile` |
 | `impact`, `light` | Lab のステージフラッシュとカメラキックの強さ（0–1）と RGB（デモ演出専用） |
-| `delivery` | ゲームでの演出方法：`SELF`、`MELEE`、`TARGETED`、`dict(kind='area')`、飛翔体そのものには `dict(kind='projectile')`、その着弾には `dict(kind='projectile', projectile='VFX_X')` |
+| `delivery` | ゲームでの演出方法：`SELF`、`MELEE`、`TARGETED`、`dict(kind='area')`、飛翔体そのものには `dict(kind='projectile')`、その着弾には `dict(kind='projectile', projectile='VFX_X')`、保持するビームには `BEAM` または `dict(kind='beam', charge='VFX_X')`（Lab は先にチャージを再生する） |
 | `flight`, `arc` | 飛翔体のみ：基準となる飛行の秒数と、山なりの高さ（メートル） |
+| `hold` | ビームのみ：Lab が解放までに照射する秒数。`infinite` のレイヤーはそれまで放出し続ける |
+| `inputs` | `bind` の方程式が読むゲーム入力 `@In0..@In3` の既定値。ビームは `beam_inputs(length)` を使う |
+| `scale` | `'giant'`、`'kaiju'`、数値、または `{'world','time','budget'}`：キャラクタースケールのレシピを、より大きな世界向けにビルドする（[scale](scale.md)） |
 | `design` | プレイヤーに見えるものを一文で。Lab に表示され、レビュアーに渡される |
 
 ## プリミティブ
@@ -60,6 +63,8 @@
 | `slice_line` | 解放時の長く細い線 | 35 % から全長まで伸びながら細くなる `T_Streak01`。`width` は見える太さ |
 | `spray(end)` / `debris` | 射線に沿った方向のある飛沫、暗く転がる塊 | 回転しない放出 + ワールド方向の `travel` ボックス。重力付きの Blend `T_Shard01`、着地できる |
 | `decay(layer, color)` | グロー → 灰色の煙の残像 | Blend のグレーとしてコピーし、`lag` フレーム遅らせ、ライフ × `stretch`、エミッシブなし、流れを遅く |
+| `beam(name, core, body, rim, width=.5, ...)` | ゲームが狙いを付けて薙ぎ払う持続ビーム（ブレス攻撃、レーザー、殺人光線） | 軸固定ビルボード（`YAxisFixed`、根元にピボット）を `bind` で `@In0` まで伸ばし `@In1` で太くする。`T_BeamSection01` の断面、外向きに流れるノイズ、口元と先端のフラッシュ、先端の火花、ワールド空間に残る任意の `steam` と `scorch`（[godot](godot.md#ビーム)） |
+| `charge_chain(name, anchors, color, hot, step=4, ...)` | 点の連なりを順に灯していくアーク（背びれ、コイル、レイライン） | アンカーごとに `delay + i*step` でノードのグローとポップ。知覚できないほど小さな速度で次のアンカーへ向けた `DirectionalBillboard` 上のペイント系 `T_ArcStrand01` のアーク。`until` まで `restrike` フレームごとに鏡像で打ち直す |
 
 ## ヘルパー
 
@@ -69,6 +74,8 @@
 | `fade(color, alpha=0)` | 同じ RGB で新しいアルファ |
 | `POP`, `DISSOLVE` | パッと出てから漂うスケールカーブ。保持（ease-in）してから侵食するカットオフのイージング |
 | `sustain(layer, interval)` | 飛翔体のエミッター：解放まで `interval` フレームごとにインスタンスを一つ |
+| `held(layer, interval)` | 持続するクロスフェード：`interval` フレームごとにインスタンスを一つ出し、それぞれ `interval` かけてフェードイン・アウトするので、常に 2 つが重なり合計が一定になる（ループの継ぎ目のない安定したビーム） |
+| `beam_inputs(length, power=1)`, `BEAM_LENGTH`, `BEAM_POWER`, `BEAM` | ビームの既定の入力、その bind の方程式が使う `@In0`/`@In1` の名前、ビームの delivery |
 | `TRAIL` | 位置/回転/スケールを生成時にだけ継承：レイヤーは経路上に留まる |
 | `slash_set(colors, roll, sweep=(110,260), radius=1.5, offset=(0,0,.5), lean=-18, delay=1, life=14)` | 3 つの幅を持つ一本の刃：2 フレーム遅れる幅広で薄暗い残像、高彩度の本体、細く白熱した縁（`slash_arc`）、屈折の弧、ペイント系のセル調の三日月（`T_Slash02`、刃の平面に置いた `billboard='Fixed'`、計測した `SLASH02_BULGE` で回転）。`colors` = (残像, 本体, 縁) |
 | `swing(layers, yaw, pitch=0)` | 刃のレイヤーを `renderer='None'` のピボットで包み、弧が 3D 空間を切り裂くようにする。ヨーを約 ±30–40° にすると、画面上の三日月ではなく楕円に見える |
@@ -77,13 +84,23 @@
 
 ## レイヤーフィールド
 
-PVA、スケール、色のほかに、コンパイラは次をサポートします：`collide`（床での跳ね返り）、`soft`（エンジン規約を参照）、
+PVA、スケール、色のほかに、コンパイラは次をサポートします：`collide`（床での跳ね返り）、`soft`（パーティクルが不透明なジオメトリと接する位置でのフェード距離、ワールド単位。
+Forward+ で検証済み。エンジン規約を参照）、`bind`（ゲーム入力から毎フレーム再計算される位置/スケール。下記参照）、
 `size` / `size_end` / `size_curve`（一様なスケール）、`color_end`、`color_curve`、`travel`（イージングした変位）、`spawn`
 （球、円、線のエミッター）、`forces`（重力、乱流、渦）、`alpha_texture` + `cutoff` + `edge`
 （熱い縁を伴うディゾルブ）、`distortion_texture`、`blend_texture`、`falloff`（フレネル）、`flipbook`、`pivot`、
 `ring{...}`、`inherit`、`track_size`、`material`（`BackDistortion`）、`children`。`vfx layer-schema` は受け付けるすべての
 キーを列挙します。未知のキーはスペルの候補とともに失敗します。それ以外のものは、レシピに生のプロパティパスとして書くのではなく、
 save/open の読み戻しテストとともにコンパイラに追加しなければなりません（手順：[エンジン規約](engine-conventions.md#コンパイラの拡張)）。
+
+### `bind`：ゲームが動かす値
+
+`bind={'position': [x, y, z], 'scale': [x, y, z]}` は、レイヤーの位置またはスケールを、Effekseer の動的方程式がゲーム入力
+`@In0..@In3`（Godot では `handle.set_input()` / `Vfx.beam()`）から **毎フレーム** 再計算する Fixed のベクトルに置き換えます。
+各成分は数値、方程式の文字列（`'@In0'`、`'@In0 * 0.5'`）、または積 `[k, '@In1']` のいずれかで、積の定数 `k` はレシピの
+ワールドスケールに合わせてスケールされ、入力はワールドの値のままです。レシピは、読み取るすべての入力について `inputs=[...]` の既定値を
+与えなければなりません。bind したスケールは `size`/`scale_*` フィールドと、bind した位置は `travel`/`velocity` と組み合わせられません。
+子は bind した親に追従します。
 
 ## 単位
 

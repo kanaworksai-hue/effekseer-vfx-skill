@@ -4,7 +4,8 @@ Each item below was confirmed in real renders. Use them as they are; do not re-g
 behaviour. When you confirm a new convention, add it here with how it was measured.
 
 Contents: angles and axes · forces and motion · meshes and fresnel · textures and flipbooks · inheritance and
-lifetime · rendering, HDR and the Lab · anchors and placement · extending the compiler
+lifetime · game inputs and dynamic equations · rendering, HDR and the Lab · anchors and placement · extending the
+compiler
 
 ## Angles and axes
 
@@ -22,6 +23,14 @@ lifetime · rendering, HDR and the Lab · anchors and placement · extending the
   so local **+X** points outward and +Y stays up. Smoke rolling out along the floor needs `travel.end=[[d0,d1],0,0]`;
   `[0,d,0]` turns it into a column rising straight up. With `rotate=False` the displacement is in world directions
   (use that for rising particles).
+- **Sphere emission with `rotate=True` also rotates PVA `velocity`**: `velocity=[0, v, 0]` flies along each
+  particle's random spawn direction, not up. A smoke column emitted that way drifted sideways and sank (the review's
+  `sinks` flag); `spawn=dict(shape='Sphere', radius=[...], rotate=False)` keeps `velocity` in world directions.
+- **Axial billboards**: `billboard='YAxisFixed'` with `pivot='bottom'` is a quad from the origin along local +Y that
+  turns about that axis to face the camera — a beam that stays wide from any angle except straight down its axis.
+  `DirectionalBillboard` aligns +Y with the particle's motion; with an imperceptible velocity (1e-4 units/frame,
+  `charge_chain`) it aims a stationary sprite at any point without Euler angles (measured: arcs met every anchor of
+  a 7-point chain on a curved spine).
 - **`travel.end` is an absolute local position**, not an offset from `position`, and `rotate=True` emission rotates
   that local frame too. Put floor-rolling smoke under a `renderer='None'` pivot whose `position` is at floor height;
   for world-direction displacement use `spawn rotate=False` (`spray`).
@@ -107,6 +116,21 @@ lifetime · rendering, HDR and the Lab · anchors and placement · extending the
   fails to compile (the compiler multiplies the curve by a fixed start scale; lint rejects it). Vary size with a
   second layer.
 
+## Game inputs and dynamic equations
+
+- **`bind` works at runtime in the Godot plugin.** A Fixed location or scale with a dynamic equation
+  (`@O.y = @In0`) is recomputed every frame: a probe changed `@In0` from 3 to 9 to 5 on a playing handle and the
+  beam's length and end flash followed within 2 frames; rotating the emitter re-aimed it. The compiler writes the
+  equations into `Core.Dynamic.Equations` (identical code is shared) and checks them after save/open.
+- **New handles start from the .efk input defaults** (the recipe's `inputs`): on the first simulated frame the kaiju
+  beam's hit-point spray appeared at the default 160 m instead of the real end point. `Vfx.play()` / `Vfx.beam()`
+  therefore push the handle's inputs right after creating it, and `CombatVfxHandle` pushes them again every frame. (An
+  early probe saw zeros only because its .efk had no defaults saved.)
+- **Held bodies**: a beam body is a `held()` cross-fade (an instance every interval, life 2×interval, fades of one
+  interval each) rather than one long-lived instance, so `release()` (`stop_root()`) ends it on time: the kaiju beam
+  narrowed and was gone within about 15 frames of its release in the strips, and `TestApi.gd` checks that a released
+  beam frees itself.
+
 ## Rendering, HDR and the Lab
 
 - **Screen distortion `material='BackDistortion'`** works in the Godot plugin (`hint_screen_texture`); `distortion` is
@@ -125,9 +149,16 @@ lifetime · rendering, HDR and the Lab · anchors and placement · extending the
   `glow()` is a texture layer, not this HDR post-process. Re-render the whole overview after stage changes.
 - With strong bloom, effects whose contact is legitimately white-hot report `washed out` on their peak frame; that
   lasts 1–3 frames — judge from the strip and do not weaken the contact just to silence the flag.
-- **Soft particles `soft`** were unusable in an earlier Compatibility-renderer Lab (no depth texture; sprites turned
-  almost fully transparent). The Lab now uses Forward+, but `soft` has not been re-verified: do not use it and do not
-  claim it works.
+- **Soft particles `soft` work in Forward+** (EffekseerForGodot4 1.80.5.1, Godot 4.7.2). The plugin's shader samples
+  `hint_depth_texture` and fades the particle over `soft` world units in front of the opaque depth. Measured on
+  depth-tested cards half sunk into the Lab floor: without `soft` the brightness dropped from 206 to 81 within one
+  pixel at the floor line; with `soft=0.3` it ramped 198 → 188 → 169 → 124 → 81 over about 9 pixels; a card in the air
+  kept exactly the same colour with and without `soft` (216, 198, 155). A `soft` close to the particle size fades the
+  whole card (lint warns). Only opaque geometry is in the depth texture: a transparent water surface must write
+  depth (or have an opaque depth pre-pass) for smoke to soften against it. The Compatibility renderer has no depth
+  texture: there `soft` made sprites almost fully transparent in an earlier Lab — do not use it with Compatibility.
+- **The stage flash at scale**: Godot omni lights fall off as 1/distance (attenuation 1), so the Lab multiplies the
+  flash energy by the stage scale, not its square (with the square a kaiju hit washed out the whole stage).
 
 ## Anchors and placement
 

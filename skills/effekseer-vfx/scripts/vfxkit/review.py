@@ -238,14 +238,17 @@ def metrics(rid,frames,entry,step=4):
  if first and len(before_contact)>=3 and contact['frame']-first['frame']>=12:
   motion['charge_spread']=round(before_contact[-1]['radius']/max(before_contact[0]['radius'],1e-3),2)
  flags=[]
+ # Scaled effects (references/scale.md) last `stretch` times longer: frame tolerances stretch with them.
+ stretch=float((entry.get('scale') or {}).get('time',1)); beam=(entry.get('delivery') or {}).get('kind')=='beam'
  if widest['coverage']<VISIBLE_COVERAGE:flags.append(f'barely visible: under {VISIBLE_COVERAGE:.2%} of the stage changes at its strongest frame')
- if total-last_active>max(6,total*DEAD_TAIL):flags.append(f'dead tail: under {ACTIVE_FRACTION:.0%} of peak energy and {VISIBLE_COVERAGE:.2%} of the stage after frame {last_active} of {round(total)}; shorten duration or keep the dissipation visible')
+ if total-last_active>max(6*stretch,total*DEAD_TAIL):flags.append(f'dead tail: under {ACTIVE_FRACTION:.0%} of peak energy and {VISIBLE_COVERAGE:.2%} of the stage after frame {last_active} of {round(total)}; shorten duration or keep the dissipation visible')
  if sum(t['white']>.1 for t in timeline)>2:flags.append('blown out: over 10% pure white for more than two sampled frames')
  if not entry.get('loop') and visible and timeline[-1]['coverage']>CUT_OFF_COVERAGE:flags.append('cut off: still clearly visible on the last frame')
  if entry.get('impact',0)>=.3:
   expected=entry.get('peak',0)*60
-  if abs(contact['frame']-expected)>max(6,2*step):flags.append(f"off-peak contact: brightest at frame {contact['frame']} but manifest peak is frame {expected:.0f}; the Lab flash and camera kick land elsewhere")
-  if flash_span>FLASH_SPAN:flags.append(f'lingering flash: near-peak white lasts {flash_span} frames; contact should be 2-5')
+  # A beam's sustained white core outshines its ignition, so the contact of a beam is not its whitest frame.
+  if not beam and abs(contact['frame']-expected)>max(6,2*step)*stretch:flags.append(f"off-peak contact: brightest at frame {contact['frame']} but manifest peak is frame {expected:.0f}; the Lab flash and camera kick land elsewhere")
+  if flash_span>FLASH_SPAN*stretch:flags.append(f'lingering flash: near-peak white lasts {flash_span} frames; contact should be 2-5')
  layering=peak.get('layers')
  if layering and widest['coverage']>=VISIBLE_COVERAGE:
   if layering[0]<.005:flags.append('no white-hot core: almost no pixel above 85% brightness at the peak frame')

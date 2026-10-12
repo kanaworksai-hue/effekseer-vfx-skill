@@ -1,7 +1,7 @@
 # Shipped examples
 
-Four ranged pairs (a projectile plus the impact played where it arrives) and five single effects, one per common
-category. They are complete production recipes with design briefs, painted textures (processed copies) and the
+Four ranged pairs (a projectile plus the impact played where it arrives), five single effects, one per common
+category, and the kaiju set. They are complete production recipes with design briefs, painted textures (processed copies) and the
 prompts that made them. Their layer roles are the category skeletons in [skeletons](skeletons.md).
 
 | Pair | Projectile | Impact | What it teaches |
@@ -19,9 +19,17 @@ prompts that made them. Their layer roles are the category skeletons in [skeleto
 | `shield` | `VFX_Shield_Dome` | fresnel shell and thin rim, overshoot pop, hold with scan bands, `shell_fragments` break that clears on time |
 | `heal` | `VFX_Heal` | no impact frame: floor seal, scrolling column, rings, plus signs and motes that all rise and ease out |
 
+| Set | Effects | What it teaches |
+|---|---|---|
+| `kaiju` | `VFX_Kaiju_Atomic_Charge`, `VFX_Kaiju_Atomic_Beam`, `VFX_Kaiju_Explosion` | `scale='kaiju'` (built 40x larger and 2.5x slower, [scale](scale.md)); `charge_chain()` climbing the dummy's back; a sweepable `beam()` driven by game inputs with steam and scorch left behind; a photographic explosion with soot, a rising smoke column and soft ground dust ([realism](realism.md)) |
+
+The kaiju set is staged between 70 m dummies (the Lab scales its stage with the effect) and its beam is raked from
+the ground in front of the target onto its chest, after the charge.
+
 ```sh
 vfx examples                     # list with historical scores and verdicts
 vfx examples show slash          # layer plan, absolute frames, roles, budget (a pair shows both effects)
+vfx examples add kaiju           # a set: the charge, the beam and the explosion
 vfx examples add fire            # copy into vfx/src, vfx/briefs, vfx/textures/processed, vfx/texture_prompts.json
 vfx lint --ids VFX_Projectile_Fire VFX_Fire_Explosion
 vfx build --ids VFX_Projectile_Fire VFX_Fire_Explosion
@@ -31,7 +39,10 @@ vfx review --ids VFX_Projectile_Fire VFX_Fire_Explosion --note "baseline"
 The historical scores (0–3 per rubric criterion) come from an independent review of renders in the skill's default
 capsule Lab: two reviewers that saw only the strips, key-frame sheets, manifest entries and flags. Eleven were judged
 `ship`; `VFX_Projectile_Ice` (flat lance without a white core or dark rim, no shape change in flight) and
-`VFX_Projectile_Dark` (nothing stays on the path after arrival) were judged `iterate`. `vfx examples` lists every
+`VFX_Projectile_Dark` (nothing stays on the path after arrival) were judged `iterate`. The kaiju set was reviewed the
+same way on its own renders in the scaled Lab and all three were judged `ship` after several rounds (the reviewers'
+fixes: plates on the body, discrete lit fins, an inward mouth gather, smouldering smoke and a column that outlives
+the fire to fill the tails). `vfx examples` lists every
 example's weakest criterion and the reviewer's one fix (`historical_review.worst`). The scores are a reference,
 **not** verification of your build: re-build, review and score again. Adding an example never overwrites existing
 files unless `--force`.

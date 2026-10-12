@@ -20,7 +20,7 @@ Windows では、`sh <skill>/scripts/vfx` は Git Bash で動作します。cmd 
    `doctor` の `next` が、このマシン向けの正確なコマンドを表示します。
    setup には Python 3.11+ か uv が必要です（macOS 標準の Python 3.9 は古すぎます）。`doctor` がどちらもないと報告したら、ユーザーにどちらかのインストールを頼みます。Godot 4（Forward+）はユーザーがインストールする必要があります。`PATH` 上にない場合は `GODOT` を設定します。
 3. `vfx init` は `vfx/`（Godot Lab、マテリアル、数式テクスチャ、公式 Effekseer プラグイン）を作成します。`--update-templates` を付けない限り、既存のファイルは上書きしません。
-4. 任意：`vfx examples add <name>` で、完成済みで独立レビュー済みのサンプルを学習用にコピーします：ペアは `fire`、`ice`、`poison`、`dark`（飛翔体 + 着弾）、単体は `hit`、`slash`、`charge`、`shield`、`heal`、または `all`。[references/examples.md](references/examples.md) を参照してください。
+4. 任意：`vfx examples add <name>` で、完成済みで独立レビュー済みのサンプルを学習用にコピーします：ペアは `fire`、`ice`、`poison`、`dark`（飛翔体 + 着弾）、単体は `hit`、`slash`、`charge`、`shield`、`heal`、セット `kaiju`（ワールドスケール、ビーム、チャージチェーン、写真調の爆発）、または `all`。[references/examples.md](references/examples.md) を参照してください。
 
 `vfx review`、`preview`、`showcase` はユーザーのデスクトップに Godot のウィンドウを開きます。サンドボックス内で動いている場合（Codex のワークスペース
 サンドボックスなど）は、ユーザーの承認を得てサンドボックスの外で実行します。外に出られない場合は、完全なコマンドをユーザーに渡してデスクトップの
@@ -32,7 +32,7 @@ Windows では、`sh <skill>/scripts/vfx` は Git Bash で動作します。cmd 
 
 ## エフェクトを一つ作る・変更する
 
-1. **書く前に読む。** [craft](references/craft.md)、[design](references/design.md)、[layering](references/layering.md)、[timing](references/timing.md)、[skeletons](references/skeletons.md) は必ず読み、さらに下のルーティング表にあるトピック別ファイルと、該当するサンプルのレイヤー計画を示す `vfx examples show <name>` を読みます（名前：`hit`、`slash`、`charge`、`shield`、`heal`。飛翔体や爆発などの着弾はペア `fire`、`ice`、`poison`、`dark`。エフェクト ID も使えます）。既存のエフェクトでは `vfx effect-context <ID>` を実行して履歴を読み、失敗した変更を繰り返さないようにします。
+1. **書く前に読む。** [craft](references/craft.md)、[design](references/design.md)、[layering](references/layering.md)、[timing](references/timing.md)、[skeletons](references/skeletons.md) は必ず読み、さらに下のルーティング表にあるトピック別ファイルと、該当するサンプルのレイヤー計画を示す `vfx examples show <name>` を読みます（名前：`hit`、`slash`、`charge`、`shield`、`heal`。飛翔体や爆発などの着弾はペア `fire`、`ice`、`poison`、`dark`。大規模、ビーム、リアルなエフェクトは `kaiju`。エフェクト ID も使えます）。既存のエフェクトでは `vfx effect-context <ID>` を実行して履歴を読み、失敗した変更を繰り返さないようにします。
 2. **ブリーフ。** `vfx/briefs/<ID>.json` を書きます（キーフレーム 3 つ、パレットの役割、ビート、レイヤー計画、受け入れ条件、避けること）。形式は [design.md](references/design.md) にあります。
 3. **テクスチャ。** 数式で作る形状（グロー、リング、ノイズ、トレイル、ディストーションマップ）と、ペイント系の煙・爆発・ウィスプ・亀裂・氷のスターターセットは、`init` の時点で揃っています。複雑なペイント系の形状（炎、斬撃、煙、亀裂、氷、ルーン）は画像生成モデルで作ります — [textures.md](references/textures.md) に従ってください。どのテクスチャも、その角度を使う前に `vfx texture-info` で計測します。
 4. **レシピ。** [primitives.md](references/primitives.md) のプリミティブを使って `recipe()` を定義する `vfx/src/<ID>.py` を書きます。軸、単位、ブレンドの挙動は推測せず、[engine-conventions.md](references/engine-conventions.md) の検証済みエンジンルールに従います。
@@ -51,6 +51,7 @@ Windows では、`sh <skill>/scripts/vfx` は Git Bash で動作します。cmd 
 - 複雑なペイント系の形状を Python で描いてはいけません。画像生成ツールが使えない場合は、プロンプトを `vfx/texture_prompts.json` に書き、ユーザーに画像を依頼します。
 - 生成した原画は `vfx/textures/generated/` に保持し、処理済みのコピーは `vfx/textures/processed/` に書き出します。プロンプトはすべて記録します。
 - 単位：レシピのタイミングは 60 FPS のフレーム数、F カーブはライフに対するパーセント、マニフェストの duration/peak は秒、Godot API の rotation はラジアンです。
+- レシピは Lab のキャラクタースケールで書きます。より大きな世界では、数値を手でスケールするのではなく `scale` を宣言します（[scale](references/scale.md)）。ブリーフとレビューのフレームは、ビルド後のスケールされたタイムラインのものです。
 - すべてのエフェクトは `delivery` を宣言します。飛翔体には、それを参照し返す対の着弾エフェクトが必要です。
 - コンパイラが知っているレイヤーフィールド（`vfx layer-schema`）だけを使います。レシピに生のプロパティパスを書くのではなく、コンパイラを拡張します。
 - `--ids` なしの全量 `vfx build` は、このスキルがビルドし、ソースが `vfx/src/` からなくなったエフェクトの出力を削除します。自分がビルドしていないエフェクトは決して削除せず、空のライブラリでは実行を拒否します。部分的な作業には `--ids` を使います（他の場所の壊れたソースは、作業を止めずに `unloaded` に報告されます）。
@@ -64,6 +65,9 @@ Windows では、`sh <skill>/scripts/vfx` は Git Bash で動作します。cmd 
 | 斬撃、飛翔体、チャージ、オーラなど移動するもの全般 | [motion.md](references/motion.md) |
 | シールド、柱、ボス、状態異常、ボリューム、遮蔽 | [shapes.md](references/shapes.md) |
 | リファレンス動画に合わせる | [reference.md](references/reference.md) |
+| 巨人、怪獣、軍艦：キャラクターよりはるかに大きいもの全般 | [scale.md](references/scale.md) |
+| ビーム、レーザー、ブレス攻撃、チャージチェーン、ゲームが実行時に動かす値 | [primitives.md](references/primitives.md)（`beam`、`charge_chain`、`bind`）、[godot.md](references/godot.md#ビーム) |
+| リアル / 写真調の爆発、炎、煙、蒸気 | [realism.md](references/realism.md) |
 | 特定の見た目の失敗（白い塊、空のテール、崩れが出ない） | [cases.md](references/cases.md) |
 | コンパイラへのエンジン機能の追加 | [engine-conventions.md](references/engine-conventions.md#コンパイラの拡張)、`vfx discover`、`vfx core property-list/get/set` |
 | ゲームでエフェクトを使う | [godot.md](references/godot.md) |

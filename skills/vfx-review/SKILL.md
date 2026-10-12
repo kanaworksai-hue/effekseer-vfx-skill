@@ -3,7 +3,7 @@ name: vfx-review
 description: Independently score one rendered game VFX filmstrip against a fixed rubric and return a JSON verdict. Use when asked to review, score or judge an effect's strip images (for example from the effekseer-vfx skill's `vfx review`) as a reviewer who did not author it.
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Independent VFX review

@@ -29,6 +29,24 @@ func play(id: String, position: Vector3, rotation: Vector3 = Vector3.ZERO, effec
 	active.append(handle)
 	handle.tree_exiting.connect(func(): active.erase(handle))
 	handle.start(resource,bool(options.get("loop",effects[id].loop)),float(effects[id].duration))
+	# Game inputs (@In0..@In3) the recipe's bind equations read; the handle keeps pushing them every frame.
+	var defaults: Array = effects[id].get("inputs", [])
+	for i in defaults.size(): handle.inputs[i] = float(defaults[i])
+	handle.push_inputs()
+	return handle
+
+## Fire a beam effect (manifest delivery "beam") from `from` at `to`. Call `aim(from, to)` on the handle every frame
+## to sweep it; `release()` stops it: the beam narrows and its last instances fade out. options.ignite (s) is how
+## long the power ramps from 0 to 1 (default 0.08 s, times the recipe's time scale).
+func beam(id: String, from: Vector3, to: Vector3, options: Dictionary = {}) -> CombatVfxHandle:
+	var handle := play(id, from, Vector3.ZERO, Vector3.ONE, {"loop": false})
+	if handle == null: return null
+	var stretch := float(effects[id].get("scale", {}).get("time", 1.0))
+	handle.start_beam(float(options.get("ignite", 0.08 * stretch)), float(options.get("fade", 0.12 * stretch)))
+	handle.aim(from, to)
+	# Before the first simulated frame: particles born on frame 0 (the hit point's spray) must see the real length,
+	# not the recipe's default.
+	handle.push_inputs()
 	return handle
 
 ## Fire a projectile effect from `from` to `to`. Flight time is the manifest `flight` unless

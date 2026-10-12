@@ -138,7 +138,7 @@ def orbit_band(name,color,inner_color,outer_color,radius,width,life,tilt=(-72,0,
 def smoke(name,color,count=5,size=(.5,.9),grow=1.9,life=(30,48),delay=0,interval=0,speed=(.005,.02),rise=.0004,radius=(0,.25),texture='T_SmokeSheet01',**kw):
  """Alpha-blended puffs that grow and slow down. The default painted flipbook billows, curls and tears itself
  apart over life (a single still puff only scales), so the noise dissolve is light; still textures erode harder."""
- sheet=texture.endswith('Sheet01')
+ sheet='Sheet' in texture  # every T_*Sheet* texture is a 4x4 flipbook; drawn whole it would show 16 puffs
  extra=dict(flipbook=dict(x=4,y=4,frame_length=max(1,round(max(life)/16)),loop='Once'),cutoff=dict(start=0,end=.3,easing='EaseInCubic')) if sheet else dict(cutoff=dict(start=0,end=.7,easing='EaseInQuadratic'))
  return sprite(name,texture,color,color_end=fade(color),count=count,life=list(life),delay=delay,interval=interval,blend='Blend',billboard='RotatedBillboard',
   spawn=dict(shape='Sphere',radius=list(radius)),velocity=[0,list(speed),0],rotation=[0,0,[-180,180]],spin=[0,0,[-.6,.6]],
@@ -245,18 +245,26 @@ def column(name,color,radius,height,life,delay=0,scroll=(.003,-.02),**kw):
  return mesh(name,'Cylinder',color,life,radius=radius,depth=height,texture='T_NoiseStreak02',uv_scroll=list(scroll),delay=delay,culling='Double',
   alpha_texture='T_GradientV01',alpha_wrap='Clamp',falloff=dict(begin=[255,255,255,255],end=[255,255,255,0],pow=1.6,blend='Mul')) | kw
 
-def effect(id,name,category,element,duration,layers,attach='impact',peak=.1,impact=0,light=(1,.85,.6),loop=False,design='',delivery=None,flight=None,arc=None):
+def effect(id,name,category,element,duration,layers,attach='impact',peak=.1,impact=0,light=(1,.85,.6),loop=False,design='',delivery=None,flight=None,arc=None,
+  hold=None,inputs=None,scale=None):
  """impact (0..1) and light drive the lab's flash and camera kick at peak; they are stage hints, not Effekseer data.
 
  delivery tells a game (and the Lab) how the effect is performed: {'kind':'self'} on the caster, 'melee' on the
  target at the strike, 'projectile' (with the projectile effect id) on the target when the shot arrives,
- 'targeted' called down on the target, 'area' centred on a caster that hits everything around it.
+ 'targeted' called down on the target, 'area' centred on a caster that hits everything around it, 'beam' fired
+ from the caster's mouth or weapon at a point the game keeps updating (see beam()).
  Projectiles declare flight (seconds of the reference flight) and optional arc (metres of lift at mid-flight);
- their `infinite` layers emit until the game releases them on arrival.
+ beams declare hold (seconds the reference beam fires). Their `infinite` layers emit until the game releases them.
+ inputs are the default values of the game inputs @In0..@In3 that `bind` equations read (a beam's length and power).
+ scale converts a recipe written at the Lab's character scale to a larger world: 'giant', 'kaiju', a number or
+ {'world','time','budget'} (see vfxkit.scale and references/scale.md).
  """
  entry=dict(id='VFX_'+id,name=name,category=category,element=element,duration=duration,loop=loop,attach=attach,peak=peak,impact=impact,light=list(light),seed=1729,layers=layers,design=design)
- for key,value in [('delivery',delivery),('flight',flight),('arc',arc)]:
+ for key,value in [('delivery',delivery),('flight',flight),('arc',arc),('hold',hold),('inputs',list(inputs) if inputs is not None else None)]:
   if value is not None:entry[key]=value
+ if scale is not None and scale!='character':
+  from .scale import apply
+  entry=apply(entry,scale)
  return entry
 
 def life_max(layer):
@@ -285,7 +293,7 @@ POP=[[0,.4],[18,1],[100,1.1]]          # snap to size, then drift
 # nearly whole for the first third, then eats it away.
 DISSOLVE=dict(start=0,end=.9,easing='EaseInQuadratic')
 # How a game performs each effect (manifest `delivery`); the Lab stages the exchange from it.
-SELF=dict(kind='self'); MELEE=dict(kind='melee'); TARGETED=dict(kind='targeted')
+SELF=dict(kind='self'); MELEE=dict(kind='melee'); TARGETED=dict(kind='targeted'); BEAM=dict(kind='beam')
 # Trail layers keep the world position they were born at, so a moving projectile leaves them behind.
 TRAIL=dict(location='WhenCreating',rotation='WhenCreating',scale='WhenCreating')
 
@@ -368,5 +376,112 @@ def contrast_pair(layer, dark_color=(32, 24, 20, 210)):
         dark['color_curve']={ch:[[0,dark_color[i]],[100,dark_color[i]]] for i,ch in enumerate('RGB')}
         dark['color_curve']['A']=[[frame,value*dark_color[3]/255] for frame,value in alpha]
     return [dark, bright]
+
+# ---------------------------------------------------------------- beams and charges
+
+# Game inputs a beam reads (Vfx.beam() keeps them current): @In0 is the length to the end point in world units,
+# @In1 the power 0..1 that widens the beam as it ignites and narrows it as it dies.
+BEAM_LENGTH='@In0'; BEAM_POWER='@In1'
+
+def beam_inputs(length,power=1.0):
+ """Default inputs of a beam recipe (effect(..., inputs=beam_inputs(8))): what the editor and the Lab show
+ before a game sets them."""
+ return [length,power,0,0]
+
+def held(layer,interval):
+ """Sustained cross-fade: a new instance every `interval` frames, each fading in and out over `interval`, so two
+ always overlap and their (linear) fades sum to a constant: a steady body with no pop and no loop seam. The game's
+ release stops emission and the last instances fade out within 2 x interval frames."""
+ return layer|dict(infinite=True,count=1,interval=interval,life=2*interval,fade_in=interval,fade_out=interval)
+
+def _beam_strip(name,texture,color,width,interval,**kw):
+ # Axial billboard along local +Y: the quad turns about the beam axis to face the camera; bind stretches it to the
+ # end point every frame and scales its width with power.
+ return held(sprite(name,texture,color,billboard='YAxisFixed',pivot='bottom',bind={'scale':[[width,BEAM_POWER],BEAM_LENGTH,1]},**kw),interval)
+
+def beam(name,core,body,rim,width=.5,interval=6,flow=.05,origin=1.4,end=1.8,sparks=6,haze=.6,steam=None,steam_life=(50,70),scorch=None,scorch_life=40):
+ """Sustained energy beam along local +Y from the effect's origin to a point @In0 away (Vfx.beam() aims the
+ handle and updates the length every frame, so the game can sweep it). Built from the outside in:
+
+ - haze: screen refraction around the beam (haze=0 drops it);
+ - rim: wide coloured glow, body: saturated beam with noise streaks flowing outward, core: thin white-hot line.
+   Every strip uses the T_BeamSection01 cross-section, so the beam keeps full strength to its very end;
+ - origin and end flashes: glow + flare at the mouth and at the hit point, scaled by power;
+ - end sparks (and optional steam, an RGBA colour) thrown back from the hit point every `interval` frames, and an
+   optional scorch (RGBA): glowing marks that stay where the beam touched and cool from that colour through orange to
+   dark red over `scorch_life` frames. They
+   inherit the hit point only at birth, so a sweeping beam leaves a trail of them behind and they carry the effect's
+   tail after the release (an independent review flagged an empty stage once the beam shut off).
+
+ Pair it with effect(..., delivery=BEAM, hold=<seconds the Lab fires>, inputs=beam_inputs(<length>)) and a one-shot
+ ignition (flash at frame 0-1) for the contact. Widths are Lab metres; scale='kaiju' converts them."""
+ def point(label,texture,color,size,at,**kw):
+  return held(sprite(label,texture,color,billboard='Billboard' if texture!='T_Flare01' else 'RotatedBillboard',
+   bind={'position':[0,at,0],'scale':[[size,BEAM_POWER],[size,BEAM_POWER],1]},**kw),interval)
+ layers=[]
+ if haze:layers.append(_beam_strip(name+' haze','T_DistortHaze01',WHITE,width*3,interval,material='BackDistortion',distortion=haze,uv_scroll=[0,-.01]))
+ layers+=[
+  # Emissive steps keep the value layering of a hit: only the core burns past the bloom threshold; the body stays
+  # saturated and the rim is a dim halo. With body/rim at 1.2+ the overlapping additive strips tonemap to white and
+  # the beam loses its colour under the Lab's bloom (measured on the kaiju atomic beam).
+  _beam_strip(name+' rim','T_BeamSection01',rim,width*2.6,interval,alpha_texture='T_NoiseStreak02',alpha_scroll=[0,-flow*.6],emissive=.7),
+  # The body keeps most of its opacity (blend_texture modulates, not erodes): a noise alpha at full strength halves
+  # it and the colour disappears between the white core and the background.
+  _beam_strip(name+' body','T_BeamSection01',body,width,interval,blend_texture='T_NoiseStreak02',blend_scroll=[0,-flow],blend_type='Add',emissive=1.1),
+  _beam_strip(name+' core','T_BeamSection01',core,width*.18,interval,emissive=1.8),
+  point(name+' origin glow','T_Glow01',body,origin,0,emissive=1.0),
+  point(name+' origin flare','T_Flare01',core,origin*.8,0,emissive=1.8),
+  point(name+' end glow','T_Glow01',body,end,BEAM_LENGTH,emissive=1.0),
+  point(name+' end flare','T_Flare01',core,end*.7,BEAM_LENGTH,emissive=2.0),
+ ]
+ children=[]
+ if sparks:children.append(radial_sparks(name+' end sparks',sparks,core,color_end=body,distance=(end*.5,end*1.3),life=(10,16),delay=0,gravity=.0015,
+  inherit=TRAIL,hemisphere=False))
+ # The steam's flipbook plays slower than its life, so it never reaches the sheet's nearly empty last cells: it is
+ # still a visible, thinning plume when its life ends (a review found the stage empty while the steam was "alive").
+ if steam:children.append(smoke(name+' end steam',steam,count=1,size=(end*.5,end*.7),grow=2.4,life=steam_life,speed=(.01,.02),rise=.0006,inherit=TRAIL,
+  soft=end*.2,color_end=fade(steam,steam[3]//2),flipbook=dict(x=4,y=4,frame_length=max(1,round(max(steam_life)/12)),loop='Once')))
+ if scorch:children.append(sprite(name+' scorch','T_Glow01',**ramp((0,scorch),(30,(255,150,70,scorch[3])),(70,(150,50,20,scorch[3]*2//3)),(100,(60,20,10,0))),
+  life=scorch_life,size=end*.8,size_curve=[[0,1],[100,.75]],billboard='Billboard',inherit=TRAIL,fade_in=0,fade_out=scorch_life*.5,emissive=1.3))
+ if children:
+  # The emitter of the spray: an invisible point riding the end of the beam.
+  layers.append(dict(name=name+' hit point',renderer='None',infinite=True,count=1,interval=interval,life=2*interval,
+   bind={'position':[0,BEAM_LENGTH,0]},children=children))
+ return layers
+
+def _aim(start,end):
+ """Velocity that points a DirectionalBillboard sprite from start toward end without visibly moving it."""
+ d=[b-a for a,b in zip(start,end)]; n=math.sqrt(sum(c*c for c in d)) or 1
+ return [c/n*1e-4 for c in d],n
+
+def charge_chain(name,anchors,color,hot,step=4,until=None,width=.35,glow=.6,texture='T_ArcStrand01',restrike=3,delay=0):
+ """Electric arcs that light up along a chain of anchor points one after another (dorsal plates charging from the
+ tail to the head, capacitor coils, a ley line): node i ignites at delay + i*step frames with a glow, then an arc
+ jumps to node i+1 and keeps re-striking until `until` (default: a beat after the last node lights).
+
+ anchors are local positions (Lab metres before scale). Each arc is a painted strand on an axial billboard aimed
+ along its segment (DirectionalBillboard with an imperceptible velocity), re-struck every `restrike` frames
+ alternately mirrored, so the bolt keeps changing shape instead of sliding. A charge is a self effect: the game plays
+ it on the caster before the beam."""
+ if len(anchors)<2:raise ValueError('charge_chain needs at least two anchors')
+ last=delay+(len(anchors)-1)*step; until=until if until is not None else last+18
+ layers=[]
+ for i,at in enumerate(anchors):
+  born=delay+i*step; span=max(4,until-born)
+  layers.append(sprite(f'{name} node {i+1}','T_Glow01',color,delay=born,life=span,size=glow,size_curve=[[0,1.8],[12,1],[100,1.1]],
+   billboard='Billboard',position=list(at),fade_in=0,fade_out=min(6,span*.3),emissive=2.0))
+  # A small coloured pop, not a star flare (a T_Flare01 star on the first plate read as generic magic before any arc
+  # showed) and not white: the release at the end of the chain must stay the brightest frame.
+  layers.append(sprite(f'{name} node {i+1} spark','T_Glow01',color,delay=born,life=5,size=glow*1.1,size_curve=[[0,1.4],[100,.4]],billboard='Billboard',
+   position=list(at),fade_in=0,fade_out=4,emissive=1.4))
+  if i+1==len(anchors):continue
+  # The arc jumps on the frame its plate lights, so the very first frames already read as electricity climbing.
+  velocity,length=_aim(at,anchors[i+1]); start=born; strikes=max(1,(until-start)//restrike)
+  for side,mirror in ((0,1),(1,-1)):
+   if strikes-side<1:continue
+   layers.append(sprite(f'{name} arc {i+1}{"ab"[side]}',texture,hot,color_end=color,count=(strikes-side+1)//2,interval=restrike*2,
+    delay=start+side*restrike,life=restrike+1,billboard='DirectionalBillboard',pivot='bottom',position=list(at),velocity=velocity,
+    scale_start=[width*mirror,length,1],fade_in=0,fade_out=1,emissive=2.6))
+ return layers
 
 __all__=[name for name in dir() if not name.startswith('_') and name not in ('Path','math','ROOT','T','is_path')]+['math']

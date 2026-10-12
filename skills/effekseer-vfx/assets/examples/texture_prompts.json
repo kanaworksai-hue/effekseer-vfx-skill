@@ -134,6 +134,46 @@
       ],
       "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one frame of the SAME seamlessly LOOPING FLAME tongue, monochrome WHITE/gray on pure BLACK. A single stylized fire flame rising from a rounded base at the bottom-center of each cell, licking upward with 2-3 sharp curling prongs; across the 16 frames the prongs flicker, sway left and right, split off a small detached wisp that rises and vanishes, and the cycle returns to frame 1 shape so it loops. Bright white hot core near the base, grayer thinner tips. Same size and same base position in every cell, with black margin so nothing touches cell borders. Grayscale only, hand-painted stylized AAA fantasy game VFX. No grid lines, no numbers, no text, no borders, no scene, no logs, no ground, no character, no color.",
       "source": "prompt template only: this texture is not shipped; generate it, then vfx process-texture"
+    },
+    {
+      "id": "T_ArcStrand01",
+      "size": "256x512",
+      "prompt": "Use case: real-time game VFX texture mask. Asset type: ELECTRIC ARC STRAND to be stretched between two points. Square 1024x1024 image, pure BLACK background, grayscale only, WHITE light. One single jagged electric discharge arc running straight VERTICALLY from the exact bottom center edge to the exact top center edge of the canvas (it must touch both the top and bottom edges at the horizontal center). Thin intensely white core with sharp angular zigzags that stay within the middle 40% of the width, 4-6 short thin forked side branches that end in empty black, slight soft faint glow hugging the core only. Photographic plasma discharge / Jacob's ladder look, not cartoon. No text, no frame, no other objects, nothing touching the left or right edges.",
+      "post": "middle half of the width cropped at full height (both ends stay on the centre line), resized to 256x512, alpha = luminance (black point 0.03, white at 0.83), RGB white",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_SmokeSheet02",
+      "size": 1024,
+      "grid": [
+        4,
+        4
+      ],
+      "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one animation frame of the SAME photorealistic billowing SMOKE PLUME seen from the side, like a real large explosion's dark smoke column photographed in daylight: dense rolling cauliflower billows with soft self-shadowed interior, lit from the upper left so tops are light grey and undersides are dark grey, wispy torn edges. Frame 1: small dense compact puff in the center of its cell. Frames 2-8: billows grow, roll outward and upward. Frames 9-16: the plume keeps expanding while thinning, becoming transparent wisps that break apart and fade to nothing by frame 16. Grayscale only (white, greys, near black shading) on a pure BLACK background; each frame stays fully inside its own cell with a black margin, never touching the cell border. No grid lines, no text, no fire.",
+      "post": "resized to 1024 keeping the 4x4 cells; RGB = luminance/0.75 ^0.8 (lit shading kept for Blend tinting), alpha = density silhouette (max of luminance and its 2 px blur, 0.03..0.2), cell edges feathered 6 px",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_FireballSheet01",
+      "size": 1024,
+      "grid": [
+        4,
+        4
+      ],
+      "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one animation frame of the SAME photorealistic EXPLOSION FIREBALL, like a high-speed film photograph of a real fuel explosion, rendered as a monochrome LUMINANCE mask: brightest white where the fire is hottest, mid greys for cooler turbulent fire, dark grey for soot-covered rolling surfaces. Frame 1: small blinding white compact core. Frames 2-6: the fireball expands fast into a turbulent rolling mass of many small convection cells, hot white-grey inside, with dark soot veins and darker crust forming on its edges. Frames 7-12: growth slows, the surface darkens and becomes mostly dark grey smoke with a few remaining bright pockets. Frames 13-16: dark, faint, torn remnants fading away to black. Grayscale only on a pure BLACK background; each frame stays fully inside its own cell with a black margin, never touching the cell border. No grid lines, no text, no ground, no debris.",
+      "post": "resized to 1024 keeping the 4x4 cells; RGB white, alpha = ((luminance-0.04)/0.96)^1.25 (emission mask for the additive fire), cell edges feathered 6 px",
+      "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_FireballSootSheet01",
+      "size": 1024,
+      "grid": [
+        4,
+        4
+      ],
+      "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one animation frame of the SAME photorealistic EXPLOSION FIREBALL, like a high-speed film photograph of a real fuel explosion, rendered as a monochrome LUMINANCE mask: brightest white where the fire is hottest, mid greys for cooler turbulent fire, dark grey for soot-covered rolling surfaces. Frame 1: small blinding white compact core. Frames 2-6: the fireball expands fast into a turbulent rolling mass of many small convection cells, hot white-grey inside, with dark soot veins and darker crust forming on its edges. Frames 7-12: growth slows, the surface darkens and becomes mostly dark grey smoke with a few remaining bright pockets. Frames 13-16: dark, faint, torn remnants fading away to black. Grayscale only on a pure BLACK background; each frame stays fully inside its own cell with a black margin, never touching the cell border. No grid lines, no text, no ground, no debris.",
+      "post": "same original as T_FireballSheet01; RGB = 0.3 + 0.7 * luminance/0.8 (soot shading), alpha = silhouette (max of luminance and its 2 px blur, 0.03..0.16): the opaque body drawn under the fire with Blend",
+      "source": "image generation model; processed copy only (the original is not shipped)"
     }
   ]
 }

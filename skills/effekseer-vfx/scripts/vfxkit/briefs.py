@@ -83,7 +83,7 @@ def validate(brief, recipe):
                 previous = frame
             if not isinstance(beat, dict) or not beat.get('name') or not beat.get('expect'):
                 errors.append('each beat needs name and expect')
-    rows = timeline(recipe['layers'], release=recipe.get('flight', 0)*60)
+    rows = timeline(recipe['layers'], release=(recipe.get('flight') or recipe.get('hold') or 0)*60)
     duplicates = [n for n, c in Counter(r['path'] for r in rows).items() if c > 1]
     if duplicates:
         errors.append(f'Layer paths must be unique for brief association: {duplicates}')

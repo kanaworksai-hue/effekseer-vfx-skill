@@ -1,5 +1,5 @@
 {
-  "note": "Four ranged pairs (a projectile and the impact played where it arrives) and five single effects, one per common category. Scores and verdicts are an independent review (0-3 per rubric criterion) of renders in the skill's default capsule Lab, kept as a reference, not as verification of your build.",
+  "note": "Four ranged pairs (a projectile and the impact played where it arrives), five single effects, one per common category, and the kaiju set (world scale, a sweepable beam with its charge, a photographic explosion). Scores and verdicts are an independent review (0-3 per rubric criterion) of renders in the skill's default capsule Lab, kept as a reference, not as verification of your build.",
   "pairs": [
     {
       "name": "fire",
@@ -179,6 +179,36 @@
       "placement": 3,
       "tail": 2,
       "identity": 2
+    },
+    "VFX_Kaiju_Atomic_Charge": {
+      "read": 2,
+      "timing": 2,
+      "layering": 2,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Kaiju_Atomic_Beam": {
+      "read": 2,
+      "timing": 2,
+      "layering": 3,
+      "shape_change": 2,
+      "motion": 2,
+      "placement": 2,
+      "tail": 2,
+      "identity": 2
+    },
+    "VFX_Kaiju_Explosion": {
+      "read": 2,
+      "timing": 3,
+      "layering": 3,
+      "shape_change": 3,
+      "motion": 3,
+      "placement": 3,
+      "tail": 2,
+      "identity": 3
     }
   },
   "singles": [
@@ -233,6 +263,23 @@
       ]
     }
   ],
+  "sets": [
+    {
+      "name": "kaiju",
+      "effects": [
+        "VFX_Kaiju_Atomic_Charge",
+        "VFX_Kaiju_Atomic_Beam",
+        "VFX_Kaiju_Explosion"
+      ],
+      "teaches": [
+        "scale='kaiju': recipes written at character scale, built 40x larger and 2.5x slower (references/scale.md)",
+        "charge_chain(): arcs lighting a chain of anchors one after another, re-struck mirrored",
+        "beam(): a sustained beam whose length and power the game drives through bind equations (Vfx.beam(), aim(), release())",
+        "photographic colour and brightness for fire, soot and smoke (references/realism.md)",
+        "soft particles where smoke meets the ground"
+      ]
+    }
+  ],
   "historical_review": {
     "date": "2026-10-10",
     "stage": "the skill's default Lab (capsule stand-ins, standard view, default profile)",
@@ -250,7 +297,10 @@
       "VFX_Slash_Fire": "ship",
       "VFX_Magic_Charge": "ship",
       "VFX_Shield_Dome": "ship",
-      "VFX_Heal": "ship"
+      "VFX_Heal": "ship",
+      "VFX_Kaiju_Atomic_Charge": "ship",
+      "VFX_Kaiju_Atomic_Beam": "ship",
+      "VFX_Kaiju_Explosion": "ship"
     },
     "worst": {
       "VFX_Projectile_Fire": {
@@ -304,8 +354,20 @@
       "VFX_Heal": {
         "criterion": "layering",
         "fix": "At the plateau f31-f40 the column is one flat mint green; add a white-hot inner core streak rising through the caster's body and a deeper teal/darker green outer fringe on the column edges so the peak tile shows core, body and rim."
+      },
+      "VFX_Kaiju_Atomic_Charge": {
+        "criterion": "placement",
+        "fix": "Raise the mouth-gather orb, its spark spray and the f161-f163 handover flash/streak by about half a head height and pull them back toward the face, so from f116 to f163 they sit on the head's mouth instead of floating in front of the neck/upper chest; keep the arc from the top plate ending on that new point."
+      },
+      "VFX_Kaiju_Atomic_Beam": {
+        "criterion": "shape_change",
+        "fix": "From f30 to f224 the beam body reads as a static rigid rod (f72, f113, f160 and f225 show the same uniform line, with only the endpoint moving). Give the blue body layer a streaky noise texture that scrolls outward along the beam's UV, and add a slight width pulse of about +/-15% every 8-12 frames, so streams visibly travel from the mouth to the impact. Keep the white core line steady so the layering stays intact."
+      },
+      "VFX_Kaiju_Explosion": {
+        "criterion": "tail",
+        "fix": "The smoke column is thin translucent wisps by f288 and the frame is completely empty from about f312 to f351 (the last ~0.6 s). Stretch the smoke column layer's alpha fade and lifetime so a faint, still-rising and thinning column remains through f340 and reaches zero only at f345, instead of finishing around f300."
       }
     },
-    "note": "VFX_Projectile_Ice and VFX_Projectile_Dark were judged iterate: they are complete, buildable examples with a known weakest point, not finished baselines."
+    "note": "VFX_Projectile_Ice and VFX_Projectile_Dark were judged iterate: they are complete, buildable examples with a known weakest point, not finished baselines. The kaiju set was reviewed on 2026-10-12 the same way (independent subagents that saw only the strips, key-frame sheets, manifest entries and flags), on its own renders in the scaled Lab."
   }
 }

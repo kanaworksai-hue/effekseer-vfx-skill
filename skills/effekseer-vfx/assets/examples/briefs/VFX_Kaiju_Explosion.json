@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Kaiju_Explosion",
+  "role": "large impact explosion",
+  "style": "photographic, daylight fuel explosion",
+  "dominant_shape": "A pale yellow-white flash becomes an orange fireball rolling up out of its own soot, lobes break off it, a dust skirt rolls along the ground and a brown-grey smoke column keeps climbing after the fire is gone.",
+  "palette": {
+    "core": [
+      255,
+      244,
+      214
+    ],
+    "body": [
+      255,
+      168,
+      72
+    ],
+    "dark": [
+      38,
+      32,
+      29
+    ],
+    "matter": [
+      92,
+      84,
+      78
+    ]
+  },
+  "delivery": {
+    "kind": "targeted"
+  },
+  "anchor": "impact",
+  "beats": [
+    {
+      "frame": 5,
+      "name": "flash",
+      "expect": "A pale yellow-white flash and a ground shock ring"
+    },
+    {
+      "frame": 40,
+      "name": "fireball",
+      "expect": "An orange fireball rolls up out of dark soot; lobes break off it"
+    },
+    {
+      "frame": 100,
+      "name": "smoke",
+      "expect": "The fire has gone dark red inside brown-grey smoke; dust rolls along the ground"
+    },
+    {
+      "frame": 200,
+      "name": "column",
+      "expect": "A smoke column keeps climbing over the target; debris has landed"
+    },
+    {
+      "frame": 330,
+      "name": "exit",
+      "expect": "The column is still climbing and widening as it thins out"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Heat haze",
+      "role": "heat",
+      "primitive": "heat_haze BackDistortion",
+      "exit": "fades by absolute frame 180"
+    },
+    {
+      "name": "1:Smoke column",
+      "role": "residue",
+      "primitive": "soft smoke T_SmokeSheet02 (photographic), climbing",
+      "exit": "thins out by absolute frame 345"
+    },
+    {
+      "name": "2:Soot body",
+      "role": "dark",
+      "primitive": "Blend T_FireballSootSheet01 flipbook under the fire",
+      "exit": "fades by absolute frame 188"
+    },
+    {
+      "name": "3:Fireball",
+      "role": "body",
+      "primitive": "additive T_FireballSheet01 flipbook, photographic colour ramp",
+      "exit": "cools out by absolute frame 148"
+    },
+    {
+      "name": "4:Fire lobes",
+      "role": "break-up",
+      "primitive": "additive T_FireballSheet01 lobes sprayed off the ball",
+      "exit": "cool out by absolute frame 140"
+    },
+    {
+      "name": "5:Contact flash",
+      "role": "contact",
+      "primitive": "Sprite T_Flare01, pale yellow-white",
+      "exit": "gone by absolute frame 12"
+    },
+    {
+      "name": "6:Bloom",
+      "role": "light",
+      "primitive": "Sprite T_Glow01",
+      "exit": "gone by absolute frame 18"
+    },
+    {
+      "name": "7:Ground pivot",
+      "role": "placement",
+      "primitive": "None pivot at floor height",
+      "exit": "ends by absolute frame 300"
+    },
+    {
+      "name": "7:Ground pivot/0:Dust skirt",
+      "role": "ground",
+      "primitive": "soft smoke T_SmokeSheet02 rolling out along the floor (Circle spawn, +X travel)",
+      "exit": "settles by absolute frame 235"
+    },
+    {
+      "name": "8:Shock ring",
+      "role": "shock",
+      "primitive": "shock_ring on the ground",
+      "exit": "gone by absolute frame 45"
+    },
+    {
+      "name": "9:Shock refraction",
+      "role": "shock",
+      "primitive": "distortion_ring",
+      "exit": "gone by absolute frame 45"
+    },
+    {
+      "name": "10:Embers streaks",
+      "role": "secondary",
+      "primitive": "spark_burst tiers",
+      "exit": "cool and fade by absolute frame 30"
+    },
+    {
+      "name": "11:Embers",
+      "role": "secondary",
+      "primitive": "spark_burst tiers",
+      "exit": "cool and fade by absolute frame 105"
+    },
+    {
+      "name": "12:Embers heavy",
+      "role": "secondary",
+      "primitive": "spark_burst tiers",
+      "exit": "cool and fade by absolute frame 125"
+    },
+    {
+      "name": "13:Debris",
+      "role": "matter",
+      "primitive": "debris chunks with floor collision",
+      "exit": "land and fade by absolute frame 205"
+    }
+  ],
+  "acceptance": [
+    "Colours match a daylight photograph: no pure white body, no saturated red-pink, soot is warm near black",
+    "Smoke outlasts the fire and keeps moving up",
+    "Smoke meets the ground without a hard horizontal edge"
+  ],
+  "avoid": [
+    "A glowing ball that only scales and fades",
+    "Cartoon puffs",
+    "Smoke cut off by a straight line at the floor"
+  ]
+}
