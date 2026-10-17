@@ -151,7 +151,7 @@ def test_examples_list_and_show_without_a_workspace(tmp_path):
 
 def test_rubric_and_layer_schema_commands(project):
     code, rubric = vfx('--project', str(project), 'rubric')
-    assert code == 0 and [c['id'] for c in rubric['criteria']] == ['read', 'timing', 'layering', 'shape_change', 'motion', 'placement', 'tail', 'identity']
+    assert code == 0 and [c['id'] for c in rubric['criteria']] == ['read', 'timing', 'layering', 'shape_change', 'motion', 'placement', 'tail', 'identity', 'coherence']
     code, schema = vfx('--project', str(project), 'layer-schema')
     assert code == 0 and schema['ok'] and 'fade_out' in json.dumps(schema)
 

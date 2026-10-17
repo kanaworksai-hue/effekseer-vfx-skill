@@ -5,6 +5,10 @@ extends Node3D
 ## Projectiles fly() to a point, emit `arrived` there and release() their trail.
 ## Beams aim() from a point at a point; the recipe's bind equations read the length (@In0) and power (@In1).
 signal arrived(position: Vector3)
+## The manifest's screen feedback, emitted once when the effect clock reaches its peak (see Vfx.screen_cue).
+signal screen_cue(screen: Dictionary, position: Vector3)
+var screen: Dictionary = {}
+var screen_at: float = -1.0
 ## Current values of the game inputs @In0..@In3, pushed to the emitter every frame (a value set before the
 ## native effect exists would otherwise be lost).
 var inputs: Array[float] = [0.0, 0.0, 0.0, 0.0]
@@ -77,6 +81,11 @@ func aim(from: Vector3, to: Vector3) -> void:
 	global_basis = Basis(x * size.x, y * size.y, z * size.z)
 	inputs[0] = length / maxf(size.y, 0.0001)
 
+## Emit screen_cue with `value` once `at` seconds of effect time have passed.
+func cue(value: Dictionary, at: float) -> void:
+	screen = value
+	screen_at = maxf(at, 0.0)
+
 func set_input(index: int, value: float) -> void:
 	inputs[index] = value
 
@@ -95,6 +104,9 @@ func _process(delta: float) -> void:
 		inputs[1] = beam_power
 	push_inputs()
 	elapsed += delta * speed
+	if screen_at >= 0.0 and elapsed >= screen_at:
+		screen_at = -1.0
+		screen_cue.emit(screen, global_position)
 	if flight_elapsed >= 0.0:
 		flight_elapsed += delta * speed
 		var p := minf(flight_elapsed / flight_time, 1.0)

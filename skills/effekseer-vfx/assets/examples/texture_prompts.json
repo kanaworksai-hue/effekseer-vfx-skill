@@ -174,6 +174,27 @@
       "prompt": "Use case: real-time game VFX FLIPBOOK sprite sheet. Square 1024x1024 image divided into an exact, invisible 4x4 grid of sixteen equal square cells (256x256 each), read left-to-right, top-to-bottom. Each cell is one animation frame of the SAME photorealistic EXPLOSION FIREBALL, like a high-speed film photograph of a real fuel explosion, rendered as a monochrome LUMINANCE mask: brightest white where the fire is hottest, mid greys for cooler turbulent fire, dark grey for soot-covered rolling surfaces. Frame 1: small blinding white compact core. Frames 2-6: the fireball expands fast into a turbulent rolling mass of many small convection cells, hot white-grey inside, with dark soot veins and darker crust forming on its edges. Frames 7-12: growth slows, the surface darkens and becomes mostly dark grey smoke with a few remaining bright pockets. Frames 13-16: dark, faint, torn remnants fading away to black. Grayscale only on a pure BLACK background; each frame stays fully inside its own cell with a black margin, never touching the cell border. No grid lines, no text, no ground, no debris.",
       "post": "same original as T_FireballSheet01; RGB = 0.3 + 0.7 * luminance/0.8 (soot shading), alpha = silhouette (max of luminance and its 2 px blur, 0.03..0.16): the opaque body drawn under the fire with Blend",
       "source": "image generation model; processed copy only (the original is not shipped)"
+    },
+    {
+      "id": "T_RibbonStrip01",
+      "size": 1024,
+      "prompt": "Game VFX greyscale mask texture, 2048x512 landscape. A single long horizontal hand-painted energy ribbon running the full width from the left edge to the right edge, pure white shape on a completely flat pure black background. The ribbon gently waves up and down twice, its thickness varies (thick in places, pinched thin in others), and both its upper and lower edges throw off sharp curved barbs / thorn-like hooks that sweep backwards like stylized anime flame tongues. Crisp hard edges, no blur, no gradients, no glow, no texture noise, solid flat white fill. The ribbon stays within the middle 70% of the height with black margin above and below. No text, no characters, no environment, no UI. An isolated mask asset to be tinted in a game engine.",
+      "post": "seamless in U: crossfade the last 12% of the width over the start, crop rows to the ribbon, pad 45% above and below, threshold .45-.55, 1024x256 alpha; then vfx helix-texture --turns 1 --bands 3 -> T_RibbonHelix01",
+      "source": "prompt template only: this texture is not shipped; generate it, then process it as `post` says (stylized hard-edge masks, references/stylized.md)"
+    },
+    {
+      "id": "T_SpikeCrown01",
+      "size": 1024,
+      "prompt": "Game VFX greyscale mask texture, 2048x512 landscape, seamlessly tileable left-to-right. A continuous band of tall jagged spikes rising from a solid base along the bottom edge: pure white shapes on a completely flat pure black background. Spikes of very uneven heights (some reach 90% of the image height, some only 30%), leaning slightly in different directions, some curved like thorns or shards of torn black paper, with sharp pointed tips and small secondary splinters breaking off. The bottom 10% is solid white with no gaps. Crisp hard edges, flat white fill, no blur, no gradients, no glow. No text, no characters, no environment, no UI. Isolated mask asset to be wrapped around a cylinder in a game engine.",
+      "post": "seamless in U: crossfade the last 12% of the width over the start, threshold .45-.55, 1024x256 alpha",
+      "source": "prompt template only: this texture is not shipped; generate it, then process it as `post` says (stylized hard-edge masks, references/stylized.md)"
+    },
+    {
+      "id": "T_SpikeSplat01",
+      "size": 512,
+      "prompt": "Game VFX greyscale mask texture, 1024x1024 square, viewed from directly above. A ground impact splat: a solid white roughly round centre (about 40% of the image width) with many sharp jagged spikes and shard-like streaks bursting radially outward in all directions, of very uneven lengths, some curving slightly, some broken into separate splinters near their tips, like a stylized anime crater burst or ink splash. Pure white shape on a completely flat pure black background, crisp hard edges, flat fill, no blur, no gradients, no glow. Keep a black margin at every border; nothing touches the edges. No text, no characters, no environment, no UI. Isolated decal mask to be tinted in a game engine.",
+      "post": "vfx process-texture --size 512",
+      "source": "prompt template only: this texture is not shipped; generate it, then process it as `post` says (stylized hard-edge masks, references/stylized.md)"
     }
   ]
 }

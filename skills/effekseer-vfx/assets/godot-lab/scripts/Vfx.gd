@@ -1,5 +1,8 @@
 extends Node
 ## Game-facing Effekseer API. All effect internals stay behind this autoload.
+## Effects whose manifest entry has `screen` ({shake, flash_frames, flash, hitstop}) emit screen_cue at their peak:
+## connect it to the game's camera shake, impact frame and hit-stop.
+signal screen_cue(id: String, screen: Dictionary, position: Vector3)
 var manifest: Array = []
 var effects: Dictionary = {}
 var active: Array[CombatVfxHandle] = []
@@ -33,6 +36,9 @@ func play(id: String, position: Vector3, rotation: Vector3 = Vector3.ZERO, effec
 	var defaults: Array = effects[id].get("inputs", [])
 	for i in defaults.size(): handle.inputs[i] = float(defaults[i])
 	handle.push_inputs()
+	if effects[id].has("screen"):
+		handle.cue(effects[id].screen, float(effects[id].get("peak", 0.0)))
+		handle.screen_cue.connect(func(screen: Dictionary, at: Vector3): screen_cue.emit(id, screen, at))
 	return handle
 
 ## Fire a beam effect (manifest delivery "beam") from `from` at `to`. Call `aim(from, to)` on the handle every frame

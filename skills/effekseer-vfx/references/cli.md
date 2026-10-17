@@ -56,6 +56,11 @@ outside `EFFEKSEER_VFX_HOME`.
 | `showcase [--movie]` | Godot (+ ffmpeg) | open the Lab auto-playing the library; `--movie` records it |
 | `package [--preview-dir]` | Godot | zip the Godot project with a texture inventory; does not claim device tests |
 | `reference-import`, `reference-frames`, `reference-compare` | ffmpeg | see [reference](reference.md) |
+| `sequence-validate <SEQ>` | Python | sequence brief: steps, stage gate, references, concept ([sequence](sequence.md)) |
+| `sequence-review <SEQ> [--frames DIR] [--fps N] [--step N] [--note]` | Godot, or game frames | one capture of the whole sequence: strip, per-step sheet, evidence ID |
+| `sequence-handoff <SEQ>` / `sequence-submit <evidence_id> <report> --reviewer ID` | capture | independent sequence review; a blockout `ship` writes the gate file |
+| `paintover <SEQ> [--frame N]` / `concept-compare <SEQ>` | capture | key frame + image-edit prompt for the concept; concept beside the latest frame |
+| `helix-texture <src> <dst> [--size] [--turns] [--bands] [--repeat]` | Python | wrap a ribbon strip mask into a tileable helix for `spiral_ribbons` |
 
 ## `--ids` and broken sources
 

@@ -29,6 +29,8 @@ on top** (the Godot plugin ignores ZWrite between effect layers).
 | `hold` | beam only: seconds the Lab fires it before release; `infinite` layers emit until then |
 | `inputs` | default values of the game inputs `@In0..@In3` that `bind` equations read; beams use `beam_inputs(length)` |
 | `scale` | `'giant'`, `'kaiju'`, a number or `{'world','time','budget'}`: build a character-scale recipe for a larger world ([scale](scale.md)) |
+| `screen` | `dict(shake=0..1, flash_frames=0..6, flash='white'|'invert', hitstop=0..0.3)`: screen feedback at `peak`, played by the Lab and emitted by `Vfx.screen_cue` ([sequence](sequence.md#screen-feedback)) |
+| `stage` | `'blockout'` (math textures only, judged on timing, size and readability), `'detail'` or `'polish'` ([sequence](sequence.md)) |
 | `design` | one sentence of what the player sees; shown in the Lab and given to reviewers |
 
 ## Primitives
@@ -64,6 +66,10 @@ nature: contact stars, glows, sparks and smoke puffs (stacked into volume).
 | `decay(layer, color)` | glow → grey smoke afterimage | copy as Blend grey, `lag` frames later, life × `stretch`, no emissive, slower flow |
 | `beam(name, core, body, rim, width=.5, ...)` | sustained beam the game aims and sweeps (breath weapon, laser, death ray) | axial billboards (`YAxisFixed`, pivot at the base) stretched to `@In0` and widened by `@In1` through `bind`; `T_BeamSection01` cross-section, noise streaming outward, mouth and end flashes, end sparks, optional `steam` and `scorch` left in world space ([godot](godot.md#beams)) |
 | `charge_chain(name, anchors, color, hot, step=4, ...)` | arcs lighting a chain of points one after another (dorsal plates, coils, a ley line) | node glow + pop per anchor at `delay + i*step`; painted `T_ArcStrand01` arcs on a `DirectionalBillboard` aimed at the next anchor by an imperceptible velocity, re-struck mirrored every `restrike` frames until `until` |
+
+Stylized hard-edge shapes, for briefs whose `style` asks for that look ([stylized](stylized.md)): `hard_edge`,
+`stylized_pair`, `spiral_ribbons`, `spike_crown`, `speed_streaks`, `sparkle`; `INK` is their near-black. The existing
+primitives keep their defaults.
 
 ## Helpers
 

@@ -43,6 +43,7 @@ works · **3** reads instantly and has a distinct identity.
 | `placement` | Do arcs, columns and ground decals sit on or under the dummy rather than beside it or floating? | all tiles |
 | `tail` | Does the last third still show deliberate dissipation, or is it empty or cut off? | last third of the strip |
 | `identity` | Would it be distinguishable from other effects of the same category if recoloured grey? | whole strip |
+| `coherence` | Do all layers speak one visual language (one palette family, one shape language, one motion vocabulary), with no layer that looks borrowed from another effect? | whole strip |
 
 The authoritative copy is `vfx rubric` (from `assets/review_rubric.json` of the effekseer-vfx skill); if it differs
 from this table, follow it.
@@ -56,7 +57,7 @@ Return exactly one JSON object and save it where the author asks (for example `r
 
 ```json
 {"id": "VFX_Fire_Explosion",
- "scores": {"read": 2, "timing": 3, "layering": 3, "shape_change": 2, "motion": 3, "placement": 3, "tail": 2, "identity": 3},
+ "scores": {"read": 2, "timing": 3, "layering": 3, "shape_change": 2, "motion": 3, "placement": 3, "tail": 2, "identity": 3, "coherence": 3},
  "worst": "shape_change",
  "fix": "From f18 to f30 let the main fire layer burn a large gap open on one side so the round outline breaks up.",
  "verdict": "ship",

@@ -67,7 +67,73 @@ def masks(n=256):
  rays=np.interp((angle+np.pi)/(2*np.pi)*180,np.arange(181),np.append(thin,thin[0]))
  reach=.45+.5*np.interp((angle+np.pi)/(2*np.pi)*180,np.arange(181),np.append(lines,lines[0])[::-1])
  out['T_SpeedLines01']=np.clip(rays*np.clip((r-.16)/.1,0,1)*np.clip((reach-r)/.3,0,1)*1.6,0,1)
+ # Greyscale mask templates for the stylized hard-edge material (references/stylized.md): read through a steep
+ # cutoff they become crisp toon shapes, and an animated cutoff erodes them with a hard edge.
+ out['T_SwirlNoise01']=swirl(n,seed=41)
+ out['T_FlameBand01']=flame_band(n,seed=43)
+ out['T_SpeedStreak01']=speed_streaks(n,seed=47)
  return out
+
+def _sample(field,yy,xx):
+ """Bilinear lookup with wrap-around, so warped fields stay tileable."""
+ n=field.shape[0]; y0=np.floor(yy).astype(int); x0=np.floor(xx).astype(int); fy=yy-y0; fx=xx-x0
+ g=lambda a,b:field[a%n,b%n]
+ return g(y0,x0)*(1-fy)*(1-fx)+g(y0+1,x0)*fy*(1-fx)+g(y0,x0+1)*(1-fy)*fx+g(y0+1,x0+1)*fy*fx
+
+def swirl(n,vortices=9,seed=0):
+ """Tileable vortex noise: streaky noise wound round a few periodic whirl centres (the curling grey mask that a
+ steep threshold turns into hand-painted-looking swirls)."""
+ rng=np.random.default_rng(seed); base=spectral(n,2.0,seed=seed+1)
+ # Bands across the noise get wound into spirals: each whirl turns the lookup by an angle that is several full
+ # turns at its centre and falls off with distance (a differential rotation, like a stirred fluid).
+ base=.5+.5*np.sin(base*np.pi*4)
+ yy,xx=np.mgrid[0:n,0:n].astype(np.float64); wy,wx=yy.copy(),xx.copy()
+ for cy,cx,spin,size in zip(rng.random(vortices)*n,rng.random(vortices)*n,rng.choice([-1,1],vortices)*rng.uniform(4.0,7.0,vortices),rng.uniform(.08,.14,vortices)*n):
+  dy=(wy-cy+n/2)%n-n/2; dx=(wx-cx+n/2)%n-n/2; d=np.hypot(dy,dx)
+  a=spin*np.exp(-(d/size)**1.5); c,s_=np.cos(a),np.sin(a)
+  wy,wx=cy+dy*c+dx*s_,cx+dx*c-dy*s_
+ out=_sample(base,wy,wx)
+ lo,hi=np.percentile(out,[2,98])
+ return np.clip((out-lo)/(hi-lo),0,1)
+
+def flame_band(n,tongues=9,seed=0):
+ """Band of flame tongues along U (tileable left-right): solid at the bottom, sharp uneven tips toward the top,
+ inner streaks; for spike/flame crowns wrapped round a cylinder."""
+ rng=np.random.default_rng(seed); y,x=np.mgrid[0:1:complex(n),0:1:complex(n)]; v=1-y  # v: 0 bottom .. 1 top
+ body=np.zeros((n,n))
+ # Two interleaved rows of tongues with their own widths and heights overlap, so the crown has no even gaps.
+ for count,low,high,offset in ((tongues,.5,.95,0.),(tongues+4,.28,.6,.37)):
+  phase=rng.random(count); heights=rng.uniform(low,high,count)
+  u=(x+offset)*count; k=np.floor(u).astype(int)%count; f=u-np.floor(u)
+  lean=(f-.5+.22*np.sin((phase[k]+v*1.3)*6.28))*1.15
+  h=heights[k]*np.clip(1-(2*np.abs(lean))**1.4,0,1)
+  body=np.maximum(body,np.clip((h-v)/.03,0,1))
+ body=np.maximum(body,np.clip((.1-v)/.03,0,1))  # a solid foot: the band rises from one continuous base
+ streak=spectral(n,1.4,stretch=(8,1),seed=seed+5)
+ return np.clip(body*(.55+.6*streak),0,1)*np.clip(v/.02,0,1)
+
+def speed_streaks(n,seed=0):
+ """Tileable vertical dashes of uneven length and width: scrolled fast along a beam they read as speed."""
+ rng=np.random.default_rng(seed); out=np.zeros((n,n))
+ y=np.arange(n)[:,None]; x=np.arange(n)[None,:]
+ for _ in range(60):
+  cx=rng.random()*n; cy=rng.random()*n; w=rng.uniform(1.0,3.5); L=rng.uniform(.15,.5)*n
+  dx=(x-cx+n/2)%n-n/2; dy=(y-cy+n/2)%n-n/2
+  out=np.maximum(out,np.exp(-(dx/w)**2)*np.clip(1-np.abs(dy)/(L/2),0,1)**.6*rng.uniform(.5,1))
+ return np.clip(out,0,1)
+
+def helix(strip,size=512,turns=1,bands=2,repeat=1):
+ """Wrap a horizontal ribbon strip (white shape on black, any aspect) into a tileable texture whose ribbons run
+ diagonally: on a procedural cylinder (U round, V along the axis) they become `bands` ribbons spiralling `turns`
+ times round it, the strip repeated `repeat` times along each ribbon. All three must be integers so the texture
+ tiles."""
+ # A processed mask keeps its shape in alpha over white; a raw painting has it in luminance.
+ src=np.asarray(strip.getchannel('A') if strip.mode=='RGBA' and strip.getchannel('A').getextrema()[0]<255 else strip.convert('L'),dtype=np.float64)/255
+ h,w=src.shape
+ y,x=np.mgrid[0:size,0:size]/size  # x = U round the cylinder, y = V along it
+ across=((y-x*turns)*bands)%1      # 0..1 across one ribbon band
+ along=(x*repeat)%1
+ return _sample(src,across*h,along*w)
 
 def procedural(n=256,root=None,missing_only=False):
  """Write the math textures to textures/procedural and textures/processed. `missing_only` (what init uses) never

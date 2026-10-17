@@ -57,6 +57,12 @@ Flags alone are not a review. In the strip and the key-frame sheet ask:
 For tails, look at the middle of the last third, not just the last two tiles; fetch actual frames with
 `vfx frames` or capture extra moments with `--key-frames`. One isolated smoke puff does not prove a whole exit.
 
+## Sequences
+
+A combo or finisher is also reviewed as a whole: `vfx sequence-review` captures every step on one clock (in the Lab, or
+from frames the game rendered), and its own rubric scores only the criteria of the sequence's stage. See
+[sequence](sequence.md).
+
 ## Rounds and history
 
 Each round fixes **one class of problem** and states it in `--note`; notes, flags and key timings append to

@@ -20,6 +20,12 @@ Agent skills that let a coding agent (Claude Code, Codex, Cursor, Gemini CLI, Gi
   (sizes, speeds, gravity, budgets and the review camera all follow); `beam()` makes a held beam whose end point the
   game moves every frame (`Vfx.beam()` → `aim()` → `release()`); `charge_chain()` lights arcs along a chain of
   points; photographic fire, soot and smoke flipbooks; soft particles verified in Forward+.
+- **Combos, blockout and stylized shapes** — a sequence brief ties several effects to the beats of a character
+  animation and gates the work blockout → detail → polish (an independent blockout review must pass before any
+  texture work); captures can come from the game itself; references carry steal lists the reviewer checks; `vfx
+  paintover` turns a captured frame into an image-edit prompt for a concept target. Hard-edged stylized primitives
+  (`spiral_ribbons`, `spike_crown`, `speed_streaks`, `stylized_pair`, `sparkle`), greyscale mask templates, and
+  screen feedback (`screen=`: shake, impact frame, hit-stop) that the Lab plays and `Vfx.screen_cue` hands to the game.
 
 ## Requirements
 

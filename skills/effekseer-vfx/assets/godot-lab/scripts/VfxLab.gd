@@ -100,14 +100,33 @@ var stage: Node3D
 var sun: DirectionalLight3D
 var isolated_camera_base: Transform3D
 var combat_camera_base: Transform3D
-# The beam the current sequence is firing and how it sweeps: two {t, to} keys and the muzzle; released at beam_end.
-var beam_handle: CombatVfxHandle
-var beam_path: Array = []
-var beam_end: float = 0.0
+# Beams the current exchange is firing: {handle, path: [{t, to}, {t, to}, {from}], end}; each sweeps between its two
+# keys and is released at its end time. A sequence can have several in flight at once.
+var beams: Array = []
+# --sequence=<json>: several effects performed one after another ({id, length, steps: [{t, id}]}, references/sequence.md).
+# Each step is staged like a single effect, shifted to its time; captures name their frames after the sequence id.
+var sequence_mode: bool = false
+var sequence_plan: Dictionary = {}
+var stage_offset: float = 0.0
+# Screen feedback from the manifest `screen` (shake, flash_frames + flash, hitstop), played at the effect's peak.
+var flash_layer: CanvasLayer
+var flash_rect: ColorRect
+var flash_left: int = 0
+var hitstop_left: float = 0.0
+const IMPACT_FRAME_SHADER := """shader_type canvas_item;
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
+uniform int mode = 0; // 0 white flash, 1 invert: dark becomes white, light (characters, the effect) becomes ink
+void fragment() {
+	vec3 c = texture(screen_tex, SCREEN_UV).rgb;
+	float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
+	COLOR = mode == 1 ? vec4(vec3(step(luma, 0.32)), 1.0) : vec4(1.0, 1.0, 1.0, 0.85);
+}
+"""
 
 func _ready() -> void:
 	_build_stage()
 	_build_ui()
+	_build_flash()
 	var args := OS.get_cmdline_user_args()
 	for arg in args:
 		if arg.begins_with("--capture="):
@@ -143,6 +162,11 @@ func _ready() -> void:
 		if arg == "--showcase": showcase = true
 		if arg == "--no-dummies": hide_dummies = true
 		if arg == "--isolated": combat = false
+		if arg.begins_with("--sequence="):
+			var plan = JSON.parse_string(FileAccess.get_file_as_string(arg.trim_prefix("--sequence=")))
+			if plan is Dictionary:
+				sequence_plan = plan
+				sequence_mode = true
 	combat_button.set_pressed_no_signal(combat)
 	# Automated captures pop a window that stray focus or Cmd+W/Q can close mid-run (exit 0, strip cut short);
 	# they finish on their own, so log and ignore close requests instead of quitting.
@@ -167,6 +191,21 @@ func _ready() -> void:
 	else:
 		# Captures start each effect themselves, after the empty reference frame.
 		_select(index, not capture_mode)
+
+func _build_flash() -> void:
+	flash_layer = CanvasLayer.new()
+	flash_layer.layer = 50
+	add_child(flash_layer)
+	flash_rect = ColorRect.new()
+	flash_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mat := ShaderMaterial.new()
+	var shader := Shader.new()
+	shader.code = IMPACT_FRAME_SHADER
+	mat.shader = shader
+	flash_rect.material = mat
+	flash_rect.visible = false
+	flash_layer.add_child(flash_rect)
 
 func _find_id(id: String) -> int:
 	for i in range(Vfx.manifest.size()):
@@ -562,8 +601,9 @@ func _replay() -> void:
 	if Vfx.manifest.is_empty(): return
 	if capture_mode: seed(int(Vfx.manifest[index].get("seed", 1729)))
 	Vfx.stop_all()
-	beam_handle = null
-	beam_path = []
+	beams = []
+	flash_left = 0
+	flash_rect.visible = false
 	elapsed = 0
 	sequence_id += 1
 	events.clear()
@@ -576,6 +616,20 @@ func _replay() -> void:
 	shake = 0
 	camera.transform = camera_home
 	effect_start = 0.0
+	if sequence_mode:
+		# Every step staged as if it were the selected effect, shifted to its time on one clock.
+		delivery_text = "SEQUENCE  ·  " + str(sequence_plan.get("id", ""))
+		for step in sequence_plan.get("steps", []):
+			var entry: Dictionary = Vfx.effects.get(str(step.id), {})
+			if entry.is_empty():
+				push_error("Sequence step is not in the manifest: " + str(step.id))
+				continue
+			stage_offset = float(step.t)
+			_stage(entry)
+		stage_offset = 0.0
+		effect_start = 0.0
+		sequence_end = float(sequence_plan.get("length", 2.0))
+		return
 	if combat:
 		_stage(item)
 		return
@@ -666,10 +720,12 @@ func _stage(item: Dictionary) -> void:
 			var from := player.position + MUZZLE * stage_scale
 			var near := enemy.position + Vector3(-1.6, 0.0, 0.12) * stage_scale
 			var chest := enemy.position + ATTACH_OFFSET.body * stage_scale
-			beam_path = [{"t": launch_at, "to": near}, {"t": launch_at + hold * 0.7, "to": chest}, {"from": from}]
-			beam_end = launch_at + hold
+			# A sequence of shots aims straight at the chest: the rake belongs to a single held beam.
+			var start_to := chest if sequence_mode else near
+			var ray := {"handle": null, "path": [{"t": stage_offset + launch_at, "to": start_to}, {"t": stage_offset + launch_at + hold * 0.7, "to": chest}, {"from": from}], "end": stage_offset + launch_at + hold}
+			beams.append(ray)
 			effect_start = launch_at
-			_at(launch_at, func(): beam_handle = Vfx.beam(item.id, from, near))
+			_at(launch_at, func(): ray.handle = Vfx.beam(item.id, from, start_to))
 			_hit_at(launch_at + float(item.peak), item, player)
 			sequence_end = launch_at + float(item.duration)
 		"area":
@@ -698,11 +754,14 @@ func _hit_at(t: float, item: Dictionary, source: Node3D, victim: Node3D = enemy,
 	_move(victim, {"kind": "hit", "t": t, "power": power, "dir": signf(victim.position.x - source.position.x)})
 
 func _at(t: float, action: Callable) -> void:
-	events.append({"t": t, "do": action})
+	events.append({"t": t + stage_offset, "do": action})
 
 func _move(actor: Node3D, key: Dictionary) -> void:
 	if not moves.has(actor.name): moves[actor.name] = []
-	moves[actor.name].append(key)
+	var shifted := key.duplicate()
+	shifted.t = float(key.t) + stage_offset
+	if shifted.has("strike"): shifted.strike = float(key.strike)
+	moves[actor.name].append(shifted)
 
 func _run_events() -> void:
 	var due := events.filter(func(e): return elapsed >= e.t)
@@ -812,6 +871,7 @@ func _kick(item: Dictionary, at: Vector3) -> void:
 	# Manifest "impact" (0..1) drives a light flash and camera kick when the effect lands,
 	# so effects are judged the way a game would present them.
 	if not stage_feedback: return
+	_screen(item)
 	var power := float(item.get("impact", 0.0))
 	if power <= 0.0: return
 	impact_fired = true
@@ -822,6 +882,22 @@ func _kick(item: Dictionary, at: Vector3) -> void:
 	flash_light.light_energy = 5.0 * power * stage_scale
 	flash_light.position = at + Vector3(0.4, 0.5, 1.2) * stage_scale
 	shake = 0.16 * power * stage_scale
+
+func _screen(item: Dictionary) -> void:
+	# The manifest's screen feedback, the way a game plays it: camera trauma, a few impact frames, a hit-stop.
+	var screen: Dictionary = item.get("screen", {})
+	if screen.is_empty(): return
+	shake = maxf(shake, 0.32 * float(screen.get("shake", 0.0)) * stage_scale)
+	var frames := int(screen.get("flash_frames", 0))
+	if frames > 0:
+		flash_left = frames
+		(flash_rect.material as ShaderMaterial).set_shader_parameter("mode", 1 if str(screen.get("flash", "white")) == "invert" else 0)
+		flash_rect.visible = true
+	# Captures keep the 60 FPS effect clock (frame numbers must match the manifest); interactive playback freezes.
+	var stop := float(screen.get("hitstop", 0.0))
+	if stop > 0.0 and not capture_mode:
+		hitstop_left = stop
+		Vfx.set_speed(0.05)
 
 func _game_feel(delta: float) -> void:
 	flash_light.light_energy = move_toward(flash_light.light_energy, 0.0, delta * 22.0 * stage_scale)
@@ -843,6 +919,13 @@ func _process(delta: float) -> void:
 	timeline.value = minf(elapsed / sequence_end * 100,100)
 	status.text = "← → Switch   •   Space Replay   •   C Combat   •   L Loop   •   P Pause   •   1–4 Speed     |     %.2f s  ·  %.2f×  ·  %s     |     %s" % [elapsed,Vfx.speed,"BRIGHT" if bright else "DARK",delivery_text]
 	# While a capture waits for its empty reference frame, no flash or shake may leak into it.
+	# Decrement before this frame's events: a flash set below shows on this frame and `flash_frames - 1` more.
+	if flash_left > 0:
+		flash_left -= 1
+		if flash_left == 0: flash_rect.visible = false
+	if hitstop_left > 0.0:
+		hitstop_left -= delta
+		if hitstop_left <= 0.0: Vfx.set_speed(1.0)
 	if not Vfx.paused and (not capture_mode or capture_started):
 		_run_events()
 		_game_feel(delta)
@@ -861,13 +944,16 @@ func _process(delta: float) -> void:
 	elif looped and not showcase and elapsed > sequence_end+.55: _replay()
 
 func _steer_beam() -> void:
-	# Sweep the beam's end point between its keys, then release it; captures and playback follow the same clock.
-	if beam_handle == null or not is_instance_valid(beam_handle) or beam_handle.released or beam_path.size() < 3: return
-	var a: Dictionary = beam_path[0]
-	var b: Dictionary = beam_path[1]
-	var u := _smooth(clampf((elapsed - float(a.t)) / maxf(float(b.t) - float(a.t), 0.001), 0.0, 1.0))
-	beam_handle.aim(beam_path[2].from, (a.to as Vector3).lerp(b.to, u))
-	if elapsed >= beam_end: beam_handle.release()
+	# Sweep each beam's end point between its keys, then release it; captures and playback follow the same clock.
+	for ray: Dictionary in beams:
+		var handle = ray.handle
+		if handle == null or not is_instance_valid(handle) or handle.released: continue
+		var path: Array = ray.path
+		var a: Dictionary = path[0]
+		var b: Dictionary = path[1]
+		var u := _smooth(clampf((elapsed - float(a.t)) / maxf(float(b.t) - float(a.t), 0.001), 0.0, 1.0))
+		handle.aim(path[2].from, (a.to as Vector3).lerp(b.to, u))
+		if elapsed >= float(ray.end): handle.release()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST and capture_mode:
@@ -901,13 +987,16 @@ func _capture_tick(item: Dictionary) -> void:
 
 func _strip_tick(item: Dictionary) -> void:
 	capture_frame += 1
+	# A sequence is captured as one take named after it, on its own clock.
+	var shot_id: String = str(sequence_plan.get("id", "SEQ")) if sequence_mode else str(item.id)
+	var seconds: float = float(sequence_plan.get("length", 2.0)) if sequence_mode else float(item.duration)
 	if capture_frame == 11 and not capture_started:
-		_capture_image("%s_f000" % item.id)  # empty stage: the reference for visibility metrics
+		_capture_image("%s_f000" % shot_id)  # empty stage: the reference for visibility metrics
 	if capture_frame == 12 and not capture_started:
 		_replay()
 		capture_started = true
 		capture_offset = roundi(effect_start * 60)
-		capture_end = 12 + capture_offset + int(float(item.duration) * 60) + strip_step
+		capture_end = 12 + capture_offset + int(seconds * 60) + strip_step
 		if strip_plan.has(item.id):
 			var wanted: Array = strip_plan[item.id]
 			capture_end = 12 + capture_offset + int(wanted.max()) + 1
@@ -915,8 +1004,11 @@ func _strip_tick(item: Dictionary) -> void:
 	var local := capture_frame - 12 - capture_offset
 	var planned: bool = strip_plan.has(item.id) and strip_plan[item.id].has(local)
 	if local > 0 and (planned or (not strip_plan.has(item.id) and local % strip_step == 0)):
-		_capture_image("%s_f%03d" % [item.id, local])
+		_capture_image("%s_f%03d" % [shot_id, local])
 	if capture_frame >= capture_end:
+		if sequence_mode:
+			get_tree().quit()
+			return
 		captured += 1
 		if capture_ids.size() > 0:
 			if captured >= capture_ids.size(): get_tree().quit(); return

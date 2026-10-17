@@ -1,0 +1,131 @@
+{
+  "purpose": "Independent review of a sequence: several effects fired one after another by a character's animation (a combo with a finisher). The reviewer gets the sequence strip, the per-step sheet, the theme, the step times, the steal list and the concept target, never the recipes. Stages narrow what is judged: a blockout is placeholder shapes and colours, judged only on timing, size, placement, readability and coherence.",
+  "scale": {
+    "0": "missing or wrong",
+    "1": "present but weak; a player would not notice it",
+    "2": "clearly works",
+    "3": "reads instantly and has a distinct identity"
+  },
+  "criteria": [
+    {
+      "id": "read",
+      "stages": [
+        "blockout",
+        "detail",
+        "polish"
+      ],
+      "question": "From the first lit frames of each beat, can you tell what it is (shot, hit, finisher) and where it goes?"
+    },
+    {
+      "id": "timing",
+      "stages": [
+        "blockout",
+        "detail",
+        "polish"
+      ],
+      "question": "Does every beat land on the move that fires it, with short contacts, and does the rhythm build so the finisher reads as the climax rather than one more hit?"
+    },
+    {
+      "id": "scale",
+      "stages": [
+        "blockout",
+        "detail",
+        "polish"
+      ],
+      "question": "Are the beats sized against the character and against each other (small repeated shots, a much bigger finisher) without hiding the characters?"
+    },
+    {
+      "id": "placement",
+      "stages": [
+        "blockout",
+        "detail",
+        "polish"
+      ],
+      "question": "Do shots start at the hand or weapon and end on the target, and do ground parts sit on the ground under the target?"
+    },
+    {
+      "id": "coherence",
+      "stages": [
+        "blockout",
+        "detail",
+        "polish"
+      ],
+      "question": "Do all beats belong to one idea: one palette family, one shape language, one motion vocabulary, in the style the sequence chose? Name any element that comes out of nowhere; it should be cut, not polished."
+    },
+    {
+      "id": "layering",
+      "stages": [
+        "detail",
+        "polish"
+      ],
+      "question": "At each beat's strongest frame: a white-hot core, a saturated body and a dark accent or base, rather than one flat colour?"
+    },
+    {
+      "id": "shape_change",
+      "stages": [
+        "detail",
+        "polish"
+      ],
+      "question": "Do the main shapes erode, sweep, roll, spiral or break up over time, or only scale and fade?"
+    },
+    {
+      "id": "motion",
+      "stages": [
+        "detail",
+        "polish"
+      ],
+      "question": "Is there speed inside the shapes (streaks, spirals, sparks that burst then slow) and does secondary motion follow the action?"
+    },
+    {
+      "id": "tail",
+      "stages": [
+        "detail",
+        "polish"
+      ],
+      "question": "After the finisher, does deliberate residue (smoke, sparkles, ground marks) dissipate, rather than an empty or abruptly cut frame?"
+    },
+    {
+      "id": "steals",
+      "stages": [
+        "detail",
+        "polish"
+      ],
+      "question": "How many of the steal-list items are visibly present (3 = all clearly, 2 = most, 1 = few, 0 = none)? Mark each item seen or not in `steals`."
+    },
+    {
+      "id": "concept",
+      "stages": [
+        "polish"
+      ],
+      "question": "Does the finisher's key frame reach the paintover concept's palette, shapes and value structure?"
+    },
+    {
+      "id": "impact",
+      "stages": [
+        "polish"
+      ],
+      "question": "Does the finisher's screen feedback (impact frame / flash, camera shake, hit-stop) land on its contact, stay to a few frames and make the hit feel heavier without hiding the effect?"
+    }
+  ],
+  "output": {
+    "format": "JSON",
+    "schema": {
+      "id": "sequence id",
+      "stage": "blockout | detail | polish",
+      "scores": {
+        "<criterion id of this stage>": "0-3"
+      },
+      "steals": "[{item, seen}] for detail and polish",
+      "worst": "a lowest-scoring criterion",
+      "cut": "an element that does not carry the theme, or empty",
+      "fix": "one concrete change naming frames",
+      "verdict": "ship | iterate",
+      "observed_frames": "frame numbers looked at"
+    },
+    "rules": [
+      "Score only what is visible.",
+      "verdict is iterate when any score is below 2.",
+      "Name one fix only."
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: effekseer-vfx
-description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render. Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, beam, charge, magic, buff or shield VFX, realistic or kaiju/giant-scale effects, or a VFX library for a Godot game. Covers design briefs, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, independent scoring and export.
+description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render. Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, beam, charge, magic, buff or shield VFX, combos and finishers driven by a character animation, stylized hard-edged VFX, realistic or kaiju/giant-scale effects, or a VFX library for a Godot game. Covers design briefs, sequences with a blockout gate, reference steal lists, paintover concepts, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, screen feedback, independent scoring and export.
 license: MIT
 compatibility: Build and render need macOS on Apple silicon or Windows (x64), Godot 4.x and network access for the first setup (Effekseer Core, .NET runtime, Effekseer Godot plugin). Authoring, lint and texture processing run on macOS, Linux or Windows with Python 3.11+.
 metadata:
@@ -50,6 +50,17 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 9. **Independent review.** The author never scores its own effect. Run `vfx review-handoff <ID>`: it writes a complete reviewer brief (images, captured frames, manifest context, rubric, where to save the report, and the path of the `vfx-review` skill installed next to this one) and returns `prompt_file`, `report_file` and the exact submit command. Give that brief, unchanged, to a separate agent that has not seen the recipe: start a subagent with it if your host can, telling it nothing else about the effect; otherwise ask the user to open a new session and paste it. When `report_file` exists, run the returned `vfx review-submit <evidence_id> <report_file> --reviewer <that agent's identifier>` (its subagent ID or name, or the session ID; never `author` or `self`; frames default to the report's `observed_frames`). Never write the report yourself.
 10. `vfx overview` (no `--ids`: the library baseline), then `vfx effect-verify <ID>`. Only `verified: true` may be reported as done; otherwise list what is missing. If the round limit is reached without a ship verdict, report the unresolved items.
 
+## Making a combo or a skill with several beats
+
+When several effects fire on the beats of one animation (a laser chain ending on a finisher), work on them as a
+**sequence** ([sequence](references/sequence.md)): measure the event times in the game, write
+`vfx/sequences/<SEQ_ID>.json`, and go **blockout → detail → polish**. The blockout uses basic shapes and solid colours
+only (`effect(..., stage='blockout')`) and must get an independent `ship` (`vfx sequence-review`, preferably with
+`--frames` captured in the game, then `sequence-handoff` / `sequence-submit`) before any texture work. Detail adds
+references with steal lists; polish adds a paintover concept (`vfx paintover`, an image-edit model, `vfx
+concept-compare`) and the finisher's screen feedback (`screen=`). Cut any element that does not carry the theme and
+record it in `cut`. Each effect in the sequence still has its own brief, recipe and single-effect review.
+
 ## Hard rules
 
 - Every effect has a time structure (anticipation → contact → body → secondary → dissipation) and value layering (white-hot core, saturated body, darker rim or residue). Heals, shields and charges have their own documented exceptions.
@@ -60,6 +71,8 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 - Units: recipe timing in 60 FPS frames, F-curves in percent of life, manifest duration/peak in seconds, Godot API rotation in radians.
 - Write recipes at the Lab's character scale; for a larger world declare `scale` instead of hand-scaling numbers ([scale](references/scale.md)). Frames in briefs and reviews are the built, scaled timeline.
 - Every effect declares `delivery`; a projectile needs a paired impact effect that points back to it.
+- Screen feedback (shake, impact frame, hit-stop) is manifest data (`screen=`), reviewed with the effect; the game
+  plays it from `Vfx.screen_cue`, never as a separate hand-tuned guess.
 - Use only layer fields the compiler knows (`vfx layer-schema`); extend the compiler instead of writing raw property paths into recipes.
 - A full `vfx build` (no `--ids`) prunes the outputs of effects this skill built whose source left `vfx/src/`; it never deletes effects it did not build and refuses to run on an empty library. Use `--ids` for partial work (a broken source elsewhere is reported in `unloaded` instead of blocking it).
 - Never claim export, playback, device performance or recording success without actually running and checking it.
@@ -73,6 +86,8 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 | shield, pillar, boss, status, volumes, occlusion | [shapes.md](references/shapes.md) |
 | matching a reference video | [reference.md](references/reference.md) |
 | giants, kaiju, warships: anything far larger than a character | [scale.md](references/scale.md) |
+| combo, finisher, several effects on one animation, blockout, paintover, camera shake / flash frame / hit-stop | [sequence.md](references/sequence.md) |
+| stylized hard-edged look, only when the brief's `style` asks for it: toon shapes, spiral ribbons, spiky dark bases, star glints, greyscale masks | [stylized.md](references/stylized.md) |
 | beam, laser, breath weapon, charge chain, values the game drives at runtime | [primitives.md](references/primitives.md) (`beam`, `charge_chain`, `bind`), [godot.md](references/godot.md#beams) |
 | realistic / photographic explosion, fire, smoke, steam | [realism.md](references/realism.md) |
 | a specific visual failure (white blob, empty tail, no break-up) | [cases.md](references/cases.md) |

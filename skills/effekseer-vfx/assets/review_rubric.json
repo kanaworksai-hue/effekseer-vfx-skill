@@ -10,7 +10,8 @@
     {"id": "motion", "question": "Do secondary particles burst fast and then slow down, and move the way the element should (fire up, ice falls, dark draws in, holy descends or rises)?", "look_at": "secondary particles across tiles"},
     {"id": "placement", "question": "Do arcs, columns and ground decals sit on or under the dummy rather than beside it or floating?", "look_at": "all tiles"},
     {"id": "tail", "question": "Does the last third still show deliberate dissipation, or is it empty or cut off?", "look_at": "last third of the strip"},
-    {"id": "identity", "question": "Would this be distinguishable from other effects of the same category if it were recoloured grey?", "look_at": "whole strip; overview pages for siblings"}
+    {"id": "identity", "question": "Would this be distinguishable from other effects of the same category if it were recoloured grey?", "look_at": "whole strip; overview pages for siblings"},
+    {"id": "coherence", "question": "Do all layers speak one visual language: one palette family, one shape language (soft or hard-edged, round or spiky), one motion vocabulary, with no layer that looks borrowed from another effect?", "look_at": "whole strip"}
   ],
   "output": {
     "format": "JSON",

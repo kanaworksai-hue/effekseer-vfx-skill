@@ -50,6 +50,21 @@ effect at that point.
 Every handle starts from the manifest's `inputs` defaults and pushes its `inputs` to the emitter right away and then
 every frame, so the first frame already uses the real values.
 
+## Screen feedback
+
+Effects with a manifest `screen` entry make their handle emit, once its clock reaches `peak`:
+
+```gdscript
+Vfx.screen_cue.connect(func(id: String, screen: Dictionary, at: Vector3):
+	camera.add_trauma(screen.get("shake", 0.0))           # your camera shake
+	if screen.get("hitstop", 0.0) > 0.0: hit_stop(screen.hitstop)  # Engine.time_scale dip, restored in real time
+	if screen.get("flash_frames", 0) > 0: impact_frame(screen.flash_frames, screen.get("flash", "white")))
+```
+
+An impact frame is a full-screen overlay for that many rendered frames (count frames, not game time, or a hit-stop
+stretches it). `invert` turns the stage white and the characters and effect ink; pick the threshold for your
+stage's brightness ([sequence](sequence.md#screen-feedback)).
+
 ## Scaled effects
 
 An effect built with `scale` (manifest `scale.world`, see [scale](scale.md)) is already in world units: play it at

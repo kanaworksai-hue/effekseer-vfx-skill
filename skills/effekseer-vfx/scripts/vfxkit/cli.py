@@ -15,6 +15,8 @@ authoring (no Core):   list, lint, layer-schema, texture-info, texture-audit, pr
 build (Core):          build, compile, export, discover, core
 review (Godot):        review, overview, strip, frames, history, rubric, review-handoff, review-submit, effect-verify, preview, showcase, package
 reference clips:       reference-import, reference-frames, reference-compare
+sequences (combos):    sequence-validate, sequence-review, sequence-handoff, sequence-submit, paintover, concept-compare
+stylized textures:     helix-texture
 """
 
 
@@ -90,6 +92,22 @@ def parser():
     a = sub.add_parser('reference-compare', help='pair reference times with captured Godot frames')
     a.add_argument('reference_id'); a.add_argument('evidence_id'); a.add_argument('--times', type=float, nargs='+', required=True)
     a.add_argument('--reference-times', type=float, nargs='+')
+    a = sub.add_parser('helix-texture', help='wrap a painted ribbon strip into a tileable helix mask for spiral_ribbons()')
+    a.add_argument('source'); a.add_argument('output'); a.add_argument('--size', type=int, default=512)
+    a.add_argument('--turns', type=int, default=1); a.add_argument('--bands', type=int, default=2); a.add_argument('--repeat', type=int, default=1)
+    a = sub.add_parser('sequence-validate', help='check vfx/sequences/<SEQ>.json: steps, stage gate, references, concept')
+    a.add_argument('id')
+    a = sub.add_parser('sequence-review', help='capture a whole sequence (Lab, or the game\'s own frames with --frames) as evidence')
+    a.add_argument('id'); a.add_argument('--frames', help='folder of PNG frames the game captured (names ending _fNNN at 60 FPS, or use --fps)')
+    a.add_argument('--fps', type=float, default=60); a.add_argument('--step', type=int, default=4); a.add_argument('--note', default='')
+    a = sub.add_parser('sequence-handoff', help='write the independent reviewer brief for the latest sequence capture')
+    a.add_argument('id')
+    a = sub.add_parser('sequence-submit', help='bind an independent sequence report; a blockout ship opens the detail gate')
+    a.add_argument('evidence_id'); a.add_argument('report'); a.add_argument('--reviewer', required=True)
+    a = sub.add_parser('paintover', help='pick a captured key frame and write the image-edit prompt for the concept painting')
+    a.add_argument('id'); a.add_argument('--frame', type=int)
+    a = sub.add_parser('concept-compare', help='the concept painting beside the latest captured frame')
+    a.add_argument('id')
     return p
 
 
@@ -260,6 +278,30 @@ def run(args):
     if c == 'package':
         from .finalize import finalize
         return finalize(args.preview_dir)
+    if c == 'helix-texture':
+        from PIL import Image
+        from .textures import helix
+        import numpy as np
+        out = helix(Image.open(args.source), args.size, args.turns, args.bands, args.repeat)
+        target = Path(args.output)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        image = Image.new('RGBA', out.shape[::-1], (255, 255, 255, 0))
+        image.putalpha(Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8)))
+        image.save(target)
+        return {'ok': True, 'output': str(target), 'size': args.size, 'turns': args.turns, 'bands': args.bands}
+    if c.startswith('sequence-') or c in ('paintover', 'concept-compare'):
+        from . import sequence
+        if c == 'sequence-validate':
+            return sequence.validate(args.id)
+        if c == 'sequence-review':
+            return sequence.capture(args.id, args.frames, args.fps, args.step, args.note)
+        if c == 'sequence-handoff':
+            return sequence.handoff(args.id)
+        if c == 'sequence-submit':
+            return sequence.submit(args.evidence_id, args.report, args.reviewer)
+        if c == 'paintover':
+            return sequence.paintover(args.id, args.frame)
+        return sequence.concept_compare(args.id)
     from . import reference
     if c == 'reference-import':
         result = reference.import_clip(args.source, args.start, args.end, args.slow, args.roi, args.source_url, args.fps)

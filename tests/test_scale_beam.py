@@ -270,7 +270,7 @@ def test_lab_scales_its_stage_and_stages_beams():
     api = (ASSETS / 'godot-lab/scripts/Vfx.gd').read_text()
     handle = (ASSETS / 'godot-lab/scripts/VfxHandle.gd').read_text()
     test = (ASSETS / 'godot-lab/scripts/TestApi.gd').read_text()
-    assert 'func _set_stage_scale' in lab and '"beam":' in lab and 'beam_handle.aim(' in lab and 'beam_handle.release()' in lab
+    assert 'func _set_stage_scale' in lab and '"beam":' in lab and 'handle.aim(' in lab and 'handle.release()' in lab and 'beams.append(' in lab
     assert 'func beam(' in api and 'handle.inputs[i]' in api
     assert 'func aim(' in handle and 'func start_beam(' in handle and 'emitter.set_dynamic_input(i, inputs[i])' in handle
     assert 'manager.beam(' in test

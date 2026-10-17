@@ -21,6 +21,24 @@ HOT_LUMA=.85                  # same bar as review.py, so lint and review agree 
 PEAK_TOLERANCE=6              # frames between the contact flash and manifest peak, where the Lab kicks
 MIN_DIFFERENCES=3             # of shape, motion, rhythm, material, secondary (section 3)
 
+STAGES=('blockout','detail','polish')  # references/sequence.md
+SCREEN_KEYS={"shake","flash_frames","flash","hitstop"}
+
+def screen_errors(recipe):
+ """Screen feedback is game data (Vfx.gd emits it as screen_cue): keep it in the ranges a game can play."""
+ screen=recipe.get('screen')
+ if screen is None:return []
+ if not isinstance(screen,dict):return ["screen must be dict(shake=, flash_frames=, flash=, hitstop=)"]
+ out=[f'screen.{k}: unknown key; use {sorted(SCREEN_KEYS)}' for k in screen if k not in SCREEN_KEYS]
+ def number(k,lo,hi):
+  v=screen.get(k)
+  if v is not None and (isinstance(v,bool) or not isinstance(v,(int,float)) or not lo<=v<=hi):out.append(f'screen.{k} must be a number in {lo}..{hi}')
+ number("shake",0,1); number("hitstop",0,.3)
+ frames=screen.get('flash_frames')
+ if frames is not None and (type(frames) is not int or not 0<=frames<=6):out.append('screen.flash_frames must be 0..6 frames: an impact frame is a few frames, never a fade')
+ if screen.get('flash',None) not in (None,'white','invert'):out.append("screen.flash must be 'white' or 'invert'")
+ return out
+
 def release_frames(recipe):
  """Frames after the start at which the reference performance releases sustained layers: a projectile's flight or a
  beam's hold; 0 when the recipe has neither."""
@@ -90,6 +108,16 @@ def lint(recipe,known=None):
  world,stretch,more=factors(recipe)
  for layer in recipe['layers']:errors+=validate_layer(layer)
  if not 0<=recipe.get('peak',0)<recipe['duration']:errors.append(f"peak {recipe.get('peak')} s is outside the {recipe['duration']} s duration")
+ errors+=screen_errors(recipe)
+ stage=recipe.get('stage')
+ if stage is not None and stage not in STAGES:errors.append(f"stage {stage!r} must be one of {STAGES}")
+ if stage=='blockout':
+  # A blockout judges timing, size and readability only: basic shapes in solid colours, no painted texture work yet.
+  for layer in layers:
+   for key in TEXTURE_KEYS:
+    name=stem(layer.get(key))
+    if name and name not in procedural:errors.append(f"{layer['name']}.{key}: {name} is a painted texture; a blockout uses basic shapes and math textures only")
+   if layer.get('flipbook'):errors.append(f"{layer['name']}: flipbook in a blockout; hold texture work until the blockout review passes")
  release=release_frames(recipe)
  sustained=[l for l in layers if l.get('infinite')]
  if sustained and not release:errors.append(f"{sustained[0]['name']}: infinite layers emit until release, so the recipe needs flight (seconds of the reference flight) or hold (seconds a beam fires)")
@@ -162,6 +190,9 @@ def lint(recipe,known=None):
   warnings.append('no layer changes shape (dissolve cutoff, ring sweep, UV distortion/scroll, flipbook or a painted shape re-struck on later frames); the body can only scale and fade')
  if not any(hot(c) for l in layers if l.get('blend','Add')=='Add' for c in colours(l)):
   warnings.append(f'no white-hot additive colour (luma >= {HOT_LUMA}, min channel >= 180); brightness layering needs a hot core above the saturated body')
+ if stage=='blockout':
+  # Shape change and value layering are texture and material work: a blockout is judged on timing, size and readability.
+  warnings=[w for w in warnings if not w.startswith(('no layer changes shape','no white-hot additive colour'))]
  timeline=sorted(([l['name'],l.get('delay',0),round(lifetime(l,release=release))] for l in recipe['layers']),key=lambda t:t[1])
  return {'id':rid,'errors':errors,'warnings':warnings,'budget':[total,limit],'timeline':timeline}
 

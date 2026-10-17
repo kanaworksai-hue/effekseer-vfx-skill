@@ -95,7 +95,7 @@ def captured(lab):
 
 
 def report():
-    return {'id': 'VFX_Test', 'scores': {k: 2 for k in ('read', 'timing', 'layering', 'shape_change', 'motion', 'placement', 'tail', 'identity')},
+    return {'id': 'VFX_Test', 'scores': {k: 2 for k in ('read', 'timing', 'layering', 'shape_change', 'motion', 'placement', 'tail', 'identity', 'coherence')},
             'worst': 'read', 'fix': 'Keep the main silhouette legible.', 'verdict': 'ship'}
 
 

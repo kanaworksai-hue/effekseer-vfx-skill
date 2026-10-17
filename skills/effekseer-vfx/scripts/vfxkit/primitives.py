@@ -240,13 +240,15 @@ def tilted_ring(name,color,radius,life=14,delay=0,tilt=(-70,0,0),thickness=.3,**
  """Shockwave ring lying in a 3D plane (ground, or across the line of a hit): an ellipse in perspective."""
  return shock_ring(name,color,radius,life=life,delay=delay,thickness=thickness,billboard='Fixed',rotation=list(tilt)) | kw
 
-def column(name,color,radius,height,life,delay=0,scroll=(.003,-.02),**kw):
- """Volumetric light shaft: streaks scroll up a cylinder, a static gradient fades the top, fresnel softens the sides."""
+def column(name,color,radius,height,life,delay=0,scroll=(.003,-.02),radius2=None,**kw):
+ """Volumetric light shaft: streaks scroll up a cylinder, a static gradient fades the top, fresnel softens the sides.
+ radius2 tapers it (the radius at the far end of its height)."""
+ taper={'radius2':radius2} if radius2 is not None else {}
  return mesh(name,'Cylinder',color,life,radius=radius,depth=height,texture='T_NoiseStreak02',uv_scroll=list(scroll),delay=delay,culling='Double',
-  alpha_texture='T_GradientV01',alpha_wrap='Clamp',falloff=dict(begin=[255,255,255,255],end=[255,255,255,0],pow=1.6,blend='Mul')) | kw
+  alpha_texture='T_GradientV01',alpha_wrap='Clamp',falloff=dict(begin=[255,255,255,255],end=[255,255,255,0],pow=1.6,blend='Mul'),**taper) | kw
 
 def effect(id,name,category,element,duration,layers,attach='impact',peak=.1,impact=0,light=(1,.85,.6),loop=False,design='',delivery=None,flight=None,arc=None,
-  hold=None,inputs=None,scale=None):
+  hold=None,inputs=None,scale=None,screen=None,stage=None):
  """impact (0..1) and light drive the lab's flash and camera kick at peak; they are stage hints, not Effekseer data.
 
  delivery tells a game (and the Lab) how the effect is performed: {'kind':'self'} on the caster, 'melee' on the
@@ -258,9 +260,15 @@ def effect(id,name,category,element,duration,layers,attach='impact',peak=.1,impa
  inputs are the default values of the game inputs @In0..@In3 that `bind` equations read (a beam's length and power).
  scale converts a recipe written at the Lab's character scale to a larger world: 'giant', 'kaiju', a number or
  {'world','time','budget'} (see vfxkit.scale and references/scale.md).
+ screen is the screen feedback a game plays at `peak`: dict(shake=0..1 camera trauma,
+ flash_frames=0..6 frames of a full-screen impact frame, flash='white'|'invert', hitstop=0..0.3 seconds of
+ near-frozen game time). It is game data like delivery: the Lab performs it, Vfx.gd emits it as `screen_cue`.
+ stage is 'blockout' (basic shapes and solid colours only, judged on timing, size and readability), 'detail' or
+ 'polish' (see references/sequence.md); lint holds a blockout recipe to math textures.
  """
  entry=dict(id='VFX_'+id,name=name,category=category,element=element,duration=duration,loop=loop,attach=attach,peak=peak,impact=impact,light=list(light),seed=1729,layers=layers,design=design)
- for key,value in [('delivery',delivery),('flight',flight),('arc',arc),('hold',hold),('inputs',list(inputs) if inputs is not None else None)]:
+ for key,value in [('delivery',delivery),('flight',flight),('arc',arc),('hold',hold),('inputs',list(inputs) if inputs is not None else None),
+   ('screen',dict(screen) if screen is not None else None),('stage',stage)]:
   if value is not None:entry[key]=value
  if scale is not None and scale!='character':
   from .scale import apply
@@ -483,5 +491,64 @@ def charge_chain(name,anchors,color,hot,step=4,until=None,width=.35,glow=.6,text
     delay=start+side*restrike,life=restrike+1,billboard='DirectionalBillboard',pivot='bottom',position=list(at),velocity=velocity,
     scale_start=[width*mirror,length,1],fade_in=0,fade_out=1,emissive=2.6))
  return layers
+
+# ---------------------------------------------------------------- stylized hard-edge shapes (references/stylized.md)
+
+INK=(18,6,16,255)  # near-black ink of the dark outlines and spiky bases
+
+def hard_edge(layer,threshold=.42,outline=INK,width=.08,erode=None):
+ """Read a greyscale mask as a crisp toon shape: a steep, fixed alpha cutoff instead of a soft fade, and an edge band
+ of `outline` colour just inside the cut, so the shape gets an ink line. With erode=(start,end) the threshold moves
+ over life (EaseIn: holds, then eats the shape away) and the edge travels with it, so the shape breaks up with a
+ hard edge instead of fading. The outline only shows on Blend layers (an additive black adds nothing); give additive
+ shapes a Blend ink copy behind them instead (stylized_pair)."""
+ cutoff=threshold if erode is None else dict(start=erode[0],end=erode[1],easing='EaseInQuadratic')
+ return layer|dict(cutoff=cutoff,edge=dict(color=list(outline),threshold=width,scaling=1))
+
+def stylized_pair(layer,outline=INK,grow=1.08,threshold=.42,width=.06,erode=None):
+ """[Blend ink silhouette slightly larger, bright shape with a hard cut]: the dark rim that makes hard-edged VFX read
+ on any background. Both share geometry, clock and cutoff, so the ink always hugs the shape."""
+ bright=hard_edge(layer,threshold,outline,width,erode)
+ bright.pop('edge',None)
+ ink={k:v for k,v in bright.items() if k not in ('emissive','color_curve','color_end','edge')}
+ ink.update(name=layer['name']+' ink',blend='Blend',color=list(outline))
+ for key in ('size','radius'):
+  if isinstance(ink.get(key),(int,float)):ink[key]=ink[key]*grow
+ if 'scale_start' in ink and all(isinstance(v,(int,float)) for v in ink['scale_start']):ink['scale_start']=[v*grow for v in ink['scale_start']]
+ if ink.get('procedural_model'):
+  spec=dict(ink['procedural_model']);spec['Shape/Radius']=spec.get('Shape/Radius',1)*grow
+  if 'Shape/Radius2' in spec:spec['Shape/Radius2']=spec['Shape/Radius2']*grow
+  ink['procedural_model']=spec
+ return [ink,bright]
+
+def speed_streaks(name,color,radius,height,life,delay=0,speed=.06,texture='T_SpeedStreak01',threshold=.35,**kw):
+ """Speed lives in the beam: hard-cut light dashes racing along a cylinder (down a sky beam with speed>0, up with
+ speed<0). The dashes, not the cylinder, carry the motion, so the beam reads fast even while it holds still."""
+ return mesh(name,'Cylinder',color,life,radius=radius,depth=height,texture=texture,uv_scroll=[0,speed],delay=delay,culling='Double',sides=40,rings=2,
+  alpha_texture='T_GradientV01',alpha_wrap='Clamp',cutoff=threshold,falloff=dict(begin=[255,255,255,255],end=[255,255,255,0],pow=1.2,blend='Mul'),**kw)
+
+def spiral_ribbons(name,color,radius,height,life,delay=0,texture='T_RibbonHelix01',spin=.02,climb=-.03,outline=INK,erode=(.15,.95),**kw):
+ """Ribbons that spiral round a pillar: a double-sided cylinder carrying a helix mask (`vfx helix-texture` wraps a
+ painted ribbon strip), scrolled round (spin) and along (climb) the axis and cut hard with an ink edge; erode breaks
+ the ribbons apart from their thin parts first. A Blend layer, so the ribbon keeps its own value over the beam."""
+ kw={'blend':'Blend',**kw}
+ return hard_edge(mesh(name,'Cylinder',color,life,radius=radius,depth=height,texture=texture,uv_scroll=[spin,climb],delay=delay,culling='Double',sides=48,rings=4,
+  **kw),outline=outline,erode=erode)
+
+def spike_crown(name,color,radius,height,life,delay=0,flare=1.7,texture='T_SpikeCrown01',rise=8,erode=(.05,.9),**kw):
+ """Jagged dark spikes erupting round a beam's foot: a cylinder flaring outward (top radius = radius*flare) with a
+ painted spike-band mask, Blend near-black, cut hard. It shoots up within `rise` frames and erodes from the tips.
+ The dark base is what makes a bright beam look like it strikes the ground."""
+ kw={'blend':'Blend',**kw}
+ key=min(95,100*rise/max(1,life_max(dict(life=life))))
+ return hard_edge(mesh(name,'Cylinder',color,life,radius=radius,radius2=radius*flare,depth=height,texture=texture,delay=delay,culling='Double',sides=40,rings=2,
+  scale_start=[1,1,1],scale_curve=[[0,.15],[key,1.08],[100,1]],**kw),outline=color,erode=erode)
+
+def sparkle(name,color,size,count=1,life=14,delay=0,interval=0,spread=0,**kw):
+ """Four-point star glints (the star of a stylized palette): pop to full size, hold, then pinch out while turning a
+ little. spread scatters them in a sphere of that radius."""
+ extra=dict(spawn=dict(shape='Sphere',radius=[0,spread])) if spread else {}
+ return sprite(name,'T_Star01',color,count=count,life=life,delay=delay,interval=interval,size=size,size_curve=[[0,.2],[15,1.15],[60,1],[100,0]],
+  rotation=[0,0,[-20,20]],spin=[0,0,[-.8,.8]],billboard='Billboard',fade_in=0,fade_out=3,emissive=1.8,**extra) | kw
 
 __all__=[name for name in dir() if not name.startswith('_') and name not in ('Path','math','ROOT','T','is_path')]+['math']

@@ -72,7 +72,7 @@ def handoff(rid):
         '## Output',
         f'Write exactly one JSON object to {report}:',
         '{"id": "%s", "scores": {"read": 0, "timing": 0, "layering": 0, "shape_change": 0, "motion": 0, '
-        '"placement": 0, "tail": 0, "identity": 0}, "worst": "<a lowest-scoring criterion>", '
+        '"placement": 0, "tail": 0, "identity": 0, "coherence": 0}, "worst": "<a lowest-scoring criterion>", '
         '"fix": "<one concrete change for the worst criterion, naming frames>", "verdict": "ship or iterate", '
         '"observed_frames": [<frame numbers you actually looked at, from the list above>]}' % rid,
         'verdict is "iterate" if any score is below 2, otherwise "ship". Then reply with your scores, verdict and fix.',
