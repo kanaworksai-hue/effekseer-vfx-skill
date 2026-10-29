@@ -1,7 +1,7 @@
 {
   "name": "effekseer-vfx",
-  "version": "0.2.0",
-  "description": "Author real-time game VFX as code for Effekseer and verify them in real Godot renders: briefs, textures, recipes, EffekseerCore build, filmstrip review and independent scoring.",
+  "version": "0.3.0",
+  "description": "Author real-time game VFX as code for Effekseer and verify them in real Godot renders, or turn image-to-video clips into flipbook skills for Godot and Unity (URP): briefs, textures, recipes, EffekseerCore build, filmstrip review and independent scoring.",
   "author": {
     "name": "KanaWorks_AI",
     "url": "https://x.com/KanaWorks_AI"

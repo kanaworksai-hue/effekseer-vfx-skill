@@ -34,7 +34,9 @@ CREDENTIAL = re.compile(r'(?:sk-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{10,}|gh[
 # PNG chunks that carry pixels only; text, EXIF, XMP and ICC profiles (which can name a person or a machine) do not.
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 PNG_PIXEL_CHUNKS = {b'IHDR', b'PLTE', b'tRNS', b'IDAT', b'IEND', b'gAMA', b'cHRM', b'sRGB', b'sBIT', b'pHYs'}
-REVIEWED_BINARY_SUFFIXES = {'.png'}
+REVIEWED_BINARY_SUFFIXES = {'.png', '.jpg'}
+# JPEG segments that carry pixels only; APP1 (EXIF, XMP), APP2 (ICC), APP13 (IPTC) and comments can name a person or a machine.
+JPEG_PIXEL_MARKERS = {0xC0, 0xC1, 0xC2, 0xC4, 0xDB, 0xDD, 0xE0}
 
 
 def files():
@@ -46,7 +48,7 @@ def files():
 def publisher_allowed(path):
     relative = path.relative_to(PACKAGE).as_posix()
     return relative in ('LICENSE', 'skills/effekseer-vfx/LICENSE', 'skills/vfx-review/LICENSE',
-                        '.claude-plugin/plugin.json', '.claude-plugin/marketplace.json') or (
+                        '.claude-plugin/plugin.json', '.claude-plugin/marketplace.json', 'docs/brand/README.md') or (
         '/' not in relative and path.name.upper().startswith('README'))
 
 
@@ -99,10 +101,30 @@ def png_metadata(data):
     return extra
 
 
+def jpeg_metadata(data):
+    """Names of JPEG segments beyond pixel data (JFIF header, tables, frame and scan are fine)."""
+    if not data.startswith(b'\xff\xd8'):
+        return ['not a JPEG']
+    extra, offset = [], 2
+    while offset + 4 <= len(data):
+        if data[offset] != 0xFF:
+            return extra + ['broken segment structure']
+        marker = data[offset + 1]
+        if marker == 0xDA:   # start of scan: entropy-coded pixels follow
+            return extra
+        length = struct.unpack('>H', data[offset + 2:offset + 4])[0]
+        if marker not in JPEG_PIXEL_MARKERS:
+            extra.append(f'segment 0x{marker:02X}')
+        offset += 2 + length
+    return extra + ['no scan']
+
+
 def file_hits(path, terms=()):
     data = path.read_bytes()
     if path.suffix.lower() == '.png':
         return png_metadata(data)
+    if path.suffix.lower() == '.jpg':
+        return jpeg_metadata(data)
     try:
         text = data.decode('utf-8')
     except UnicodeDecodeError:

@@ -1,0 +1,10 @@
+{
+  "name": "com.vfx-skill.flipbook",
+  "displayName": "VFX Skill — Video Flipbook Skills (URP)",
+  "version": "0.3.0",
+  "unity": "6000.0",
+  "description": "Real-time element skills built from video-model flipbooks: a data-driven ElementProfile per element, projectile / instant bolt / ground-eruption delivery, layered core-body-matter-ground particles, hit feel (hit-stop, shake, lift) and an editor wizard that turns a processed sheet into a playable skill. Installed by the effekseer-vfx skill (`vfx unity-install`).",
+  "dependencies": { "com.unity.render-pipelines.universal": "17.0.0" },
+  "keywords": ["vfx", "flipbook", "skill", "urp"],
+  "license": "MIT"
+}

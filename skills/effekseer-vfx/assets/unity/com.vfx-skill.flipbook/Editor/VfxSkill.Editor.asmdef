@@ -1,0 +1,13 @@
+{
+  "name": "VfxSkill.Editor",
+  "rootNamespace": "VfxSkill.EditorTools",
+  "references": [
+    "VfxSkill.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

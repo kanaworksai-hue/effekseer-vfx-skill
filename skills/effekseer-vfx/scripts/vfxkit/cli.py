@@ -46,6 +46,37 @@ def parser():
     a.add_argument('source'); a.add_argument('output'); a.add_argument('--size', type=int, default=256)
     a.add_argument('--color', action='store_true', help='keep colour (straight RGBA) instead of a white mask')
     a.add_argument('--grid', type=int, nargs=2, metavar=('COLS', 'ROWS'), help='flipbook sheet: keep the cell layout instead of cropping')
+    a = sub.add_parser('video-first-frame', help='place a generated element image on pure black at the size the video should start from (+ a black last frame)')
+    a.add_argument('source'); a.add_argument('output'); a.add_argument('--width', type=int, default=1024); a.add_argument('--height', type=int, default=1024)
+    a.add_argument('--fill', type=float, default=.35, help='longest side of the element / shorter side of the canvas')
+    a.add_argument('--anchor', choices=['center', 'bottom'], default='center')
+    a = sub.add_parser('video-timeline', help='labelled frames (24 fps numbering) of a generated clip, to pick the span for a flipbook')
+    a.add_argument('video'); a.add_argument('--step', type=int, default=2)
+    a = sub.add_parser('video-flipbook', help='generated clip on black → straight-alpha flipbook sheet with masked cells and transparent gutters')
+    a.add_argument('video'); a.add_argument('output'); a.add_argument('--grid', type=int, nargs=2, metavar=('COLS', 'ROWS'), default=(8, 8))
+    a.add_argument('--cell', type=int, default=256); a.add_argument('--cell-h', type=int, default=0, help='cell height (tall columns); default = --cell')
+    a.add_argument('--start', type=int, default=-1); a.add_argument('--end', type=int, default=-1)
+    a.add_argument('--frames', help="exact frames 'start:end:step' (count must equal COLS*ROWS)")
+    a.add_argument('--crop', choices=['auto', 'full'], default='auto'); a.add_argument('--box', help="manual crop 'cx,cy,half_width' in pixels")
+    a.add_argument('--pad', type=float, default=1.04); a.add_argument('--radius', type=float, default=.38); a.add_argument('--feather', type=float, default=.12)
+    a.add_argument('--mask-power', type=float, default=2.0, help='2 round mask, 3-5 rounded box (tall columns, wide splashes)')
+    a.add_argument('--floor', type=float, default=.06); a.add_argument('--gain', type=float, default=1.3); a.add_argument('--gutter', type=int, default=6)
+    a.add_argument('--prompt', help='the video prompt that made the clip (recorded in vfx/video_prompts.json)'); a.add_argument('--prompt-file')
+    a = sub.add_parser('unity-install', help='copy the Unity URP flipbook runtime into <UnityProject>/Packages and write its procedural textures')
+    a.add_argument('unity_project'); a.add_argument('--force', action='store_true', help='replace an existing copy of the package')
+    a = sub.add_parser('unity-export', help='copy a processed flipbook sheet into a Unity project with its grid sidecar')
+    a.add_argument('sheet'); a.add_argument('unity_project'); a.add_argument('--grid', nargs=2, type=int, metavar=('COLS', 'ROWS'))
+    a.add_argument('--name', help='file name in Assets/VfxSkill/Flipbooks (default: the sheet\'s)')
+    a = sub.add_parser('video-grade', help='one value ramp per element over a keyed flipbook: erode haze, cel-step colour, fade the tail, cool to smoke')
+    a.add_argument('source'); a.add_argument('output'); a.add_argument('--grid', type=int, nargs=2, metavar=('COLS', 'ROWS'), default=(8, 8))
+    a.add_argument('--ramp', help="'pos:r,g,b;...' (0..1 colours) from dark rim to hot core"); a.add_argument('--erode', type=float, default=.22)
+    a.add_argument('--erode-pow', type=float, default=1.5); a.add_argument('--tail-fade', type=int, default=6); a.add_argument('--highlight', type=float, default=0)
+    a.add_argument('--ramp-fade', help="'t0,t1': blend back to the clip's own colours"); a.add_argument('--smoke', help="'r,g,b' tail smoke colour")
+    a.add_argument('--smoke-start', type=float, default=.4); a.add_argument('--keep-embers', action='store_true')
+    a.add_argument('--late-gamma', type=float, default=1.0); a.add_argument('--late-alpha', type=float, default=1.0); a.add_argument('--alpha-gamma', type=float, default=1.0)
+    a.add_argument('--late-blur', type=float, default=0); a.add_argument('--body-mask', type=float, default=0)
+    a.add_argument('--open', type=int, default=0, dest='open_px'); a.add_argument('--open-until', type=float, default=1.0)
+    a.add_argument('--cut-below', type=float); a.add_argument('--cut-from', type=float, default=0)
     for name, text in [('brief-validate', 'check vfx/briefs/<ID>.json against the recipe'), ('effect-context', 'brief, build state, latest evidence and recent rounds of one effect')]:
         a = sub.add_parser(name, help=text); a.add_argument('id')
     a = sub.add_parser('build', help='compile effects through EffekseerCore (runs lint first)')
@@ -174,6 +205,24 @@ def run(args):
     if c == 'process-texture':
         from effekseer_ai.resources import process_texture
         return process_texture(args.source, args.output, args.size, mask=not args.color, grid=tuple(args.grid) if args.grid else None)
+    if c.startswith('video-'):
+        from . import video
+        if c == 'video-first-frame':
+            return video.first_frame(args.source, args.output, args.width, args.height, args.fill, args.anchor)
+        if c == 'video-timeline':
+            return video.timeline(args.video, args.step)
+        if c == 'video-flipbook':
+            return video.flipbook(args.video, args.output, args.grid[0], args.grid[1], args.cell, args.cell_h, args.start, args.end, args.frames,
+                                  args.crop, args.box, args.pad, args.radius, args.feather, args.mask_power, args.floor, args.gain, args.gutter,
+                                  prompt=args.prompt, prompt_file=args.prompt_file)
+        return video.grade(args.source, args.output, args.grid[0], args.grid[1], args.ramp, args.erode, args.erode_pow, args.tail_fade, args.highlight,
+                           args.ramp_fade, args.smoke, args.smoke_start, args.keep_embers, args.late_gamma, args.late_alpha, args.alpha_gamma,
+                           args.late_blur, args.body_mask, args.open_px, args.open_until, args.cut_below, args.cut_from)
+    if c.startswith('unity-'):
+        from . import unity
+        if c == 'unity-install':
+            return unity.install(args.unity_project, args.force)
+        return unity.export(args.sheet, args.unity_project, args.grid, args.name)
     if c in ('brief-validate', 'effect-context', 'effect-verify', 'review-submit'):
         from . import evidence, briefs
         if c == 'brief-validate':
@@ -314,7 +363,7 @@ def run(args):
 
 
 # Commands that work before `vfx init`: they create the workspace, read only the skill, or take explicit file paths.
-WITHOUT_WORKSPACE = {'doctor', 'init', 'examples', 'rubric', 'layer-schema', 'process-texture', 'core'}
+WITHOUT_WORKSPACE = {'doctor', 'init', 'examples', 'rubric', 'layer-schema', 'process-texture', 'core', 'unity-install', 'unity-export'}
 
 
 def main(argv=None):
@@ -344,7 +393,7 @@ def main(argv=None):
             'Run the command from the game project, pass --project <game project>, or run vfx init there first.'}}, ensure_ascii=False))
         return 2
     try:
-        if args.command not in ('doctor', 'examples', 'rubric', 'layer-schema', 'process-texture'):
+        if args.command not in ('doctor', 'examples', 'rubric', 'layer-schema', 'process-texture', 'unity-install', 'unity-export'):
             from .workflow import project_lock
             with project_lock():
                 result = run(args)

@@ -46,8 +46,10 @@ def release_frames(recipe):
 
 def documented_textures():
  from .textures import masks,EXTRA_PROCEDURAL
- path=ROOT/'vfx/texture_prompts.json'
- prompts=json.loads(path.read_text())['prompts'] if path.is_file() else []
+ prompts=[]
+ for name in ('texture_prompts.json','video_prompts.json'):  # painted by an image model, or keyed from a video-model clip
+  path=ROOT/'vfx'/name
+  prompts+=json.loads(path.read_text(encoding='utf-8'))['prompts'] if path.is_file() else []
  return set(masks(8))|EXTRA_PROCEDURAL, {p['id'] for p in prompts}
 
 def stem(value):return Path(value).stem if value else None
@@ -131,7 +133,7 @@ def lint(recipe,known=None):
  for layer in layers:
   for key in TEXTURE_KEYS:
    name=stem(layer.get(key))
-   if name and name not in procedural|painted:errors.append(f"{layer['name']}.{key}: {name} is neither a math primitive nor recorded in vfx/texture_prompts.json")
+   if name and name not in procedural|painted:errors.append(f"{layer['name']}.{key}: {name} is neither a math primitive nor recorded in vfx/texture_prompts.json or vfx/video_prompts.json")
    if name and not (ROOT/f'vfx/textures/processed/{name}.png').is_file():errors.append(f"{layer['name']}.{key}: vfx/textures/processed/{name}.png is missing")
   # The compiler multiplies a size/scale curve by a fixed start scale; a random size range with a curve crashes the build.
   random_scale=isinstance(layer.get('size'),(list,tuple)) or any(isinstance(v,(list,tuple)) for v in layer.get('scale_start') or [])

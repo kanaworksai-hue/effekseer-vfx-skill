@@ -6,7 +6,7 @@ warnings during a build go to stderr. Exit codes: 0 ok, 1 failed check or error 
 2 setup required: the toolchain is missing (`SetupRequired`) or there is no workspace here (`WorkspaceMissing`).
 Image results are file paths — open them.
 
-Every command except `doctor`, `init`, `examples`, `rubric`, `layer-schema` and `process-texture` needs a workspace
+Every command except `doctor`, `init`, `examples`, `rubric`, `layer-schema`, `process-texture`, `unity-install` and `unity-export` needs a workspace
 made by `vfx init` (`vfx/src/` and `vfx/vfx_manifest.json`). Run from the game project or pass `--project`; a command
 run in the wrong folder fails with `WorkspaceMissing` instead of creating a stray `vfx/`. The current directory is
 kept off Python's import path, and `vfx/src` helpers resolve only as `_name` files, so project files never shadow
@@ -38,6 +38,12 @@ outside `EFFEKSEER_VFX_HOME`.
 | `texture-info [names...]` | Python | coverage, bbox, border contact, orientation, bulge, seam ratio |
 | `texture-audit <name> [--role R] [--grid C R] [--loop] [--allow-empty i...]` | Python | role checks + preview image |
 | `process-texture <src> <dst> [--size N] [--color] [--grid C R]` | Python | crop, alpha, padding, power-of-two resize |
+| `video-first-frame <src> <dst> [--width] [--height] [--fill .35] [--anchor center\|bottom]` | Python | the element image on pure black at the clip's starting size, plus a pure black last frame (`black_<W>x<H>.png` beside it) |
+| `video-timeline <clip> [--step 2]` | Python, ffmpeg | labelled contact sheet (24 fps numbering) to pick the span for a flipbook |
+| `video-flipbook <clip> <dst> [--grid C R] [--cell] [--cell-h] [--start --end \| --frames a:b:s] [--crop auto\|full] [--box cx,cy,half] [--pad] [--radius] [--feather] [--mask-power] [--floor] [--gain] [--gutter 6] [--prompt \| --prompt-file]` | Python, ffmpeg | luminance key on black, one shared crop, noisy round / rounded-box mask per cell, transparent gutters; fails if a cell border keeps alpha; records the clip and prompt in `vfx/video_prompts.json` |
+| `video-grade <src> <dst> [--grid C R] [--ramp 'p:r,g,b;...'] [--erode] [--erode-pow] [--tail-fade] [--highlight] [--smoke r,g,b] [--smoke-start] [--keep-embers] [--ramp-fade t0,t1] [--late-gamma] [--late-alpha] [--alpha-gamma] [--late-blur] [--body-mask] [--open N --open-until t] [--cut-below y --cut-from t]` | Python | one value ramp per element over a keyed sheet (without `--ramp` the clip keeps its own colours); erodes keying haze, fades the tail, cools fire to smoke, keeps cell borders transparent; `<src>` may be a bare processed-sheet name; see [video-flipbook](video-flipbook.md) |
+| `unity-install <UnityProject> [--force]` | Python | copy the URP flipbook-skill package into `Packages/` (an existing copy only with `--force`, which keeps Unity's `.meta` GUIDs) and (re)write its procedural textures into `Assets/VfxSkill/Generated/Textures` |
+| `unity-export <sheet> <UnityProject> [--grid C R] [--name N]` | Python | copy a sheet into `Assets/VfxSkill/Flipbooks/` with a `.flipbook.json` sidecar (grid, cell, measured bottom inset; the grid defaults to the one recorded by `video-flipbook` / `video-grade` in the vfx workspace, so run it from there or pass `--project` / `--grid`) |
 | `build [--ids ...]` | Core | lint, compile, save/open read-back, manifest, build receipt; without `--ids` also prunes effects this skill built whose source left `vfx/src` (see below) |
 | `compile <recipe.json> [--source] [--runtime]` | Core | compile one recipe JSON |
 | `export [--output DIR]` | Core | re-export all built effects to `.efk` with `resources/` |
@@ -119,7 +125,9 @@ Warnings (craft hints; the strip decides):
 <project>/vfx/
   src/VFX_*.py            recipe sources (yours)              ┐
   briefs/VFX_*.json       design briefs                       │
-  texture_prompts.json    prompts of painted textures         │ the effect library:
+  texture_prompts.json    prompts of painted textures         │
+  video_prompts.json      clips, prompts and sheet parameters │
+  videos/                 image-to-video originals            │ the effect library:
   textures/generated/     image-model originals (never edited)│ keep under version control
   textures/processed/     game textures (incl. procedural)    │
   recipes/*.json          compiled recipe snapshots           │

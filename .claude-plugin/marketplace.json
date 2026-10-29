@@ -4,14 +4,14 @@
     "name": "KanaWorks_AI"
   },
   "metadata": {
-    "description": "Game VFX authoring skills for Effekseer and Godot."
+    "description": "Game VFX authoring skills for Effekseer, Godot and Unity."
   },
   "plugins": [
     {
       "name": "effekseer-vfx",
       "source": "./",
-      "description": "Author real-time game VFX as code for Effekseer and verify them in real Godot renders.",
-      "version": "0.2.0"
+      "description": "Author real-time game VFX as code for Effekseer and verify them in real Godot renders; video-model flipbooks and a Unity (URP) pipeline.",
+      "version": "0.3.0"
     }
   ]
 }
