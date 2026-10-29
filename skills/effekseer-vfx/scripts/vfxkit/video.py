@@ -8,7 +8,7 @@ layered primitives cannot draw. This module turns such a clip into a sheet and g
   flipbook   decode at a fixed rate, luminance key on black, one shared crop for every frame (no jitter), a noisy
              round or rounded-box mask per cell (never a square edge), a fully transparent gutter round every cell,
              and a hard failure if any cell border still has alpha
-  grade      re-colour by density with one value ramp per element (dark rim → body → light → hot core), erode the
+  grade      re-colour by density with one value ramp per element (dark rim -> body -> light -> hot core), erode the
              haze that keying leaves behind, fade the last cells to zero, optionally cool the tail to smoke
   first_frame  put a generated element image on pure black at the size and place the clip should start from
 
@@ -112,7 +112,7 @@ def _smoothstep(a, b, x):
 
 
 def _key(path, floor, gain, dehaze):
-    """Black → alpha. The median of a thin border ring is the frame's haze; it is subtracted before keying, and
+    """Black -> alpha. The median of a thin border ring is the frame's haze; it is subtracted before keying, and
     colour is un-premultiplied so thin glows keep their hue instead of turning grey."""
     img = np.asarray(Image.open(path).convert('RGB'), np.float32) / 255
     h, w = img.shape[:2]
@@ -166,7 +166,7 @@ def timeline(video, step=2, columns=10):
 # ------------------------------------------------------------------ flipbook
 def flipbook(video, output, cols=8, rows=8, cell=256, cell_h=0, start=-1, end=-1, frames=None, crop='auto', box=None,
              pad=1.04, radius=.38, feather=.12, mask_power=2.0, floor=.06, gain=1.3, gutter=6, dehaze=1.0, prompt=None, prompt_file=None):
-    """Decode → key → shared crop → masked cells with transparent gutters → one sheet (cols × rows cells of cell × cell_h).
+    """Decode -> key -> shared crop -> masked cells with transparent gutters -> one sheet (cols x rows cells of cell x cell_h).
 
     `frames` 'a:b:s' picks exact 24 fps frames (len must equal cols*rows); otherwise `start`..`end` (auto: the span with
     visible content) is sampled evenly. `crop` 'auto' takes the union bounding box of every picked frame (padded by `pad`)
@@ -176,9 +176,9 @@ def flipbook(video, output, cols=8, rows=8, cell=256, cell_h=0, start=-1, end=-1
     cell_h = cell_h or cell
     n = cols * rows
     if min(cols, rows) < 1 or cell < 32 or cell_h < 32 or gutter < 2:
-        raise ValueError('need cols, rows ≥ 1, cells ≥ 32 px and a gutter of at least 2 px')
+        raise ValueError('need cols, rows >= 1, cells >= 32 px and a gutter of at least 2 px')
     if cols * cell > 4096 or rows * cell_h > 4096:
-        raise ValueError(f'sheet {cols * cell}×{rows * cell_h} exceeds 4096 px; use smaller cells or fewer frames')
+        raise ValueError(f'sheet {cols * cell}x{rows * cell_h} exceeds 4096 px; use smaller cells or fewer frames')
     tmp = Path(tempfile.mkdtemp())
     try:
         files = _decode(video, tmp)
@@ -288,7 +288,7 @@ def grade(source, output, cols=8, rows=8, ramp=None, erode=.22, erode_pow=1.5, t
 
     - `erode`/`erode_pow`: the alpha threshold rises over time, so thin haze goes first and the structure last;
       `tail_fade` brings the last cells linearly to zero (no pop when the particle dies).
-    - `ramp` 'pos:r,g,b;...' maps density (alpha × luminance) to the element's value ramp; close stops give hard
+    - `ramp` 'pos:r,g,b;...' maps density (alpha x luminance) to the element's value ramp; close stops give hard
       cel steps. `highlight` keeps white only on fine detail (spray, glints). `ramp_fade` 't0,t1' blends back to the
       clip's own colours later in the sheet (a clip's grey smoke and embers usually read better than a re-colour).
     - `smoke`/`smoke_start` cool the tail towards one smoke colour; `keep_embers` leaves saturated orange-red pixels of
@@ -304,7 +304,7 @@ def grade(source, output, cols=8, rows=8, ramp=None, erode=.22, erode_pow=1.5, t
     im = np.asarray(Image.open(src).convert('RGBA')).astype(np.float64) / 255
     H, W = im.shape[0] // rows, im.shape[1] // cols
     if H * rows != im.shape[0] or W * cols != im.shape[1]:
-        raise ValueError(f'{im.shape[1]}×{im.shape[0]} does not divide into {cols}×{rows} cells')
+        raise ValueError(f'{im.shape[1]}x{im.shape[0]} does not divide into {cols}x{rows} cells')
     stops = _ramp(ramp) if ramp else None
     smoke_rgb = np.array([float(v) for v in smoke.split(',')]) if smoke else None
     fade = [float(v) for v in ramp_fade.split(',')] if ramp_fade else None

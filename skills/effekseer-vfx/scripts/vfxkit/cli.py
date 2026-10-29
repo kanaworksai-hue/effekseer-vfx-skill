@@ -52,7 +52,7 @@ def parser():
     a.add_argument('--anchor', choices=['center', 'bottom'], default='center')
     a = sub.add_parser('video-timeline', help='labelled frames (24 fps numbering) of a generated clip, to pick the span for a flipbook')
     a.add_argument('video'); a.add_argument('--step', type=int, default=2)
-    a = sub.add_parser('video-flipbook', help='generated clip on black → straight-alpha flipbook sheet with masked cells and transparent gutters')
+    a = sub.add_parser('video-flipbook', help='generated clip on black -> straight-alpha flipbook sheet with masked cells and transparent gutters')
     a.add_argument('video'); a.add_argument('output'); a.add_argument('--grid', type=int, nargs=2, metavar=('COLS', 'ROWS'), default=(8, 8))
     a.add_argument('--cell', type=int, default=256); a.add_argument('--cell-h', type=int, default=0, help='cell height (tall columns); default = --cell')
     a.add_argument('--start', type=int, default=-1); a.add_argument('--end', type=int, default=-1)

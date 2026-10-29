@@ -6,7 +6,7 @@
   export   copy a processed sheet into Assets/VfxSkill/Flipbooks/ with a .flipbook.json sidecar (grid, cell size,
            source) so the import rules and the "Create element skill" window read its grid without guessing.
 
-In Unity: VFX Skill → 1. Setup shared materials → 2. Create element skill from flipbooks → 3. Build demo scene.
+In Unity: VFX Skill -> 1. Setup shared materials -> 2. Create element skill from flipbooks -> 3. Build demo scene.
 """
 import json
 import shutil
@@ -46,7 +46,7 @@ def _mask(path, m, root):
 
 
 def _inner_gradient(binary, radius, power=0.7):
-    """Binary shape → interior gradient (an approximate distance field). A higher power keeps less area near 1, so
+    """Binary shape -> interior gradient (an approximate distance field). A higher power keeps less area near 1, so
     the shell's white core is smaller and erosion thins the shape gradually instead of dropping it all at once."""
     b = np.asarray(Image.fromarray((binary * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(float(radius)))) / 255.0
     g = np.clip((b - 0.5) * 2, 0, 1) * binary
@@ -60,7 +60,7 @@ def _periodic(w, k, rng):
 
 
 def _tile_noise(n, octaves, rng, base=4):
-    """Tileable value noise in 0–1: random lattices sampled with wrap-around, smoothly interpolated."""
+    """Tileable value noise in 0-1: random lattices sampled with wrap-around, smoothly interpolated."""
     out, amp, total = np.zeros((n, n)), 1.0, 0.0
     for o in range(octaves):
         cells = base * 2 ** o
@@ -107,14 +107,14 @@ def textures(project, seed=7):
     rays = 0.25 * np.abs(np.cos(th * 3)) ** 8 * np.clip(1 - r, 0, 1)
     written.append(_save(out / 'T_Flash.png', np.ones(3), np.clip(1 - r, 0, 1) ** 2.4 + rays, root))
 
-    cells = []                                                   # smoke 2×2: neutral puffs, coloured by particle colour
+    cells = []                                                   # smoke 2x2: neutral puffs, coloured by particle colour
     for _ in range(4):
         a = _blob(256, rng, rough=0.22, base=0.6)
         shade = 0.72 + 0.28 * np.clip(1 - _polar(256)[0] * 0.9, 0, 1) * _tile_noise(256, 3, rng, 3)
         cells.append(np.dstack([shade, shade, shade, a * (0.55 + 0.45 * _tile_noise(256, 4, rng, 4))]))
     s = _sheet(cells, 2); written.append(_save(out / 'T_Smoke_2x2.png', s[..., :3], s[..., 3], root))
 
-    cells = []                                                   # drops 2×2: round beads, dark-edged, one highlight
+    cells = []                                                   # drops 2x2: round beads, dark-edged, one highlight
     for i in range(4):
         n = 128; r2, _ = _polar(n)
         a = _blob(n, rng, lobes=4, rough=0.05, base=0.5 + 0.08 * (i % 2))
@@ -161,7 +161,7 @@ def textures(project, seed=7):
         band[(np.abs(v - c - 0.03 * np.sin(u * 13 + c * 9)) < w0 * (0.4 + u)) & (u > 0.25)] = 0
     written.append(_mask(out / 'T_MaskRibbon.png', _inner_gradient(band, 10, 1.5), root))
 
-    v = np.linspace(0, 1, 32)[:, None] * np.ones((1, 256))      # bolt strip: cross-section, ridge 1 → edges 0
+    v = np.linspace(0, 1, 32)[:, None] * np.ones((1, 256))      # bolt strip: cross-section, ridge 1 -> edges 0
     written.append(_mask(out / 'T_MaskBoltStrip.png', np.clip(1 - np.abs(v - 0.5) * 2, 0, 1) ** 1.3, root))
 
     r, th = _polar(256); spikes = 9                              # contact star: uneven many-pointed burst
@@ -200,9 +200,9 @@ def install(project, force=False):
     tex = textures(root)
     version = json.loads((PACKAGE / 'package.json').read_text())['version']
     return {'ok': True, 'package': str(dest), 'version': version, 'package_state': state, **tex,
-            'next': ['Open the project in Unity (6000.0+, URP).', 'VFX Skill → 1. Setup shared materials',
-                     f'vfx unity-export <sheet.png> {root}  for each flipbook', 'VFX Skill → 2. Create element skill from flipbooks',
-                     'VFX Skill → 3. Build demo scene, then Play']}
+            'next': ['Open the project in Unity (6000.0+, URP).', 'VFX Skill -> 1. Setup shared materials',
+                     f'vfx unity-export <sheet.png> {root}  for each flipbook', 'VFX Skill -> 2. Create element skill from flipbooks',
+                     'VFX Skill -> 3. Build demo scene, then Play']}
 
 
 def export(sheet, project, grid=None, name=None):
@@ -221,7 +221,7 @@ def export(sheet, project, grid=None, name=None):
     cols, rows = int(grid[0]), int(grid[1])
     w, h = Image.open(src).size
     if w % cols or h % rows:
-        raise ValueError(f'{src.name} is {w}×{h}: not divisible into a {cols}×{rows} grid')
+        raise ValueError(f'{src.name} is {w}x{h}: not divisible into a {cols}x{rows} grid')
     if name and (Path(name).name != name or name in ('.', '..')):
         raise ValueError(f'--name must be a plain file name, not {name!r}')
     dest = root / FLIPBOOKS / f'{name or src.stem}.png'

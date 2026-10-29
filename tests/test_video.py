@@ -128,9 +128,10 @@ def test_unity_export_writes_the_grid_sidecar_and_stays_inside_the_project(tmp_p
 
 
 def test_unity_commands_need_no_workspace(tmp_path):
+    """Runs without a vfx/ workspace and prints only what a cp1252 Windows console can encode."""
     root = fake_unity(tmp_path)
     run = subprocess.run([__import__('sys').executable, '-m', 'vfxkit', 'unity-install', str(root)], capture_output=True, text=True,
-                         cwd=tmp_path, env=cli_env(VFX_PROJECT=''), timeout=120)
+                         cwd=tmp_path, env=cli_env(VFX_PROJECT='', PYTHONIOENCODING='cp1252'), timeout=120)   # a Windows console's encoding
     assert run.returncode == 0, run.stdout + run.stderr
     assert json.loads(run.stdout)['ok'] and not (tmp_path / 'vfx').exists()
 
@@ -158,3 +159,9 @@ def test_unity_force_keeps_meta_guids(tmp_path):
     meta.write_text('fileFormatVersion: 2\nguid: 0123456789abcdef0123456789abcdef\n')
     assert 'GUIDs kept' in unity.install(root, force=True)['package_state']
     assert '0123456789abcdef' in meta.read_text()
+
+
+def test_help_prints_on_a_windows_console():
+    run = subprocess.run([__import__('sys').executable, '-m', 'vfxkit', '--help'], capture_output=True, text=True,
+                         env=cli_env(PYTHONIOENCODING='cp1252'), timeout=60)
+    assert run.returncode == 0, run.stderr
