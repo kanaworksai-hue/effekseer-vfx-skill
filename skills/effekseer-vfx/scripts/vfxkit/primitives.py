@@ -170,6 +170,29 @@ def billow(name,stops,size,life,count=1,frames=16,texture='T_ExplosionSheet01',g
  return sprite(name,texture,**ramp(*stops),count=count,life=life,size=size,flipbook=dict(x=grid[0],y=grid[1],frame_length=max(1,round((max(life) if isinstance(life,(list,tuple)) else life)/frames)),loop='Once'),
   rotation=[0,0,[-180,180]],billboard='RotatedBillboard',fade_in=0,fade_out=4) | kw
 
+def video_body(name,texture,grid=(8,8),size=2.0,frame_length=2,delay=0,column=None,loop=False,start=0,root_inset=0,**kw):
+ """A video-model flipbook (`vfx video-flipbook` + `vfx video-grade`) as the effect's body: one particle plays every
+ cell once, so the clip's own motion (a column rising and collapsing, fire boiling into smoke) is the shape change.
+
+ The sheet is painted colour with straight alpha, so it is alpha-blended and left white (a colour ramp would tint
+ the clip's own light and dark values). frame_length is game frames (60 FPS) per cell: 2 plays a 24 FPS clip about
+ 1.25x faster than it was generated, which tightens AI timing. column=<cell width/height> stands the sheet up as a
+ Y-axis billboard growing from its base (pillars, geysers); size is then the height, and root_inset (the sheet's empty
+ gap under the root as a fraction of the cell height: `bottom_inset` from `vfx unity-export`) sinks it so the root
+ touches the ground. Procedural layers (flash, glow,
+ sparks, rings, decals) add the core, the secondary motion and the ground around it."""
+ cols,rows=grid; frames=cols*rows-start
+ base=dict(count=1,life=frames*frame_length,delay=delay,blend='Blend',fade_in=0,fade_out=max(2,frame_length*3),
+  flipbook=dict(x=cols,y=rows,frame_length=frame_length,loop='Loop' if loop else 'Once',start=start))
+ if column:
+  base.update(billboard='YAxisFixed',pivot='bottom',scale_start=[size*column,size,1])
+  if root_inset:base['position']=[0,-size*root_inset,0]
+ else:
+  # Clips usually start at full size (the generated burst is already open); snap it up from a third in ~6 frames so the
+  # contact still reads as an explosion instead of a picture switching on.
+  base.update(billboard='Billboard',size=size,size_curve=[[0,.35],[5,1],[100,1.06]])
+ return sprite(name,texture,WHITE,**base)|kw
+
 def heat_haze(name,size,life=30,delay=0,strength=.6,**kw):
  """Screen-space refraction (BackDistortion): bends whatever is behind it, the cue that sells heat and force."""
  return sprite(name,'T_DistortHaze01',WHITE,material='BackDistortion',distortion=strength,life=life,delay=delay,size=size,size_curve=[[0,.5],[25,1],[100,1.2]],

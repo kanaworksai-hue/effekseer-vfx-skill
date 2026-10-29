@@ -1,0 +1,6 @@
+{
+  "name": "VfxSkill.Runtime",
+  "rootNamespace": "VfxSkill",
+  "references": [],
+  "autoReferenced": true
+}

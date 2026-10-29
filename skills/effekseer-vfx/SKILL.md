@@ -1,10 +1,10 @@
 ---
 name: effekseer-vfx
-description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render. Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, beam, charge, magic, buff or shield VFX, combos and finishers driven by a character animation, stylized hard-edged VFX, realistic or kaiju/giant-scale effects, or a VFX library for a Godot game. Covers design briefs, sequences with a blockout gate, reference steal lists, paintover concepts, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, screen feedback, independent scoring and export.
+description: Author real-time game VFX as code for the Effekseer engine and verify them in a real Godot render, and turn image-to-video clips into flipbook skills for Effekseer/Godot or Unity (URP). Use when asked to create, edit, review or iterate on Effekseer effects (.efkefc/.efk), game hit, slash, projectile, explosion, beam, charge, magic, buff or shield VFX, combos and finishers driven by a character animation, stylized hard-edged VFX, realistic or kaiju/giant-scale effects, a VFX library for a Godot game, video-model flipbooks (water columns, fire turning to smoke, looping orbs) or element skills in Unity. Covers design briefs, sequences with a blockout gate, reference steal lists, paintover concepts, texture generation prompts, Python recipe code, EffekseerCore compilation, filmstrip review, screen feedback, independent scoring and export.
 license: MIT
 compatibility: Build and render need macOS on Apple silicon or Windows (x64), Godot 4.x and network access for the first setup (Effekseer Core, .NET runtime, Effekseer Godot plugin). Authoring, lint and texture processing run on macOS, Linux or Windows with Python 3.11+.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Effekseer VFX
@@ -50,6 +50,16 @@ look. Say so plainly: report the work as **not compiled and not render-verified*
 9. **Independent review.** The author never scores its own effect. Run `vfx review-handoff <ID>`: it writes a complete reviewer brief (images, captured frames, manifest context, rubric, where to save the report, and the path of the `vfx-review` skill installed next to this one) and returns `prompt_file`, `report_file` and the exact submit command. Give that brief, unchanged, to a separate agent that has not seen the recipe: start a subagent with it if your host can, telling it nothing else about the effect; otherwise ask the user to open a new session and paste it. When `report_file` exists, run the returned `vfx review-submit <evidence_id> <report_file> --reviewer <that agent's identifier>` (its subagent ID or name, or the session ID; never `author` or `self`; frames default to the report's `observed_frames`). Never write the report yourself.
 10. `vfx overview` (no `--ids`: the library baseline), then `vfx effect-verify <ID>`. Only `verified: true` may be reported as done; otherwise list what is missing. If the round limit is reached without a ship verdict, report the unresolved items.
 
+## Three ways to make an effect
+
+Pick per effect; none is required. **Procedural** (everything above): layered primitives in a recipe, Effekseer →
+Godot. **Video flipbook**: an image-to-video clip on black becomes a graded sheet (`vfx video-first-frame`,
+`video-timeline`, `video-flipbook`, `video-grade`) — the way to get a continuous change of shape that primitives cannot
+draw (a column that rises and collapses, fire that boils into smoke, a looping orb). **Combined**: the sheet is the
+body layer of a recipe (`video_body(...)`) and primitives add the flash, sparks, rings, cracks and decals. Sheets play in
+Effekseer/Godot or, through `vfx unity-install` / `unity-export`, in Unity (URP) as data-driven element skills. Read
+[video-flipbook](references/video-flipbook.md) before any of it.
+
 ## Making a combo or a skill with several beats
 
 When several effects fire on the beats of one animation (a laser chain ending on a finisher), work on them as a
@@ -67,7 +77,8 @@ record it in `cut`. Each effect in the sequence still has its own brief, recipe 
 - The body changes shape (dissolve, sweep, UV distortion, flipbook, re-struck shapes); it never only scales and fades. Particles ease out (fast, then slow).
 - Elements differ in at least three of shape, motion, rhythm, material and secondary motion — never a recolour.
 - Do not draw complex painted shapes with Python. If no image generation tool is available, write the prompt into `vfx/texture_prompts.json` and ask the user for the image.
-- Keep generated originals in `vfx/textures/generated/` and write processed copies to `vfx/textures/processed/`; record every prompt.
+- Keep generated originals in `vfx/textures/generated/` and write processed copies to `vfx/textures/processed/`; record every prompt (`vfx video-flipbook --prompt-file` records clips in `vfx/video_prompts.json`).
+- A video clip is a body, never a finished effect: the engine adds the contact flash, secondary motion and ground. Generate it with a first and a last frame on pure black, skip opening white flashes, grade every sheet of one element with the same ramp, and no hit-stop while it plays (hit-stop freezes the flipbook).
 - Units: recipe timing in 60 FPS frames, F-curves in percent of life, manifest duration/peak in seconds, Godot API rotation in radians.
 - Write recipes at the Lab's character scale; for a larger world declare `scale` instead of hand-scaling numbers ([scale](references/scale.md)). Frames in briefs and reviews are the built, scaled timeline.
 - Every effect declares `delivery`; a projectile needs a paired impact effect that points back to it.
@@ -82,6 +93,7 @@ record it in `cut`. Each effect in the sequence still has its own brief, recipe 
 | Task | Also read |
 |---|---|
 | new painted texture, flipbook, texture problem | [textures.md](references/textures.md) |
+| image-to-video clip → flipbook, `video_body`, combined effects, Unity (URP) skills | [video-flipbook.md](references/video-flipbook.md) |
 | slash, projectile, charge, aura, anything that travels | [motion.md](references/motion.md) |
 | shield, pillar, boss, status, volumes, occlusion | [shapes.md](references/shapes.md) |
 | matching a reference video | [reference.md](references/reference.md) |

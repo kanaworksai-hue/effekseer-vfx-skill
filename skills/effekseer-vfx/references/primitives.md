@@ -52,6 +52,7 @@ nature: contact stars, glows, sparks and smoke puffs (stacked into volume).
 | `orbit_band` | accretion disk, orbiting rune ring | Ring in a tilted plane, noise flowing round it; `arc=(-90,90)` far half, `(90,270)` near half |
 | `smoke` | smoke, fog, dust, dark residue | painted smoke flipbook `T_SmokeSheet01` + light erosion; `texture='T_Smoke02'` for a single still puff — ice mist keeps the still puff so it differs from fire's rolling smoke |
 | `billow` | fireball, the same billow as smoke | painted 4×4 flipbook `T_ExplosionSheet01` played once + `ramp` colour stops |
+| `video_body(name, texture, grid, size, frame_length=2, column=None, loop=False, root_inset=0)` | a body whose shape keeps changing: geyser that rises and collapses, burst that boils into smoke, looping orb | a sheet from `vfx video-flipbook` + `video-grade` played once (or looped) by one Blend particle, left white; `column=<cell w/h>` stands it up from its base; see [video-flipbook](video-flipbook.md) |
 | `flame` | flame tongues, fire walls, ground fire | the explosion flipbook growing from its base, cooling white → colour → dark, eaten by noise with a hot rim (no clip-art flame silhouette) |
 | `decal` | seals, cracks, scorch marks | ground-plane sprite, depth tested |
 | `standing` | spikes, bolts, beams | YAxisFixed sprite pivoting at its base |

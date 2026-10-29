@@ -1,6 +1,23 @@
 # effekseer-vfx-skill
 
-English | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+<div align="center">
+
+<img src="docs/assets/banner-en.jpg" alt="VFX Skill: your coding agent makes real-time game VFX for Effekseer, Godot and Unity" width="820">
+
+<p>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-6b4dff?style=flat-square"></a>
+  <a href="https://agentskills.io"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent_Skill-Claude_Code_·_Codex_·_Cursor-19b8d6?style=flat-square"></a>
+  <img alt="Effekseer 1.80" src="https://img.shields.io/badge/Effekseer-1.80-ff7d2e?style=flat-square">
+  <img alt="Godot 4" src="https://img.shields.io/badge/Godot-4-478cbf?style=flat-square&logo=godotengine&logoColor=white">
+  <img alt="Unity 6 URP" src="https://img.shields.io/badge/Unity_6-URP-111?style=flat-square&logo=unity">
+  <a href="https://github.com/kanaworksai-hue/effekseer-vfx-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/kanaworksai-hue/effekseer-vfx-skill?style=flat-square&logo=github&label=stars&color=f5c518"></a>
+</p>
+
+<p><a href="https://github.com/kanaworksai-hue"><img src="docs/brand/kanaworks-mark.png" height="22" alt="" align="absmiddle"></a>&nbsp;<a href="https://github.com/kanaworksai-hue"><b>A KanaWorks_AI project</b></a></p>
+
+English | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Português (Brasil)](README.pt-BR.md) | [Español](README.es.md)
+
+</div>
 
 Agent skills that let a coding agent (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, OpenCode and other
 [Agent Skills](https://agentskills.io) hosts) make real-time game VFX the way a VFX artist iterates, in code:
@@ -27,6 +44,35 @@ Agent skills that let a coding agent (Claude Code, Codex, Cursor, Gemini CLI, Gi
   (`spiral_ribbons`, `spike_crown`, `speed_streaks`, `stylized_pair`, `sparkle`), greyscale mask templates, and
   screen feedback (`screen=`: shake, impact frame, hit-stop) that the Lab plays and `Vfx.screen_cue` hands to the game.
 
+## Three ways to make an effect (new in 0.3)
+
+You choose per effect; nothing forces one way.
+
+| Way | How | Plays in |
+|---|---|---|
+| **Procedural** | layered primitives in a Python recipe, painted textures, EffekseerCore build, Godot review (everything above) | Effekseer → Godot |
+| **Video flipbook** | an image-to-video model (verified with Seedance 2.5; any model with first and last frames works) paints the motion on black; `vfx video-flipbook` keys, crops, masks and packs it, `vfx video-grade` gives every sheet of an element the same cel-shaded look | Unity (URP), or Effekseer → Godot |
+| **Combined** | the sheet is the body layer of a recipe (`video_body(...)`); primitives add the contact flash, sparks, rings, cracks, decals and heat haze | Effekseer → Godot, Unity |
+
+**What was not possible before and is now:**
+
+- **Continuous shape changes.** A water column that shoots up, carries the target into the air and collapses as rain;
+  a fireball that bursts and boils into grey smoke; an orb whose flames churn in a seamless loop. Primitives scale,
+  fade, scroll and erode a picture; they cannot turn fire into smoke inside one silhouette. A video model draws every
+  in-between.
+- **A hand-painted anime look in motion**, consistent across a whole element set: one value ramp per element grades
+  every sheet to the same flat steps (dark rim, body, light, hot core).
+- **Unity.** The skill used to stop at Godot. `vfx unity-install <UnityProject>` adds a URP runtime package
+  (data-driven `ElementProfile` skills with projectile, instant-bolt and ground-eruption delivery, layered particles,
+  hit-stop, shake, target lift) and its procedural textures; `vfx unity-export` copies a sheet with its grid; three
+  menu items (or one batch-mode command an agent can run) turn sheets into a playable skill and a demo scene.
+- **Reproducible from a sentence.** Every clip's prompt and every sheet's parameters are recorded in
+  `vfx/video_prompts.json`, so an agent can rebuild or vary a sheet exactly. Ask: *"Make a water-column skill from a
+  video flipbook and set it up in my Unity project."*
+
+Guide: [`references/video-flipbook.md`](skills/effekseer-vfx/references/video-flipbook.md). The skill ships the
+technique only: clips, sheets and characters you generate stay in your own project.
+
 ## Requirements
 
 | Mode | What you can do | Needs |
@@ -34,6 +80,8 @@ Agent skills that let a coding agent (Claude Code, Codex, Cursor, Gemini CLI, Gi
 | authoring | write briefs and recipes, lint, process and measure textures | Python 3.11+ or [uv](https://docs.astral.sh/uv/) on macOS, Linux or Windows (macOS's built-in Python 3.9 is too old) |
 | build | compile `.efkefc` / `.efk` through the official EffekseerCore | **macOS on Apple silicon** or **Windows x64**, network for the first setup (~250 MB into `~/.cache/effekseer-vfx`) |
 | render | Godot filmstrip review, Lab, preview, packaging | the above + [Godot 4](https://godotengine.org) (Forward+) on `PATH` or in `GODOT`; `ffmpeg` for reference clips and recordings |
+| video flipbooks | `video-*` commands | authoring mode + `ffmpeg`; clips from any image-to-video model |
+| Unity | play sheets as element skills | Unity 6 (6000.0+) with URP 17; verified on 6000.5 |
 
 Build and render are verified on macOS ARM64 (Effekseer Core 1.80.7, EffekseerForGodot4 1.80.5.1, Godot 4.7, .NET 9)
 and on Windows 11 x64 (the same versions, Godot 4.7.2). Windows ARM64 gets the matching .NET runtime from setup but is
@@ -158,7 +206,7 @@ See [`skills/effekseer-vfx/references/godot.md`](skills/effekseer-vfx/references
 ```
 skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI and vfx.cmd,
                            setup.sh and setup.ps1, vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric,
-                           brief schema, examples)
+                           brief schema, examples, unity/ URP package)
 skills/vfx-review/         SKILL.md for the independent reviewer
 docs/zh/, docs/ja/         Chinese and Japanese translations of the references
 .claude-plugin/            Claude Code plugin and marketplace manifests
@@ -195,9 +243,24 @@ powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts
 Contributions that confirm a new engine convention should add it to
 `skills/effekseer-vfx/references/engine-conventions.md` together with how it was measured.
 
-## License
+## License and credits
 
-MIT, see [LICENSE](LICENSE). Third-party components and downloads: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-Effekseer and Godot are trademarks of their respective owners; this project is not affiliated with them.
+- **This project:** [MIT](LICENSE). Use, change and ship it, commercially too; keep the copyright and license notice with copies of the code.
+- **What you make with it:** the effects, textures, flipbooks and Unity skills you build in your own project are yours. This repository claims nothing in them.
+- **Video and image models:** clips and images you generate (for example with Seedance 2.5) follow that model's terms, not this license. Check them before commercial use. None are distributed here.
+- **Third-party components:** Effekseer, EffekseerForGodot4, .NET and the vendored effekseer-ai keep their own licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- **Brand and showcase:** the KanaWorks_AI name, logo and the Kana character are © 東京AI映像合同会社 (Tokyo AI Visuals LLC) and are **not** covered by the MIT license. The effects, characters and footage in the banner and the promo videos are examples: not included and not licensed. See [docs/brand](docs/brand/README.md).
 
-Made by KanaWorks_AI ([@KanaWorks_AI](https://x.com/KanaWorks_AI) on X).
+Effekseer, Godot and Unity are trademarks of their respective owners. This is an independent project, not affiliated with or endorsed by them.
+
+<br>
+
+<div align="center">
+
+<a href="https://x.com/KanaWorks_AI"><img src="docs/brand/kanaworks-logo.png" width="130" alt="KanaWorks_AI"></a>
+
+<p><b>Made with ♥ by <a href="https://x.com/KanaWorks_AI">KanaWorks_AI</a></b> · <a href="https://x.com/KanaWorks_AI">@KanaWorks_AI</a> on X</p>
+
+<p><sub>If the skill saves you time, a ⭐ keeps the updates coming and helps others find it. More projects: <a href="https://github.com/kanaworksai-hue">github.com/kanaworksai-hue</a></sub></p>
+
+</div>

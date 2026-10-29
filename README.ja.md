@@ -1,6 +1,23 @@
 # effekseer-vfx-skill
 
-[English](README.md) | [简体中文](README.zh-CN.md) | 日本語
+<div align="center">
+
+<img src="docs/assets/banner-ja.jpg" alt="VFX Skill：コーディングエージェントが Effekseer・Godot・Unity 向けのリアルタイムゲームVFXを作る" width="820">
+
+<p>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-6b4dff?style=flat-square"></a>
+  <a href="https://agentskills.io"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent_Skill-Claude_Code_·_Codex_·_Cursor-19b8d6?style=flat-square"></a>
+  <img alt="Effekseer 1.80" src="https://img.shields.io/badge/Effekseer-1.80-ff7d2e?style=flat-square">
+  <img alt="Godot 4" src="https://img.shields.io/badge/Godot-4-478cbf?style=flat-square&logo=godotengine&logoColor=white">
+  <img alt="Unity 6 URP" src="https://img.shields.io/badge/Unity_6-URP-111?style=flat-square&logo=unity">
+  <a href="https://github.com/kanaworksai-hue/effekseer-vfx-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/kanaworksai-hue/effekseer-vfx-skill?style=flat-square&logo=github&label=stars&color=f5c518"></a>
+</p>
+
+<p><a href="https://github.com/kanaworksai-hue"><img src="docs/brand/kanaworks-mark.png" height="22" alt="" align="absmiddle"></a>&nbsp;<a href="https://github.com/kanaworksai-hue"><b>KanaWorks_AI のプロジェクト</b></a></p>
+
+[English](README.md) | [简体中文](README.zh-CN.md) | 日本語 | [한국어](README.ko.md) | [Português (Brasil)](README.pt-BR.md) | [Español](README.es.md)
+
+</div>
 
 > 日本語のドキュメントは英語版の翻訳です。エージェントが実際に読み込むのは `skills/` 以下の英語ファイルで、内容が食い違う場合は英語版が正です。翻訳の一覧は [docs/ja/README.md](docs/ja/README.md) にあります。
 
@@ -15,6 +32,25 @@
 - **大規模でリアルなエフェクト** — `scale='kaiju'` は、キャラクタースケールのレシピを 40 倍大きく 2.5 倍遅くビルドします（サイズ、速度、重力、予算、レビューのカメラがすべて追従します）。`beam()` は、ゲームが毎フレーム終点を動かす保持型のビームを作ります（`Vfx.beam()` → `aim()` → `release()`）。`charge_chain()` は点の連なりに沿ってアークを灯します。写真調の炎、煤、煙のフリップブック。Forward+ で検証済みのソフトパーティクル。
 - **コンボ、ブロックアウト、スタイライズ形状** — シーケンスブリーフで複数のエフェクトをキャラクターアニメーションの拍に結び付け、ブロックアウト → ディテール → ポリッシュの順に進めます（テクスチャ作業の前に独立したブロックアウトレビューの合格が必要）。キャプチャはゲーム本体から取り込めます。参照には「盗むもの」のリストを付け、レビュアーが確認します。`vfx paintover` はキャプチャしたフレームをコンセプト用の画像編集プロンプトにします。ハードエッジのスタイライズ用プリミティブ（`spiral_ribbons`、`spike_crown`、`speed_streaks`、`stylized_pair`、`sparkle`）、グレースケールマスクのテンプレート、画面フィードバック（`screen=`：シェイク、インパクトフレーム、ヒットストップ。Lab が再生し、`Vfx.screen_cue` でゲームに渡します）。
 
+## エフェクトの3つの作り方（0.3 の新機能）
+
+エフェクトごとに選べます。どれかを強制することはありません。
+
+| 方法 | やり方 | 再生先 |
+|---|---|---|
+| **プロシージャル** | Python レシピでプリミティブを重ね、手描きテクスチャを使い、EffekseerCore でビルド、Godot でレビュー（上記のすべて） | Effekseer → Godot |
+| **動画フリップブック** | 画像から動画を作るモデル（Seedance 2.5 で検証。最初と最後のフレームを指定できるモデルなら可）が黒背景に動きを描き、`vfx video-flipbook` がキー抜き・切り出し・マスク・シート化、`vfx video-grade` が同じ属性のシートを同じセル調の見た目に揃えます | Unity（URP）、または Effekseer → Godot |
+| **組み合わせ** | シートをレシピの本体レイヤー（`video_body(...)`）にし、接触フラッシュ・火花・リング・ひび・デカール・陽炎はプリミティブで足します | Effekseer → Godot、Unity |
+
+**以前はできず、今はできること：**
+
+- **形が連続して変わるエフェクト。** 水柱が噴き上がって相手を持ち上げ、雨になって崩れる。火球が弾け、渦を巻きながら灰色の煙に変わる。炎が渦巻く球がつなぎ目なくループする。プリミティブは絵を拡大・フェード・スクロール・侵食できても、一つのシルエットの中で炎を煙に変えることはできません。動画モデルはその中割りをすべて描きます。
+- **動く手描きアニメ調の見た目を、属性セット全体でそろえる。** 属性ごとに一本の明度ランプで、すべてのシートを同じ平坦な段階（暗い縁、本体、明部、白熱の芯）に揃えます。
+- **Unity。** 以前は Godot までで止まっていました。`vfx unity-install <UnityProject>` で URP ランタイムパッケージ（データ駆動の `ElementProfile` スキル：飛翔体・即着弾・地面噴出の3種の発射方式、レイヤー粒子、ヒットストップ、画面揺れ、相手の持ち上げ）とプロシージャルテクスチャを追加し、`vfx unity-export` でシートをグリッド情報付きでコピー。3つのメニュー（またはエージェントが実行できるバッチコマンド1つ）でシートが遊べるスキルとデモシーンになります。
+- **一文から再現できる。** クリップのプロンプトとシートのパラメータはすべて `vfx/video_prompts.json` に記録されるので、エージェントは正確に作り直したり変化させたりできます。例：*「動画フリップブックで水柱スキルを作って、私の Unity プロジェクトに組み込んで」*
+
+ガイド：[`references/video-flipbook.md`](skills/effekseer-vfx/references/video-flipbook.md)。スキルが配布するのは技術だけです。あなたが生成したクリップ・シート・キャラクターはあなたのプロジェクトに残ります。
+
 ## 動作要件
 
 | モード | できること | 必要なもの |
@@ -22,6 +58,8 @@
 | authoring | ブリーフとレシピの作成、lint、テクスチャの処理と計測 | macOS、Linux または Windows 上の Python 3.11+ または [uv](https://docs.astral.sh/uv/)（macOS 標準の Python 3.9 は古すぎます） |
 | build | 公式 EffekseerCore による `.efkefc` / `.efk` のコンパイル | **Apple silicon の macOS** または **Windows x64**、初回セットアップ時のネットワーク接続（`~/.cache/effekseer-vfx` に約 250 MB） |
 | render | Godot のフィルムストリップレビュー、Lab、プレビュー、パッケージング | 上記 + `PATH` 上または `GODOT` で指定した [Godot 4](https://godotengine.org)（Forward+）。リファレンスクリップと録画には `ffmpeg` |
+| 動画フリップブック | `video-*` コマンド | authoring モード + `ffmpeg`。クリップは任意の画像→動画モデルから |
+| Unity | シートを属性スキルとして再生 | URP 17 の Unity 6（6000.0 以降）。6000.5 で検証 |
 
 build と render は macOS ARM64（Effekseer Core 1.80.7、EffekseerForGodot4 1.80.5.1、Godot 4.7、.NET 9）と Windows 11 x64（同じバージョン、Godot 4.7.2）で検証済みです。Windows ARM64 ではセットアップが対応する .NET ランタイムを入れますが、検証はされていません。Linux では authoring モードで動作し、build の経路は検証されていません。
 
@@ -131,7 +169,7 @@ ray.release()                # narrows and fades out, then frees itself
 ```
 skills/effekseer-vfx/      SKILL.md, references/ (craft, engine conventions, review...), scripts/ (vfx CLI and vfx.cmd,
                            setup.sh and setup.ps1, vfxkit, vendored effekseer_ai), assets/ (Godot Lab, materials, rubric,
-                           brief schema, examples)
+                           brief schema, examples, unity/ URP package)
 skills/vfx-review/         SKILL.md for the independent reviewer
 docs/zh/, docs/ja/         Chinese and Japanese translations of the references
 .claude-plugin/            Claude Code plugin and marketplace manifests
@@ -140,7 +178,7 @@ tests/                     pure-Python tests (no Core or Godot needed)
 
 | パス | 内容 |
 |---|---|
-| `skills/effekseer-vfx/` | SKILL.md、references/（クラフト、エンジン規約、レビューなど）、scripts/（vfx CLI と vfx.cmd、setup.sh と setup.ps1、vfxkit、同梱の effekseer_ai）、assets/（Godot Lab、マテリアル、評価基準、ブリーフスキーマ、サンプル） |
+| `skills/effekseer-vfx/` | SKILL.md、references/（クラフト、エンジン規約、レビューなど）、scripts/（vfx CLI と vfx.cmd、setup.sh と setup.ps1、vfxkit、同梱の effekseer_ai）、assets/（Godot Lab、マテリアル、評価基準、ブリーフスキーマ、サンプル、unity/ URP パッケージ） |
 | `skills/vfx-review/` | 独立レビュアー用の SKILL.md |
 | `docs/zh/`、`docs/ja/` | リファレンスの中国語訳と日本語訳 |
 | `.claude-plugin/` | Claude Code のプラグインとマーケットプレイスのマニフェスト |
@@ -174,9 +212,24 @@ powershell -NoProfile -ExecutionPolicy Bypass -File skills\effekseer-vfx\scripts
 新しいエンジン規約を確認したコントリビューションでは、それを計測方法と一緒に
 `skills/effekseer-vfx/references/engine-conventions.md` に追記してください。
 
-## ライセンス
+## ライセンスとクレジット
 
-MIT。[LICENSE](LICENSE) を参照してください。サードパーティのコンポーネントとダウンロード：[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-Effekseer および Godot はそれぞれの所有者の商標です。本プロジェクトはそれらと提携していません。
+- **このプロジェクト：** [MIT](LICENSE)。著作権表示とライセンス文をコードのコピーに残せば、商用を含めて自由に使用・改変・配布できます。
+- **作ったもの：** あなたのプロジェクトで作ったエフェクト、テクスチャ、フリップブック、Unity スキルはあなたのものです。本リポジトリは権利を主張しません。
+- **動画・画像モデル：** 生成したクリップや画像（例：Seedance 2.5）には、そのモデルの利用規約が適用され、本ライセンスは及びません。商用利用の前に確認してください。本リポジトリでは配布していません。
+- **サードパーティ：** Effekseer、EffekseerForGodot4、.NET、同梱の effekseer-ai はそれぞれのライセンスに従います。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) を参照してください。
+- **ブランドと作例：** KanaWorks_AI の名称、ロゴ、Kana のキャラクターの権利は東京AI映像合同会社に帰属し、MIT ライセンスの対象**外**です。バナーや紹介動画のエフェクト・キャラクター・映像は作例であり、配布物に含まれず、ライセンスの対象外です。[docs/brand](docs/brand/README.md) を参照してください。
 
-作者：KanaWorks_AI（X：[@KanaWorks_AI](https://x.com/KanaWorks_AI)）。
+Effekseer、Godot、Unity はそれぞれの所有者の商標です。本プロジェクトは独立したもので、それらと提携・承認関係にはありません。
+
+<br>
+
+<div align="center">
+
+<a href="https://x.com/KanaWorks_AI"><img src="docs/brand/kanaworks-logo.png" width="130" alt="KanaWorks_AI"></a>
+
+<p><b>Made with ♥ by <a href="https://x.com/KanaWorks_AI">KanaWorks_AI</a></b> · <a href="https://x.com/KanaWorks_AI">@KanaWorks_AI</a> on X</p>
+
+<p><sub>役に立ったら ⭐ をお願いします。更新の励みになり、他の人にも見つけてもらえます。ほかのプロジェクト： <a href="https://github.com/kanaworksai-hue">github.com/kanaworksai-hue</a></sub></p>
+
+</div>
